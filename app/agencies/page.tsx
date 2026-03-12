@@ -3,7 +3,11 @@ export default function AgenciesPage() {
     <main
       style={{
         minHeight: "100vh",
-        backgroundColor: "#0a0a0a",
+        backgroundImage:
+          "linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.75)), url('/wpaper.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
         color: "white",
         fontFamily: "Arial",
       }}
@@ -33,7 +37,9 @@ export default function AgenciesPage() {
           padding: "0 20px 80px",
         }}
       >
-        <h2 style={{ fontSize: "36px", marginBottom: "20px", textAlign: "center" }}>
+        <h2
+          style={{ fontSize: "36px", marginBottom: "20px", textAlign: "center" }}
+        >
           How it works
         </h2>
 
@@ -77,7 +83,9 @@ export default function AgenciesPage() {
           padding: "0 20px 80px",
         }}
       >
-        <h2 style={{ fontSize: "36px", marginBottom: "20px", textAlign: "center" }}>
+        <h2
+          style={{ fontSize: "36px", marginBottom: "20px", textAlign: "center" }}
+        >
           Why agencies work with us
         </h2>
 
@@ -98,9 +106,7 @@ export default function AgenciesPage() {
 
           <div style={card}>
             <h3>AI demand filtering</h3>
-            <p>
-              Clients are filtered before reaching your agency.
-            </p>
+            <p>Clients are filtered before reaching your agency.</p>
           </div>
 
           <div style={card}>
