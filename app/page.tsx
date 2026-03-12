@@ -39,7 +39,11 @@ export default function Home() {
     <main
       style={{
         minHeight: "100vh",
-        backgroundColor: "#0a0a0a",
+        backgroundImage:
+          "linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.75)), url('/wpaper.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
         color: "white",
         fontFamily: "Arial",
       }}
@@ -133,211 +137,27 @@ export default function Home() {
             gap: "20px",
           }}
         >
-          <div
-            style={{
-              backgroundColor: "#111111",
-              border: "1px solid #1f1f1f",
-              borderRadius: "14px",
-              padding: "26px",
-            }}
-          >
-            <h3 style={{ fontSize: "22px", marginBottom: "12px" }}>
-              AI-powered analysis
-            </h3>
-            <p style={{ color: "#d0d0d0", lineHeight: "1.6" }}>
+          <div style={card}>
+            <h3 style={cardTitle}>AI-powered analysis</h3>
+            <p style={cardText}>
               We analyze property demand, buyer intent and market signals to
               identify the most relevant opportunities.
             </p>
           </div>
 
-          <div
-            style={{
-              backgroundColor: "#111111",
-              border: "1px solid #1f1f1f",
-              borderRadius: "14px",
-              padding: "26px",
-            }}
-          >
-            <h3 style={{ fontSize: "22px", marginBottom: "12px" }}>
-              Qualified clients
-            </h3>
-            <p style={{ color: "#d0d0d0", lineHeight: "1.6" }}>
+          <div style={card}>
+            <h3 style={cardTitle}>Qualified clients</h3>
+            <p style={cardText}>
               We focus on serious buyers, sellers and investors, not random
               traffic with no real intent.
             </p>
           </div>
 
-          <div
-            style={{
-              backgroundColor: "#111111",
-              border: "1px solid #1f1f1f",
-              borderRadius: "14px",
-              padding: "26px",
-            }}
-          >
-            <h3 style={{ fontSize: "22px", marginBottom: "12px" }}>
-              Better decisions
-            </h3>
-            <p style={{ color: "#d0d0d0", lineHeight: "1.6" }}>
+          <div style={card}>
+            <h3 style={cardTitle}>Better decisions</h3>
+            <p style={cardText}>
               We help clients move faster with better information, better
               matching and a more intelligent process.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section
-        style={{
-          maxWidth: "1100px",
-          margin: "0 auto",
-          padding: "0 20px 80px",
-        }}
-      >
-        <h2
-          style={{
-            fontSize: "40px",
-            marginBottom: "24px",
-            textAlign: "center",
-          }}
-        >
-          How it works
-        </h2>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            gap: "20px",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#111111",
-              borderRadius: "14px",
-              padding: "28px",
-              border: "1px solid #1f1f1f",
-            }}
-          >
-            <div style={{ fontSize: "14px", color: "#9c9c9c", marginBottom: "10px" }}>
-              STEP 1
-            </div>
-            <h3 style={{ fontSize: "24px", marginBottom: "12px" }}>
-              Tell us what you need
-            </h3>
-            <p style={{ color: "#d0d0d0", lineHeight: "1.6" }}>
-              Share your property goals, preferred location, budget and
-              investment profile.
-            </p>
-          </div>
-
-          <div
-            style={{
-              backgroundColor: "#111111",
-              borderRadius: "14px",
-              padding: "28px",
-              border: "1px solid #1f1f1f",
-            }}
-          >
-            <div style={{ fontSize: "14px", color: "#9c9c9c", marginBottom: "10px" }}>
-              STEP 2
-            </div>
-            <h3 style={{ fontSize: "24px", marginBottom: "12px" }}>
-              Our AI analyzes the market
-            </h3>
-            <p style={{ color: "#d0d0d0", lineHeight: "1.6" }}>
-              We evaluate demand, opportunities and fit to identify the most
-              relevant path forward.
-            </p>
-          </div>
-
-          <div
-            style={{
-              backgroundColor: "#111111",
-              borderRadius: "14px",
-              padding: "28px",
-              border: "1px solid #1f1f1f",
-            }}
-          >
-            <div style={{ fontSize: "14px", color: "#9c9c9c", marginBottom: "10px" }}>
-              STEP 3
-            </div>
-            <h3 style={{ fontSize: "24px", marginBottom: "12px" }}>
-              Get connected
-            </h3>
-            <p style={{ color: "#d0d0d0", lineHeight: "1.6" }}>
-              We connect you with the most relevant opportunities, partners or
-              real estate routes based on your profile.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section
-        style={{
-          maxWidth: "1100px",
-          margin: "0 auto",
-          padding: "0 20px 80px",
-        }}
-      >
-        <h2
-          style={{
-            fontSize: "40px",
-            marginBottom: "24px",
-            textAlign: "center",
-          }}
-        >
-          Who we help
-        </h2>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            gap: "20px",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#111111",
-              borderRadius: "14px",
-              padding: "28px",
-              border: "1px solid #1f1f1f",
-            }}
-          >
-            <h3 style={{ fontSize: "24px", marginBottom: "12px" }}>Investors</h3>
-            <p style={{ color: "#d0d0d0", lineHeight: "1.6" }}>
-              Find better-fit opportunities, off-market style flows and
-              data-driven real estate insights.
-            </p>
-          </div>
-
-          <div
-            style={{
-              backgroundColor: "#111111",
-              borderRadius: "14px",
-              padding: "28px",
-              border: "1px solid #1f1f1f",
-            }}
-          >
-            <h3 style={{ fontSize: "24px", marginBottom: "12px" }}>Buyers</h3>
-            <p style={{ color: "#d0d0d0", lineHeight: "1.6" }}>
-              Access a more guided, intelligent and personalized way to find the
-              right property.
-            </p>
-          </div>
-
-          <div
-            style={{
-              backgroundColor: "#111111",
-              borderRadius: "14px",
-              padding: "28px",
-              border: "1px solid #1f1f1f",
-            }}
-          >
-            <h3 style={{ fontSize: "24px", marginBottom: "12px" }}>Sellers</h3>
-            <p style={{ color: "#d0d0d0", lineHeight: "1.6" }}>
-              Connect with serious and qualified interest instead of wasting time
-              on weak or unfiltered leads.
             </p>
           </div>
         </div>
@@ -417,19 +237,7 @@ export default function Home() {
               }}
             />
 
-            <button
-              type="submit"
-              style={{
-                padding: "16px",
-                fontSize: "18px",
-                borderRadius: "10px",
-                border: "none",
-                background: "white",
-                color: "black",
-                cursor: "pointer",
-                fontWeight: "bold",
-              }}
-            >
+            <button type="submit" style={buttonStyle}>
               Send
             </button>
           </form>
@@ -440,14 +248,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer
-        style={{
-          borderTop: "1px solid #1f1f1f",
-          padding: "28px 20px 40px",
-          textAlign: "center",
-          color: "#bdbdbd",
-        }}
-      >
+      <footer style={footer}>
         <p style={{ marginBottom: "8px", fontSize: "18px" }}>
           THE KERMAN ORGANIZATION
         </p>
@@ -460,6 +261,23 @@ export default function Home() {
   );
 }
 
+const card = {
+  backgroundColor: "#111111",
+  border: "1px solid #1f1f1f",
+  borderRadius: "14px",
+  padding: "26px",
+};
+
+const cardTitle = {
+  fontSize: "22px",
+  marginBottom: "12px",
+};
+
+const cardText = {
+  color: "#d0d0d0",
+  lineHeight: "1.6",
+};
+
 const inputStyle = {
   padding: "14px",
   borderRadius: "10px",
@@ -467,4 +285,22 @@ const inputStyle = {
   backgroundColor: "#1a1a1a",
   color: "white",
   fontSize: "16px",
+};
+
+const buttonStyle = {
+  padding: "16px",
+  fontSize: "18px",
+  borderRadius: "10px",
+  border: "none",
+  background: "white",
+  color: "black",
+  cursor: "pointer",
+  fontWeight: "bold",
+};
+
+const footer = {
+  borderTop: "1px solid #1f1f1f",
+  padding: "28px 20px 40px",
+  textAlign: "center" as const,
+  color: "#bdbdbd",
 };
