@@ -57,7 +57,7 @@ export default function RootLayout({
               }}
             >
               <img
-                src="/logo.png"
+                src="/LogoK.png"
                 alt="The Kerman Organization logo"
                 style={{
                   width: "34px",
@@ -66,6 +66,7 @@ export default function RootLayout({
                   objectFit: "cover",
                 }}
               />
+
               <span>THE KERMAN ORGANIZATION</span>
             </Link>
 
