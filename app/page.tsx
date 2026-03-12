@@ -38,88 +38,65 @@ export default function Home() {
   return (
     <main
       style={{
-        minHeight: "100vh",
-        backgroundImage:
-          "linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.75)), url('/wpaper.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
+        backgroundColor: "#0a0a0a",
         color: "white",
         fontFamily: "Arial",
       }}
     >
       <section
         style={{
-          padding: "90px 20px 70px",
+          minHeight: "100vh",
+          backgroundImage:
+            "linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.78)), url('/wpaper.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           textAlign: "center",
-          maxWidth: "1100px",
-          margin: "0 auto",
+          padding: "40px 20px",
         }}
       >
-        <h1
-          style={{
-            fontSize: "58px",
-            marginBottom: "24px",
-            letterSpacing: "1px",
-          }}
-        >
-          THE KERMAN ORGANIZATION
-        </h1>
+        <div style={{ maxWidth: "1100px" }}>
+          <h1
+            style={{
+              fontSize: "68px",
+              marginBottom: "24px",
+              letterSpacing: "2px",
+            }}
+          >
+            THE KERMAN ORGANIZATION
+          </h1>
 
-        <p
-          style={{
-            fontSize: "26px",
-            maxWidth: "850px",
-            margin: "0 auto",
-            lineHeight: "1.5",
-            color: "#f0f0f0",
-          }}
-        >
-          AI-powered real estate intelligence.
-          <br />
-          We connect serious buyers, sellers and investors with the right
-          opportunities.
-        </p>
+          <p
+            style={{
+              fontSize: "28px",
+              maxWidth: "900px",
+              margin: "0 auto",
+              lineHeight: "1.5",
+              color: "#f2f2f2",
+            }}
+          >
+            AI-powered real estate intelligence.
+            <br />
+            We connect serious buyers, sellers and investors with the right
+            opportunities.
+          </p>
 
-        <div
-          style={{
-            marginTop: "28px",
-            display: "flex",
-            gap: "14px",
-            justifyContent: "center",
-            flexWrap: "wrap",
-          }}
-        >
-          <span
+          <div
             style={{
-              padding: "10px 16px",
-              border: "1px solid #2a2a2a",
-              borderRadius: "999px",
-              backgroundColor: "#111111",
+              marginTop: "32px",
+              display: "flex",
+              gap: "14px",
+              justifyContent: "center",
+              flexWrap: "wrap",
             }}
           >
-            AI-powered analysis
-          </span>
-          <span
-            style={{
-              padding: "10px 16px",
-              border: "1px solid #2a2a2a",
-              borderRadius: "999px",
-              backgroundColor: "#111111",
-            }}
-          >
-            Qualified leads
-          </span>
-          <span
-            style={{
-              padding: "10px 16px",
-              border: "1px solid #2a2a2a",
-              borderRadius: "999px",
-              backgroundColor: "#111111",
-            }}
-          >
-            Real estate intelligence
-          </span>
+            <span style={pill}>AI-powered analysis</span>
+            <span style={pill}>Qualified leads</span>
+            <span style={pill}>Real estate intelligence</span>
+          </div>
         </div>
       </section>
 
@@ -127,7 +104,7 @@ export default function Home() {
         style={{
           maxWidth: "1100px",
           margin: "0 auto",
-          padding: "0 20px 80px",
+          padding: "80px 20px",
         }}
       >
         <div
@@ -158,6 +135,115 @@ export default function Home() {
             <p style={cardText}>
               We help clients move faster with better information, better
               matching and a more intelligent process.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section
+        style={{
+          maxWidth: "1100px",
+          margin: "0 auto",
+          padding: "0 20px 80px",
+        }}
+      >
+        <h2
+          style={{
+            fontSize: "40px",
+            marginBottom: "24px",
+            textAlign: "center",
+          }}
+        >
+          How it works
+        </h2>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+            gap: "20px",
+          }}
+        >
+          <div style={card}>
+            <div style={stepText}>STEP 1</div>
+            <h3 style={{ fontSize: "24px", marginBottom: "12px" }}>
+              Tell us what you need
+            </h3>
+            <p style={cardText}>
+              Share your property goals, preferred location, budget and
+              investment profile.
+            </p>
+          </div>
+
+          <div style={card}>
+            <div style={stepText}>STEP 2</div>
+            <h3 style={{ fontSize: "24px", marginBottom: "12px" }}>
+              Our AI analyzes the market
+            </h3>
+            <p style={cardText}>
+              We evaluate demand, opportunities and fit to identify the most
+              relevant path forward.
+            </p>
+          </div>
+
+          <div style={card}>
+            <div style={stepText}>STEP 3</div>
+            <h3 style={{ fontSize: "24px", marginBottom: "12px" }}>
+              Get connected
+            </h3>
+            <p style={cardText}>
+              We connect you with the most relevant opportunities, partners or
+              real estate routes based on your profile.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section
+        style={{
+          maxWidth: "1100px",
+          margin: "0 auto",
+          padding: "0 20px 80px",
+        }}
+      >
+        <h2
+          style={{
+            fontSize: "40px",
+            marginBottom: "24px",
+            textAlign: "center",
+          }}
+        >
+          Who we help
+        </h2>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+            gap: "20px",
+          }}
+        >
+          <div style={card}>
+            <h3 style={{ fontSize: "24px", marginBottom: "12px" }}>Investors</h3>
+            <p style={cardText}>
+              Find better-fit opportunities, off-market style flows and
+              data-driven real estate insights.
+            </p>
+          </div>
+
+          <div style={card}>
+            <h3 style={{ fontSize: "24px", marginBottom: "12px" }}>Buyers</h3>
+            <p style={cardText}>
+              Access a more guided, intelligent and personalized way to find the
+              right property.
+            </p>
+          </div>
+
+          <div style={card}>
+            <h3 style={{ fontSize: "24px", marginBottom: "12px" }}>Sellers</h3>
+            <p style={cardText}>
+              Connect with serious and qualified interest instead of wasting time
+              on weak or unfiltered leads.
             </p>
           </div>
         </div>
@@ -261,6 +347,13 @@ export default function Home() {
   );
 }
 
+const pill = {
+  padding: "10px 16px",
+  border: "1px solid #2a2a2a",
+  borderRadius: "999px",
+  backgroundColor: "rgba(17,17,17,0.85)",
+};
+
 const card = {
   backgroundColor: "#111111",
   border: "1px solid #1f1f1f",
@@ -276,6 +369,12 @@ const cardTitle = {
 const cardText = {
   color: "#d0d0d0",
   lineHeight: "1.6",
+};
+
+const stepText = {
+  fontSize: "14px",
+  color: "#9c9c9c",
+  marginBottom: "10px",
 };
 
 const inputStyle = {
