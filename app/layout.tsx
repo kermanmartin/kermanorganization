@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata = {
   title: "The Kerman Organization",
   description: "AI-powered real estate intelligence",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
@@ -48,9 +51,22 @@ export default function RootLayout({
                 fontSize: "20px",
                 fontWeight: "bold",
                 letterSpacing: "0.5px",
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
               }}
             >
-              THE KERMAN ORGANIZATION
+              <img
+                src="/logo.png"
+                alt="The Kerman Organization logo"
+                style={{
+                  width: "34px",
+                  height: "34px",
+                  borderRadius: "999px",
+                  objectFit: "cover",
+                }}
+              />
+              <span>THE KERMAN ORGANIZATION</span>
             </Link>
 
             <div
