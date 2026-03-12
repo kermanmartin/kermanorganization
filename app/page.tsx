@@ -1,4 +1,24 @@
+"use client";
+
+import { useState } from "react";
+
 export default function Home() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [userType, setUserType] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const subject = encodeURIComponent("New lead from The Kerman Organization");
+    const body = encodeURIComponent(
+      `Name: ${name}\nEmail: ${email}\nType: ${userType}\n\nMessage:\n${message}`
+    );
+
+    window.location.href = `mailto:kermartinfer@gmail.com?subject=${subject}&body=${body}`;
+  };
+
   return (
     <main
       style={{
@@ -25,7 +45,14 @@ export default function Home() {
           What we do
         </h2>
 
-        <p style={{ maxWidth: "700px", margin: "0 auto", fontSize: "18px", lineHeight: "1.6" }}>
+        <p
+          style={{
+            maxWidth: "700px",
+            margin: "0 auto",
+            fontSize: "18px",
+            lineHeight: "1.6",
+          }}
+        >
           Our platform analyzes property demand using artificial intelligence
           and connects qualified real estate clients with the most relevant
           agencies and opportunities.
@@ -44,14 +71,22 @@ export default function Home() {
           textAlign: "left",
         }}
       >
-        <h2 style={{ fontSize: "30px", marginBottom: "20px", textAlign: "center" }}>
+        <h2
+          style={{ fontSize: "30px", marginBottom: "20px", textAlign: "center" }}
+        >
           Get in touch
         </h2>
 
-        <form style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+        >
           <input
             type="text"
             placeholder="Your name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
             style={{
               padding: "14px",
               borderRadius: "8px",
@@ -65,6 +100,9 @@ export default function Home() {
           <input
             type="email"
             placeholder="Your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
             style={{
               padding: "14px",
               borderRadius: "8px",
@@ -76,6 +114,9 @@ export default function Home() {
           />
 
           <select
+            value={userType}
+            onChange={(e) => setUserType(e.target.value)}
+            required
             style={{
               padding: "14px",
               borderRadius: "8px",
@@ -84,7 +125,6 @@ export default function Home() {
               color: "white",
               fontSize: "16px",
             }}
-            defaultValue=""
           >
             <option value="" disabled>
               I am a...
@@ -97,6 +137,9 @@ export default function Home() {
           <textarea
             placeholder="Tell us what you are looking for"
             rows={5}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            required
             style={{
               padding: "14px",
               borderRadius: "8px",
