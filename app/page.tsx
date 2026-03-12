@@ -5,39 +5,48 @@ export default function Home() {
         minHeight: "100vh",
         backgroundColor: "#0a0a0a",
         color: "white",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "column",
         fontFamily: "Arial",
-        padding: "40px",
+        padding: "60px 20px",
         textAlign: "center",
       }}
     >
-      <h1 style={{ fontSize: "48px", marginBottom: "20px" }}>
+      <h1 style={{ fontSize: "52px", marginBottom: "20px" }}>
         THE KERMAN ORGANIZATION
       </h1>
 
-      <p style={{ fontSize: "22px", maxWidth: "700px", lineHeight: "1.5" }}>
+      <p style={{ fontSize: "24px", maxWidth: "800px", margin: "0 auto" }}>
         AI-powered real estate intelligence.
         <br />
-        We help buyers, sellers and investors make better property decisions.
+        We connect serious buyers, sellers and investors with the right opportunities.
       </p>
 
-      <button
-        style={{
-          marginTop: "40px",
-          padding: "15px 35px",
-          fontSize: "18px",
-          borderRadius: "8px",
-          border: "none",
-          background: "#ffffff",
-          color: "#000000",
-          cursor: "pointer",
-        }}
-      >
-        Contact Us
-      </button>
+      <div style={{ marginTop: "60px" }}>
+        <h2 style={{ fontSize: "32px", marginBottom: "20px" }}>
+          What we do
+        </h2>
+
+        <p style={{ maxWidth: "700px", margin: "0 auto", fontSize: "18px" }}>
+          Our platform analyzes property demand using artificial intelligence
+          and connects qualified real estate clients with the most relevant
+          agencies and opportunities.
+        </p>
+      </div>
+
+      <div style={{ marginTop: "80px" }}>
+        <button
+          style={{
+            padding: "16px 40px",
+            fontSize: "18px",
+            borderRadius: "8px",
+            border: "none",
+            background: "white",
+            color: "black",
+            cursor: "pointer",
+          }}
+        >
+          Start here
+        </button>
+      </div>
     </main>
   );
 }
