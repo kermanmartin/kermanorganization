@@ -43,6 +43,7 @@ export default function Home() {
         fontFamily: "Arial",
       }}
     >
+      {/* HERO */}
       <section
         style={{
           minHeight: "100vh",
@@ -100,6 +101,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FEATURES */}
       <section
         style={{
           maxWidth: "1100px",
@@ -133,13 +135,14 @@ export default function Home() {
           <div style={card}>
             <h3 style={cardTitle}>Better decisions</h3>
             <p style={cardText}>
-              We help clients move faster with better information, better
-              matching and a more intelligent process.
+              We help clients move faster with better information and a more
+              intelligent process.
             </p>
           </div>
         </div>
       </section>
 
+      {/* HOW IT WORKS */}
       <section
         style={{
           maxWidth: "1100px",
@@ -166,89 +169,31 @@ export default function Home() {
         >
           <div style={card}>
             <div style={stepText}>STEP 1</div>
-            <h3 style={{ fontSize: "24px", marginBottom: "12px" }}>
-              Tell us what you need
-            </h3>
+            <h3>Tell us what you need</h3>
             <p style={cardText}>
-              Share your property goals, preferred location, budget and
-              investment profile.
+              Share your property goals, location and investment profile.
             </p>
           </div>
 
           <div style={card}>
             <div style={stepText}>STEP 2</div>
-            <h3 style={{ fontSize: "24px", marginBottom: "12px" }}>
-              Our AI analyzes the market
-            </h3>
+            <h3>AI analyzes demand</h3>
             <p style={cardText}>
-              We evaluate demand, opportunities and fit to identify the most
-              relevant path forward.
+              Our AI evaluates demand, budget and intent signals.
             </p>
           </div>
 
           <div style={card}>
             <div style={stepText}>STEP 3</div>
-            <h3 style={{ fontSize: "24px", marginBottom: "12px" }}>
-              Get connected
-            </h3>
+            <h3>Get connected</h3>
             <p style={cardText}>
-              We connect you with the most relevant opportunities, partners or
-              real estate routes based on your profile.
+              We connect you with the most relevant opportunities.
             </p>
           </div>
         </div>
       </section>
 
-      <section
-        style={{
-          maxWidth: "1100px",
-          margin: "0 auto",
-          padding: "0 20px 80px",
-        }}
-      >
-        <h2
-          style={{
-            fontSize: "40px",
-            marginBottom: "24px",
-            textAlign: "center",
-          }}
-        >
-          Who we help
-        </h2>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            gap: "20px",
-          }}
-        >
-          <div style={card}>
-            <h3 style={{ fontSize: "24px", marginBottom: "12px" }}>Investors</h3>
-            <p style={cardText}>
-              Find better-fit opportunities, off-market style flows and
-              data-driven real estate insights.
-            </p>
-          </div>
-
-          <div style={card}>
-            <h3 style={{ fontSize: "24px", marginBottom: "12px" }}>Buyers</h3>
-            <p style={cardText}>
-              Access a more guided, intelligent and personalized way to find the
-              right property.
-            </p>
-          </div>
-
-          <div style={card}>
-            <h3 style={{ fontSize: "24px", marginBottom: "12px" }}>Sellers</h3>
-            <p style={cardText}>
-              Connect with serious and qualified interest instead of wasting time
-              on weak or unfiltered leads.
-            </p>
-          </div>
-        </div>
-      </section>
-
+      {/* CONTACT */}
       <section
         style={{
           maxWidth: "760px",
@@ -334,14 +279,64 @@ export default function Home() {
         </div>
       </section>
 
-      <footer style={footer}>
-        <p style={{ marginBottom: "8px", fontSize: "18px" }}>
-          THE KERMAN ORGANIZATION
-        </p>
-        <p style={{ marginBottom: "8px" }}>
-          AI-powered real estate intelligence.
-        </p>
-        <p>contact@kermanorganization.com</p>
+      {/* FOOTER */}
+      <footer
+        style={{
+          borderTop: "1px solid #1f1f1f",
+          marginTop: "40px",
+          backgroundColor: "#0a0a0a",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            padding: "50px 20px 30px",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: "30px",
+          }}
+        >
+          <div>
+            <h3 style={footerTitle}>THE KERMAN ORGANIZATION</h3>
+            <p style={footerText}>
+              AI-powered real estate intelligence platform connecting buyers,
+              sellers and investors with real opportunities.
+            </p>
+          </div>
+
+          <div>
+            <h3 style={footerTitle}>COMPANY</h3>
+            <p style={footerLink}>Home</p>
+            <p style={footerLink}>Agencies</p>
+            <p style={footerLink}>Agency Access</p>
+          </div>
+
+          <div>
+            <h3 style={footerTitle}>SERVICES</h3>
+            <p style={footerLink}>Lead generation</p>
+            <p style={footerLink}>AI filtering</p>
+            <p style={footerLink}>Agency partnerships</p>
+          </div>
+
+          <div>
+            <h3 style={footerTitle}>CONTACT</h3>
+            <p style={footerText}>contact@kermanorganization.com</p>
+            <p style={footerText}>Spain</p>
+          </div>
+        </div>
+
+        <div
+          style={{
+            borderTop: "1px solid #1f1f1f",
+            textAlign: "center",
+            padding: "18px 20px",
+            color: "#8f8f8f",
+            fontSize: "14px",
+          }}
+        >
+          © 2026 The Kerman Organization. All rights reserved.
+        </div>
       </footer>
     </main>
   );
@@ -397,9 +392,21 @@ const buttonStyle = {
   fontWeight: "bold",
 };
 
-const footer = {
-  borderTop: "1px solid #1f1f1f",
-  padding: "28px 20px 40px",
-  textAlign: "center" as const,
+const footerTitle = {
+  fontSize: "15px",
+  letterSpacing: "1px",
+  marginBottom: "14px",
+  color: "white",
+};
+
+const footerText = {
   color: "#bdbdbd",
+  lineHeight: "1.7",
+  fontSize: "15px",
+};
+
+const footerLink = {
+  color: "#bdbdbd",
+  lineHeight: "1.9",
+  fontSize: "15px",
 };
