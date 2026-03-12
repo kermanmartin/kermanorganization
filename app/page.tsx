@@ -1,22 +1,38 @@
 "use client";
 
 import { useState } from "react";
+import { supabase } from "../lib/supabase";
 
 export default function Home() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [userType, setUserType] = useState("");
   const [message, setMessage] = useState("");
+  const [status, setStatus] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setStatus("Sending...");
 
-    const subject = encodeURIComponent("New lead from The Kerman Organization");
-    const body = encodeURIComponent(
-      `Name: ${name}\nEmail: ${email}\nType: ${userType}\n\nMessage:\n${message}`
-    );
+    const { error } = await supabase.from("leads").insert([
+      {
+        name,
+        email,
+        user_type: userType,
+        message,
+      },
+    ]);
 
-    window.location.href = `mailto:kermartinfer@gmail.com?subject=${subject}&body=${body}`;
+    if (error) {
+      setStatus("Something went wrong. Please try again.");
+      return;
+    }
+
+    setStatus("Thanks, we’ll contact you soon.");
+    setName("");
+    setEmail("");
+    setUserType("");
+    setMessage("");
   };
 
   return (
@@ -167,6 +183,10 @@ export default function Home() {
             Send
           </button>
         </form>
+
+        {status && (
+          <p style={{ marginTop: "16px", textAlign: "center" }}>{status}</p>
+        )}
       </div>
     </main>
   );
