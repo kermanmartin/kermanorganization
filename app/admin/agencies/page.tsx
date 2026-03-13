@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AgencyApplicationsTable from "./AgencyApplicationsTable";
+import { createClient } from "@/lib/supabase/client";
 
 type AgencyApplication = {
   id: string;
@@ -16,6 +17,8 @@ type AgencyApplication = {
 };
 
 export default function AdminAgenciesPage() {
+  const supabase = createClient();
+
   const [applications, setApplications] = useState<AgencyApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -24,23 +27,19 @@ export default function AdminAgenciesPage() {
     setLoading(true);
     setError("");
 
-    try {
-      const res = await fetch("/api/agency-applications/list", {
-        method: "GET",
-        cache: "no-store",
-      });
+    const { data, error } = await supabase
+      .from("agency_applications")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-      if (!res.ok) {
-        throw new Error("Could not load applications");
-      }
-
-      const data = await res.json();
-      setApplications(data);
-    } catch {
+    if (error) {
       setError("Error loading agency applications.");
-    } finally {
       setLoading(false);
+      return;
     }
+
+    setApplications(data || []);
+    setLoading(false);
   };
 
   useEffect(() => {
