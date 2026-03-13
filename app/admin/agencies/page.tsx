@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import AgencyApplicationsTable from "./AgencyApplicationsTable";
 
 type AgencyApplication = {
@@ -17,33 +16,36 @@ type AgencyApplication = {
 };
 
 export default function AdminAgenciesPage() {
-  const supabase = createClient();
   const [applications, setApplications] = useState<AgencyApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const loadApplications = async () => {
-      setLoading(true);
-      setError("");
+  const loadApplications = async () => {
+    setLoading(true);
+    setError("");
 
-      const { data, error } = await supabase
-        .from("agency_applications")
-        .select("*")
-        .order("created_at", { ascending: false });
+    try {
+      const res = await fetch("/api/agency-applications/list", {
+        method: "GET",
+        cache: "no-store",
+      });
 
-      if (error) {
-        setError("Error loading agency applications.");
-        setLoading(false);
-        return;
+      if (!res.ok) {
+        throw new Error("Could not load applications");
       }
 
-      setApplications(data || []);
+      const data = await res.json();
+      setApplications(data);
+    } catch {
+      setError("Error loading agency applications.");
+    } finally {
       setLoading(false);
-    };
+    }
+  };
 
+  useEffect(() => {
     loadApplications();
-  }, [supabase]);
+  }, []);
 
   return (
     <main
@@ -64,6 +66,23 @@ export default function AdminAgenciesPage() {
       >
         THE KERMAN ORGANIZATION — AGENCY APPLICATIONS
       </h1>
+
+      <div style={{ textAlign: "center", marginBottom: "20px" }}>
+        <button
+          onClick={loadApplications}
+          style={{
+            padding: "10px 16px",
+            borderRadius: "10px",
+            border: "none",
+            backgroundColor: "white",
+            color: "black",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          Refresh data
+        </button>
+      </div>
 
       {loading && <p style={{ textAlign: "center" }}>Loading...</p>}
 

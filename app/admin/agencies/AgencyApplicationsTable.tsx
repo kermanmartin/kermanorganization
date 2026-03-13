@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type AgencyApplication = {
   id: string;
@@ -21,6 +21,10 @@ export default function AgencyApplicationsTable({
 }) {
   const [applications, setApplications] = useState(initialApplications);
   const [loadingId, setLoadingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setApplications(initialApplications);
+  }, [initialApplications]);
 
   const updateStatus = async (id: string, newStatus: string) => {
     setLoadingId(id);
