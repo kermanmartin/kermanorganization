@@ -63,11 +63,11 @@ export default function HomePage() {
         style={{
           minHeight: "100vh",
           backgroundImage:
-            "linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.55)), url('/wpaper.jpg')",
+            "linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.58)), url('/wpaper.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          padding: "40px 20px 60px",
+          padding: "32px 16px 56px",
           display: "flex",
           alignItems: "center",
         }}
@@ -82,18 +82,18 @@ export default function HomePage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "1.2fr 0.9fr",
-              gap: "36px",
+              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+              gap: "28px",
               alignItems: "center",
             }}
           >
             <div>
               <div
                 style={{
-                  display: "inline-flex",
+                  display: "flex",
                   gap: "10px",
                   flexWrap: "wrap",
-                  marginBottom: "22px",
+                  marginBottom: "20px",
                 }}
               >
                 <Badge text="AI-powered analysis" />
@@ -103,12 +103,13 @@ export default function HomePage() {
 
               <h1
                 style={{
-                  fontSize: "92px",
-                  lineHeight: "0.95",
+                  fontSize: "clamp(42px, 9vw, 92px)",
+                  lineHeight: "0.96",
                   fontWeight: 300,
                   letterSpacing: "-2px",
-                  margin: "0 0 24px 0",
+                  margin: "0 0 20px 0",
                   textTransform: "uppercase",
+                  maxWidth: "950px",
                 }}
               >
                 THE KERMAN ORGANIZATION
@@ -116,11 +117,11 @@ export default function HomePage() {
 
               <p
                 style={{
-                  fontSize: "28px",
+                  fontSize: "clamp(20px, 3.4vw, 28px)",
                   lineHeight: "1.45",
                   color: "#f1f1f1",
                   maxWidth: "900px",
-                  margin: "0 0 18px 0",
+                  margin: "0 0 16px 0",
                 }}
               >
                 AI-powered real estate intelligence.
@@ -128,8 +129,8 @@ export default function HomePage() {
 
               <p
                 style={{
-                  fontSize: "24px",
-                  lineHeight: "1.55",
+                  fontSize: "clamp(16px, 2.8vw, 24px)",
+                  lineHeight: "1.65",
                   color: "#d9d9d9",
                   maxWidth: "920px",
                   margin: 0,
@@ -145,17 +146,19 @@ export default function HomePage() {
               style={{
                 backgroundColor: "rgba(10,10,10,0.78)",
                 backdropFilter: "blur(10px)",
+                WebkitBackdropFilter: "blur(10px)",
                 border: "1px solid rgba(255,255,255,0.08)",
                 borderRadius: "24px",
-                padding: "30px",
+                padding: "clamp(20px, 4vw, 30px)",
                 boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
+                width: "100%",
               }}
             >
               <div style={{ marginBottom: "20px" }}>
                 <h2
                   style={{
-                    fontSize: "38px",
-                    margin: "0 0 12px 0",
+                    fontSize: "clamp(28px, 5vw, 38px)",
+                    margin: "0 0 10px 0",
                     fontWeight: 400,
                     letterSpacing: "-1px",
                   }}
@@ -167,8 +170,8 @@ export default function HomePage() {
                   style={{
                     margin: 0,
                     color: "#d0d0d0",
-                    lineHeight: "1.6",
-                    fontSize: "17px",
+                    lineHeight: "1.65",
+                    fontSize: "clamp(15px, 2.4vw, 17px)",
                   }}
                 >
                   This is the main interaction of the platform. Soon this form
@@ -202,7 +205,13 @@ export default function HomePage() {
                   style={inputStyle}
                 />
 
-                <div style={{ display: "flex", gap: "10px" }}>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))",
+                    gap: "10px",
+                  }}
+                >
                   <button
                     type="button"
                     onClick={() => setUserType("seller")}
@@ -252,6 +261,7 @@ export default function HomePage() {
                   style={{
                     ...inputStyle,
                     resize: "vertical",
+                    minHeight: "140px",
                   }}
                 />
 
@@ -285,6 +295,7 @@ export default function HomePage() {
                     border: "1px solid rgba(255,255,255,0.08)",
                     color: "#e6e6e6",
                     lineHeight: "1.6",
+                    fontSize: "15px",
                   }}
                 >
                   {statusMessage}
@@ -297,7 +308,7 @@ export default function HomePage() {
 
       <section
         style={{
-          padding: "70px 20px 90px",
+          padding: "64px 16px 84px",
           backgroundColor: "#050505",
         }}
       >
@@ -310,7 +321,7 @@ export default function HomePage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
+              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
               gap: "22px",
             }}
           >
@@ -334,15 +345,23 @@ export default function HomePage() {
               textAlign: "center",
               color: "#bdbdbd",
               fontSize: "16px",
-              lineHeight: "1.7",
+              lineHeight: "1.8",
+              maxWidth: "900px",
+              marginInline: "auto",
             }}
           >
             Agencies can apply through{" "}
-            <Link href="/agencies" style={{ color: "white" }}>
+            <Link
+              href="/agencies"
+              style={{ color: "white", textDecoration: "none" }}
+            >
               /agencies
             </Link>{" "}
             and approved partners can access their private area through{" "}
-            <Link href="/agency-access" style={{ color: "white" }}>
+            <Link
+              href="/agency-access"
+              style={{ color: "white", textDecoration: "none" }}
+            >
               /agency-access
             </Link>
             .
@@ -357,12 +376,13 @@ function Badge({ text }: { text: string }) {
   return (
     <div
       style={{
-        padding: "10px 16px",
+        padding: "10px 14px",
         borderRadius: "999px",
         backgroundColor: "rgba(17,17,17,0.68)",
         border: "1px solid rgba(255,255,255,0.08)",
         color: "white",
-        fontSize: "15px",
+        fontSize: "14px",
+        lineHeight: 1.2,
       }}
     >
       {text}
@@ -412,14 +432,17 @@ const inputStyle = {
   border: "1px solid rgba(255,255,255,0.08)",
   backgroundColor: "rgba(24,24,24,0.86)",
   color: "white",
-  fontSize: "17px",
+  fontSize: "16px",
+  outline: "none",
+  boxSizing: "border-box" as const,
 };
 
 const choiceButton = {
-  flex: 1,
+  width: "100%",
   padding: "16px",
   borderRadius: "12px",
   border: "1px solid #333",
   cursor: "pointer",
   fontSize: "15px",
+  fontWeight: 700,
 };
