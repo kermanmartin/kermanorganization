@@ -1,412 +1,383 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "../lib/supabase";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
-export default function Home() {
+export default function HomePage() {
+  const supabase = createClient();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [userType, setUserType] = useState("");
   const [message, setMessage] = useState("");
-  const [status, setStatus] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus("Sending...");
+    setLoading(true);
+    setStatusMessage("");
 
     const { error } = await supabase.from("leads").insert([
       {
-        name,
-        email,
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
         user_type: userType,
-        message,
+        message: message.trim(),
       },
     ]);
 
     if (error) {
-      setStatus("Something went wrong. Please try again.");
+      setStatusMessage("Something went wrong. Please try again.");
+      setLoading(false);
       return;
     }
 
-    setStatus("Thanks, we’ll contact you soon.");
+    setStatusMessage("Submitted successfully. We will review your request.");
     setName("");
     setEmail("");
     setUserType("");
     setMessage("");
+    setLoading(false);
   };
 
   return (
     <main
       style={{
-        backgroundColor: "#0a0a0a",
+        minHeight: "100vh",
+        backgroundColor: "#050505",
         color: "white",
-        fontFamily: "Arial",
+        fontFamily: "Arial, sans-serif",
       }}
     >
-      {/* HERO */}
       <section
         style={{
           minHeight: "100vh",
           backgroundImage:
-            "linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.78)), url('/wpaper.jpg')",
+            "linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.55)), url('/wpaper.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
+          padding: "40px 20px 60px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-          padding: "40px 20px",
         }}
       >
-        <div style={{ maxWidth: "1100px" }}>
-          <h1
+        <div
+          style={{
+            maxWidth: "1450px",
+            width: "100%",
+            margin: "0 auto",
+          }}
+        >
+          <div
             style={{
-              fontSize: "68px",
-              marginBottom: "24px",
-              letterSpacing: "2px",
+              display: "grid",
+              gridTemplateColumns: "1.2fr 0.9fr",
+              gap: "36px",
+              alignItems: "center",
             }}
           >
-            THE KERMAN ORGANIZATION
-          </h1>
+            <div>
+              <div
+                style={{
+                  display: "inline-flex",
+                  gap: "10px",
+                  flexWrap: "wrap",
+                  marginBottom: "22px",
+                }}
+              >
+                <Badge text="AI-powered analysis" />
+                <Badge text="Qualified leads" />
+                <Badge text="Real estate intelligence" />
+              </div>
 
-          <p
+              <h1
+                style={{
+                  fontSize: "92px",
+                  lineHeight: "0.95",
+                  fontWeight: 300,
+                  letterSpacing: "-2px",
+                  margin: "0 0 24px 0",
+                  textTransform: "uppercase",
+                }}
+              >
+                THE KERMAN ORGANIZATION
+              </h1>
+
+              <p
+                style={{
+                  fontSize: "28px",
+                  lineHeight: "1.45",
+                  color: "#f1f1f1",
+                  maxWidth: "900px",
+                  margin: "0 0 18px 0",
+                }}
+              >
+                AI-powered real estate intelligence.
+              </p>
+
+              <p
+                style={{
+                  fontSize: "24px",
+                  lineHeight: "1.55",
+                  color: "#d9d9d9",
+                  maxWidth: "920px",
+                  margin: 0,
+                }}
+              >
+                Tell us whether you want to sell, buy or invest. Our AI will detect
+                your profile and route you according to the filter that best matches
+                your goals.
+              </p>
+            </div>
+
+            <div
+              style={{
+                backgroundColor: "rgba(10, 10, 10, 0.78)",
+                backdropFilter: "blur(10px)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: "24px",
+                padding: "30px",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
+              }}
+            >
+              <div style={{ marginBottom: "20px" }}>
+                <h2
+                  style={{
+                    fontSize: "38px",
+                    margin: "0 0 12px 0",
+                    fontWeight: 400,
+                    letterSpacing: "-1px",
+                  }}
+                >
+                  Start here
+                </h2>
+
+                <p
+                  style={{
+                    margin: 0,
+                    color: "#d0d0d0",
+                    lineHeight: "1.6",
+                    fontSize: "17px",
+                  }}
+                >
+                  This is the main interaction of the platform. Soon this form will be
+                  replaced by the AI assistant.
+                </p>
+              </div>
+
+              <form
+                onSubmit={handleSubmit}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "14px",
+                }}
+              >
+                <input
+                  type="text"
+                  placeholder="Your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  style={inputStyle}
+                />
+
+                <input
+                  type="email"
+                  placeholder="Your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  style={inputStyle}
+                />
+
+                <select
+                  value={userType}
+                  onChange={(e) => setUserType(e.target.value)}
+                  required
+                  style={inputStyle}
+                >
+                  <option value="">I am a...</option>
+                  <option value="seller">Seller</option>
+                  <option value="buyer">Buyer</option>
+                  <option value="investor">Investor</option>
+                </select>
+
+                <textarea
+                  placeholder="Tell us what you are looking for"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  required
+                  rows={6}
+                  style={{
+                    ...inputStyle,
+                    resize: "vertical" as const,
+                  }}
+                />
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  style={{
+                    marginTop: "4px",
+                    padding: "16px",
+                    borderRadius: "12px",
+                    border: "none",
+                    backgroundColor: "white",
+                    color: "black",
+                    fontSize: "17px",
+                    fontWeight: 700,
+                    cursor: loading ? "not-allowed" : "pointer",
+                    opacity: loading ? 0.75 : 1,
+                  }}
+                >
+                  {loading ? "Submitting..." : "Continue"}
+                </button>
+              </form>
+
+              {statusMessage && (
+                <div
+                  style={{
+                    marginTop: "16px",
+                    padding: "14px 16px",
+                    borderRadius: "12px",
+                    backgroundColor: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    color: "#e6e6e6",
+                    lineHeight: "1.6",
+                  }}
+                >
+                  {statusMessage}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        style={{
+          padding: "70px 20px 90px",
+          backgroundColor: "#050505",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1300px",
+            margin: "0 auto",
+          }}
+        >
+          <div
             style={{
-              fontSize: "28px",
-              maxWidth: "900px",
-              margin: "0 auto",
-              lineHeight: "1.5",
-              color: "#f2f2f2",
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "22px",
             }}
           >
-            AI-powered real estate intelligence.
-            <br />
-            We connect serious buyers, sellers and investors with the right
-            opportunities.
-          </p>
+            <InfoCard
+              title="Profile detection"
+              text="The AI identifies whether the opportunity fits a seller, buyer or investor journey."
+            />
+            <InfoCard
+              title="Qualified routing"
+              text="Requests can later be filtered and routed according to your matching theory."
+            />
+            <InfoCard
+              title="Agency network"
+              text="Approved agencies receive qualified opportunities through a private dashboard."
+            />
+          </div>
 
           <div
             style={{
-              marginTop: "32px",
-              display: "flex",
-              gap: "14px",
-              justifyContent: "center",
-              flexWrap: "wrap",
-            }}
-          >
-            <span style={pill}>AI-powered analysis</span>
-            <span style={pill}>Qualified leads</span>
-            <span style={pill}>Real estate intelligence</span>
-          </div>
-        </div>
-      </section>
-
-      {/* FEATURES */}
-      <section
-        style={{
-          maxWidth: "1100px",
-          margin: "0 auto",
-          padding: "80px 20px",
-        }}
-      >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            gap: "20px",
-          }}
-        >
-          <div style={card}>
-            <h3 style={cardTitle}>AI-powered analysis</h3>
-            <p style={cardText}>
-              We analyze property demand, buyer intent and market signals to
-              identify the most relevant opportunities.
-            </p>
-          </div>
-
-          <div style={card}>
-            <h3 style={cardTitle}>Qualified clients</h3>
-            <p style={cardText}>
-              We focus on serious buyers, sellers and investors, not random
-              traffic with no real intent.
-            </p>
-          </div>
-
-          <div style={card}>
-            <h3 style={cardTitle}>Better decisions</h3>
-            <p style={cardText}>
-              We help clients move faster with better information and a more
-              intelligent process.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* HOW IT WORKS */}
-      <section
-        style={{
-          maxWidth: "1100px",
-          margin: "0 auto",
-          padding: "0 20px 80px",
-        }}
-      >
-        <h2
-          style={{
-            fontSize: "40px",
-            marginBottom: "24px",
-            textAlign: "center",
-          }}
-        >
-          How it works
-        </h2>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            gap: "20px",
-          }}
-        >
-          <div style={card}>
-            <div style={stepText}>STEP 1</div>
-            <h3>Tell us what you need</h3>
-            <p style={cardText}>
-              Share your property goals, location and investment profile.
-            </p>
-          </div>
-
-          <div style={card}>
-            <div style={stepText}>STEP 2</div>
-            <h3>AI analyzes demand</h3>
-            <p style={cardText}>
-              Our AI evaluates demand, budget and intent signals.
-            </p>
-          </div>
-
-          <div style={card}>
-            <div style={stepText}>STEP 3</div>
-            <h3>Get connected</h3>
-            <p style={cardText}>
-              We connect you with the most relevant opportunities.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* CONTACT */}
-      <section
-        style={{
-          maxWidth: "760px",
-          margin: "0 auto",
-          padding: "0 20px 90px",
-        }}
-      >
-        <div
-          style={{
-            backgroundColor: "#111111",
-            padding: "34px",
-            borderRadius: "16px",
-            textAlign: "left",
-            border: "1px solid #1f1f1f",
-          }}
-        >
-          <h2
-            style={{
-              fontSize: "34px",
-              marginBottom: "20px",
+              marginTop: "36px",
               textAlign: "center",
+              color: "#bdbdbd",
+              fontSize: "16px",
+              lineHeight: "1.7",
             }}
           >
-            Get in touch
-          </h2>
-
-          <form
-            onSubmit={handleSubmit}
-            style={{ display: "flex", flexDirection: "column", gap: "16px" }}
-          >
-            <input
-              type="text"
-              placeholder="Your name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              style={inputStyle}
-            />
-
-            <input
-              type="email"
-              placeholder="Your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              style={inputStyle}
-            />
-
-            <select
-              value={userType}
-              onChange={(e) => setUserType(e.target.value)}
-              required
-              style={inputStyle}
+            Agencies can apply through{" "}
+            <Link href="/agencies" style={{ color: "white", textDecoration: "none" }}>
+              /agencies
+            </Link>{" "}
+            and approved partners can access their private area through{" "}
+            <Link
+              href="/agency-access"
+              style={{ color: "white", textDecoration: "none" }}
             >
-              <option value="" disabled>
-                I am a...
-              </option>
-              <option value="buyer">Buyer</option>
-              <option value="seller">Seller</option>
-              <option value="investor">Investor</option>
-            </select>
-
-            <textarea
-              placeholder="Tell us what you are looking for"
-              rows={5}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              required
-              style={{
-                ...inputStyle,
-                resize: "vertical",
-              }}
-            />
-
-            <button type="submit" style={buttonStyle}>
-              Send
-            </button>
-          </form>
-
-          {status && (
-            <p style={{ marginTop: "16px", textAlign: "center" }}>{status}</p>
-          )}
+              /agency-access
+            </Link>
+            .
+          </div>
         </div>
       </section>
-
-      {/* FOOTER */}
-      <footer
-        style={{
-          borderTop: "1px solid #1f1f1f",
-          marginTop: "40px",
-          backgroundColor: "#0a0a0a",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: "1200px",
-            margin: "0 auto",
-            padding: "50px 20px 30px",
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: "30px",
-          }}
-        >
-          <div>
-            <h3 style={footerTitle}>THE KERMAN ORGANIZATION</h3>
-            <p style={footerText}>
-              AI-powered real estate intelligence platform connecting buyers,
-              sellers and investors with real opportunities.
-            </p>
-          </div>
-
-          <div>
-            <h3 style={footerTitle}>COMPANY</h3>
-            <p style={footerLink}>Home</p>
-            <p style={footerLink}>Agencies</p>
-            <p style={footerLink}>Agency Access</p>
-          </div>
-
-          <div>
-            <h3 style={footerTitle}>SERVICES</h3>
-            <p style={footerLink}>Lead generation</p>
-            <p style={footerLink}>AI filtering</p>
-            <p style={footerLink}>Agency partnerships</p>
-          </div>
-
-          <div>
-            <h3 style={footerTitle}>CONTACT</h3>
-            <p style={footerText}>contact@kermanorganization.com</p>
-            <p style={footerText}>Spain</p>
-          </div>
-        </div>
-
-        <div
-          style={{
-            borderTop: "1px solid #1f1f1f",
-            textAlign: "center",
-            padding: "18px 20px",
-            color: "#8f8f8f",
-            fontSize: "14px",
-          }}
-        >
-          © 2026 The Kerman Organization. All rights reserved.
-        </div>
-      </footer>
     </main>
   );
 }
 
-const pill = {
-  padding: "10px 16px",
-  border: "1px solid #2a2a2a",
-  borderRadius: "999px",
-  backgroundColor: "rgba(17,17,17,0.85)",
-};
+function Badge({ text }: { text: string }) {
+  return (
+    <div
+      style={{
+        padding: "10px 16px",
+        borderRadius: "999px",
+        backgroundColor: "rgba(17,17,17,0.68)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        color: "white",
+        fontSize: "15px",
+      }}
+    >
+      {text}
+    </div>
+  );
+}
 
-const card = {
-  backgroundColor: "#111111",
-  border: "1px solid #1f1f1f",
-  borderRadius: "14px",
-  padding: "26px",
-};
+function InfoCard({ title, text }: { title: string; text: string }) {
+  return (
+    <div
+      style={{
+        backgroundColor: "#0f0f0f",
+        border: "1px solid #1e1e1e",
+        borderRadius: "18px",
+        padding: "28px",
+      }}
+    >
+      <h3
+        style={{
+          margin: "0 0 12px 0",
+          fontSize: "24px",
+          fontWeight: 400,
+          color: "white",
+        }}
+      >
+        {title}
+      </h3>
 
-const cardTitle = {
-  fontSize: "22px",
-  marginBottom: "12px",
-};
-
-const cardText = {
-  color: "#d0d0d0",
-  lineHeight: "1.6",
-};
-
-const stepText = {
-  fontSize: "14px",
-  color: "#9c9c9c",
-  marginBottom: "10px",
-};
+      <p
+        style={{
+          margin: 0,
+          color: "#cfcfcf",
+          lineHeight: "1.7",
+          fontSize: "16px",
+        }}
+      >
+        {text}
+      </p>
+    </div>
+  );
+}
 
 const inputStyle = {
-  padding: "14px",
-  borderRadius: "10px",
-  border: "1px solid #333",
-  backgroundColor: "#1a1a1a",
+  width: "100%",
+  padding: "18px 18px",
+  borderRadius: "14px",
+  border: "1px solid rgba(255,255,255,0.08)",
+  backgroundColor: "rgba(24,24,24,0.86)",
   color: "white",
-  fontSize: "16px",
-};
-
-const buttonStyle = {
-  padding: "16px",
-  fontSize: "18px",
-  borderRadius: "10px",
-  border: "none",
-  background: "white",
-  color: "black",
-  cursor: "pointer",
-  fontWeight: "bold",
-};
-
-const footerTitle = {
-  fontSize: "15px",
-  letterSpacing: "1px",
-  marginBottom: "14px",
-  color: "white",
-};
-
-const footerText = {
-  color: "#bdbdbd",
-  lineHeight: "1.7",
-  fontSize: "15px",
-};
-
-const footerLink = {
-  color: "#bdbdbd",
-  lineHeight: "1.9",
-  fontSize: "15px",
+  fontSize: "17px",
+  outline: "none",
 };
