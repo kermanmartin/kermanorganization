@@ -16,6 +16,12 @@ export default function HomePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!userType) {
+      setStatusMessage("Please select whether you want to sell, buy or invest.");
+      return;
+    }
+
     setLoading(true);
     setStatusMessage("");
 
@@ -35,10 +41,12 @@ export default function HomePage() {
     }
 
     setStatusMessage("Submitted successfully. We will review your request.");
+
     setName("");
     setEmail("");
     setUserType("");
     setMessage("");
+
     setLoading(false);
   };
 
@@ -128,14 +136,14 @@ export default function HomePage() {
                 }}
               >
                 Tell us whether you want to sell, buy or invest. Our AI will detect
-                your profile and route you according to the filter that best matches
-                your goals.
+                your profile and route you according to the filter that best
+                matches your goals.
               </p>
             </div>
 
             <div
               style={{
-                backgroundColor: "rgba(10, 10, 10, 0.78)",
+                backgroundColor: "rgba(10,10,10,0.78)",
                 backdropFilter: "blur(10px)",
                 border: "1px solid rgba(255,255,255,0.08)",
                 borderRadius: "24px",
@@ -163,8 +171,8 @@ export default function HomePage() {
                     fontSize: "17px",
                   }}
                 >
-                  This is the main interaction of the platform. Soon this form will be
-                  replaced by the AI assistant.
+                  This is the main interaction of the platform. Soon this form
+                  will be replaced by the AI assistant.
                 </p>
               </div>
 
@@ -194,17 +202,46 @@ export default function HomePage() {
                   style={inputStyle}
                 />
 
-                <select
-                  value={userType}
-                  onChange={(e) => setUserType(e.target.value)}
-                  required
-                  style={inputStyle}
-                >
-                  <option value="">I am a...</option>
-                  <option value="seller">Seller</option>
-                  <option value="buyer">Buyer</option>
-                  <option value="investor">Investor</option>
-                </select>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <button
+                    type="button"
+                    onClick={() => setUserType("seller")}
+                    style={{
+                      ...choiceButton,
+                      backgroundColor:
+                        userType === "seller" ? "white" : "#111",
+                      color: userType === "seller" ? "black" : "white",
+                    }}
+                  >
+                    Sell
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setUserType("buyer")}
+                    style={{
+                      ...choiceButton,
+                      backgroundColor:
+                        userType === "buyer" ? "white" : "#111",
+                      color: userType === "buyer" ? "black" : "white",
+                    }}
+                  >
+                    Buy
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setUserType("investor")}
+                    style={{
+                      ...choiceButton,
+                      backgroundColor:
+                        userType === "investor" ? "white" : "#111",
+                      color: userType === "investor" ? "black" : "white",
+                    }}
+                  >
+                    Invest
+                  </button>
+                </div>
 
                 <textarea
                   placeholder="Tell us what you are looking for"
@@ -214,7 +251,7 @@ export default function HomePage() {
                   rows={6}
                   style={{
                     ...inputStyle,
-                    resize: "vertical" as const,
+                    resize: "vertical",
                   }}
                 />
 
@@ -301,14 +338,11 @@ export default function HomePage() {
             }}
           >
             Agencies can apply through{" "}
-            <Link href="/agencies" style={{ color: "white", textDecoration: "none" }}>
+            <Link href="/agencies" style={{ color: "white" }}>
               /agencies
             </Link>{" "}
             and approved partners can access their private area through{" "}
-            <Link
-              href="/agency-access"
-              style={{ color: "white", textDecoration: "none" }}
-            >
+            <Link href="/agency-access" style={{ color: "white" }}>
               /agency-access
             </Link>
             .
@@ -373,11 +407,19 @@ function InfoCard({ title, text }: { title: string; text: string }) {
 
 const inputStyle = {
   width: "100%",
-  padding: "18px 18px",
+  padding: "18px",
   borderRadius: "14px",
   border: "1px solid rgba(255,255,255,0.08)",
   backgroundColor: "rgba(24,24,24,0.86)",
   color: "white",
   fontSize: "17px",
-  outline: "none",
+};
+
+const choiceButton = {
+  flex: 1,
+  padding: "16px",
+  borderRadius: "12px",
+  border: "1px solid #333",
+  cursor: "pointer",
+  fontSize: "15px",
 };
