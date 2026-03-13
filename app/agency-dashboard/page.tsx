@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import LogoutButton from "./LogoutButton";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -45,34 +46,54 @@ export default async function AgencyDashboardPage() {
         <div
           style={{
             marginBottom: "30px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            gap: "20px",
+            flexWrap: "wrap",
             padding: "28px",
             border: "1px solid #1f1f1f",
             borderRadius: "18px",
             backgroundColor: "#111111",
           }}
         >
-          <h1
-            style={{
-              fontSize: "48px",
-              marginBottom: "12px",
-              fontWeight: 400,
-              letterSpacing: "-1px",
-            }}
-          >
-            AGENCY DASHBOARD
-          </h1>
+          <div>
+            <h1
+              style={{
+                fontSize: "48px",
+                marginBottom: "12px",
+                fontWeight: 400,
+                letterSpacing: "-1px",
+              }}
+            >
+              AGENCY DASHBOARD
+            </h1>
 
-          <p
-            style={{
-              fontSize: "20px",
-              color: "#d0d0d0",
-              lineHeight: "1.6",
-              margin: 0,
-            }}
-          >
-            Welcome, {application.agency_name}. You are viewing the current lead
-            flow from The Kerman Organization.
-          </p>
+            <p
+              style={{
+                fontSize: "20px",
+                color: "#d0d0d0",
+                lineHeight: "1.6",
+                margin: 0,
+              }}
+            >
+              Welcome, {application.agency_name}. You are viewing the current lead
+              flow from The Kerman Organization.
+            </p>
+
+            <p
+              style={{
+                fontSize: "14px",
+                color: "#9f9f9f",
+                marginTop: "14px",
+                marginBottom: 0,
+              }}
+            >
+              Signed in as: {user.email}
+            </p>
+          </div>
+
+          <LogoutButton />
         </div>
 
         <div
