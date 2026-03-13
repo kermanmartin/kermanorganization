@@ -59,13 +59,13 @@ export default function HomePage() {
     >
       <section
         style={{
-          minHeight: "100vh",
+          minHeight: "calc(100vh - 90px)",
           backgroundImage:
-            "linear-gradient(rgba(0,0,0,0.28), rgba(0,0,0,0.58)), url('/wpaper.jpg')",
+            "linear-gradient(rgba(0,0,0,0.24), rgba(0,0,0,0.60)), url('/wpaper.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          padding: "28px 16px 56px",
+          padding: "32px 16px 56px",
           display: "flex",
           alignItems: "center",
         }}
@@ -81,7 +81,7 @@ export default function HomePage() {
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-              gap: "28px",
+              gap: "30px",
               alignItems: "center",
             }}
           >
