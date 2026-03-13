@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "../../lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
 export default function AgencyAccessPage() {
@@ -18,10 +18,12 @@ export default function AgencyAccessPage() {
     e.preventDefault();
     setStatus("Checking approval...");
 
+    const normalizedEmail = signUpEmail.trim().toLowerCase();
+
     const { data: application, error: appError } = await supabase
       .from("agency_applications")
       .select("*")
-      .eq("email", signUpEmail)
+      .eq("email", normalizedEmail)
       .eq("status", "approved")
       .maybeSingle();
 
@@ -31,7 +33,7 @@ export default function AgencyAccessPage() {
     }
 
     const { error } = await supabase.auth.signUp({
-      email: signUpEmail,
+      email: normalizedEmail,
       password: signUpPassword,
     });
 
@@ -49,8 +51,10 @@ export default function AgencyAccessPage() {
     e.preventDefault();
     setStatus("Signing in...");
 
+    const normalizedEmail = loginEmail.trim().toLowerCase();
+
     const { error } = await supabase.auth.signInWithPassword({
-      email: loginEmail,
+      email: normalizedEmail,
       password: loginPassword,
     });
 
@@ -60,7 +64,7 @@ export default function AgencyAccessPage() {
     }
 
     setStatus("Login successful.");
-    router.push("/agencies");
+    router.push("/agency-dashboard");
     router.refresh();
   };
 

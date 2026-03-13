@@ -1,194 +1,276 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+"use client";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
-export default async function AgenciesPage() {
-  const supabase = await createClient();
+export default function AgenciesPage() {
+  const supabase = createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [agencyName, setAgencyName] = useState("");
+  const [city, setCity] = useState("");
+  const [website, setWebsite] = useState("");
+  const [contactName, setContactName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  if (!user?.email) {
-    redirect("/agency-access");
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setStatusMessage("");
 
-  const { data: application, error: applicationError } = await supabase
-    .from("agency_applications")
-    .select("*")
-    .eq("email", user.email)
-    .eq("status", "approved")
-    .maybeSingle();
+    const normalizedEmail = email.trim().toLowerCase();
 
-  if (applicationError || !application) {
-    redirect("/agency-access");
-  }
+    const { data: existingApplication, error: existingError } = await supabase
+      .from("agency_applications")
+      .select("id, status")
+      .eq("email", normalizedEmail)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-  const { data: leads, error: leadsError } = await supabase
-    .from("leads")
-    .select("*")
-    .order("created_at", { ascending: false });
+    if (existingError) {
+      setStatusMessage("Could not check existing application. Please try again.");
+      setLoading(false);
+      return;
+    }
+
+    if (existingApplication?.status === "pending") {
+      setStatusMessage("You already have a pending application under review.");
+      setLoading(false);
+      return;
+    }
+
+    if (existingApplication?.status === "approved") {
+      setStatusMessage(
+        "This email has already been approved. Go to Agency Access to create your account or log in."
+      );
+      setLoading(false);
+      return;
+    }
+
+    const { error } = await supabase.from("agency_applications").insert([
+      {
+        agency_name: agencyName.trim(),
+        city: city.trim(),
+        website: website.trim(),
+        contact_name: contactName.trim(),
+        email: normalizedEmail,
+        message: message.trim(),
+        status: "pending",
+      },
+    ]);
+
+    if (error) {
+      setStatusMessage("Could not submit your application. Please try again.");
+      setLoading(false);
+      return;
+    }
+
+    setStatusMessage(
+      "Application submitted successfully. We will review it and contact you if approved."
+    );
+
+    setAgencyName("");
+    setCity("");
+    setWebsite("");
+    setContactName("");
+    setEmail("");
+    setMessage("");
+    setLoading(false);
+  };
 
   return (
     <main
       style={{
         minHeight: "100vh",
-        backgroundColor: "#0a0a0a",
+        backgroundImage:
+          "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('/wpaper.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
         color: "white",
         fontFamily: "Arial, sans-serif",
-        padding: "50px 20px",
+        padding: "70px 20px",
       }}
     >
-      <section style={{ maxWidth: "1400px", margin: "0 auto" }}>
-        <div
+      <section style={{ maxWidth: "1100px", margin: "0 auto" }}>
+        <h1
           style={{
-            marginBottom: "30px",
-            padding: "28px",
-            border: "1px solid #1f1f1f",
-            borderRadius: "18px",
-            backgroundColor: "#111111",
+            fontSize: "56px",
+            textAlign: "center",
+            marginBottom: "16px",
+            fontWeight: 400,
+            letterSpacing: "-1px",
           }}
         >
-          <h1
+          Agency Applications
+        </h1>
+
+        <p
+          style={{
+            fontSize: "20px",
+            textAlign: "center",
+            maxWidth: "820px",
+            margin: "0 auto 50px",
+            color: "#d0d0d0",
+            lineHeight: "1.7",
+          }}
+        >
+          Apply to join The Kerman Organization agency network. Approved agencies
+          will receive access to a private dashboard and lead flow.
+        </p>
+
+        <div
+          style={{
+            maxWidth: "820px",
+            margin: "0 auto",
+            backgroundColor: "#111111",
+            border: "1px solid #1f1f1f",
+            borderRadius: "18px",
+            padding: "32px",
+          }}
+        >
+          <h2
             style={{
-              fontSize: "48px",
+              fontSize: "32px",
               marginBottom: "12px",
               fontWeight: 400,
-              letterSpacing: "-1px",
             }}
           >
-            AGENCY DASHBOARD
-          </h1>
+            Apply for access
+          </h2>
 
           <p
             style={{
-              fontSize: "20px",
-              color: "#d0d0d0",
-              lineHeight: "1.6",
-              margin: 0,
-            }}
-          >
-            Welcome, {application.agency_name}. You are viewing the current lead
-            flow from The Kerman Organization.
-          </p>
-        </div>
-
-        <div
-          style={{
-            marginBottom: "24px",
-            padding: "18px 22px",
-            border: "1px solid #1f1f1f",
-            borderRadius: "14px",
-            backgroundColor: "#111111",
-            color: "#cfcfcf",
-            fontSize: "16px",
-            lineHeight: "1.6",
-          }}
-        >
-          <strong style={{ color: "white" }}>Current phase:</strong> all approved
-          agencies can view the same leads. Smart lead filtering and assignment
-          logic will be added later.
-        </div>
-
-        {leadsError && (
-          <div
-            style={{
-              padding: "18px 22px",
-              border: "1px solid #4a1515",
-              borderRadius: "14px",
-              backgroundColor: "#1a0f0f",
-              color: "#ff6b6b",
+              color: "#cfcfcf",
+              lineHeight: "1.7",
               marginBottom: "24px",
+              fontSize: "16px",
             }}
           >
-            Error loading leads.
-          </div>
-        )}
+            Submit your agency details below. Once reviewed, approved agencies can
+            create an account from the Agency Access page.
+          </p>
 
-        {!leads || leads.length === 0 ? (
-          <div
+          <form
+            onSubmit={handleSubmit}
             style={{
-              padding: "24px",
-              border: "1px solid #1f1f1f",
-              borderRadius: "14px",
-              backgroundColor: "#111111",
-              textAlign: "center",
-              color: "#d0d0d0",
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "16px",
             }}
           >
-            No leads available yet.
-          </div>
-        ) : (
-          <div
-            style={{
-              overflowX: "auto",
-              border: "1px solid #1f1f1f",
-              borderRadius: "16px",
-              backgroundColor: "#111111",
-            }}
-          >
-            <table
+            <input
+              type="text"
+              placeholder="Agency name"
+              value={agencyName}
+              onChange={(e) => setAgencyName(e.target.value)}
+              required
+              style={inputStyle}
+            />
+
+            <input
+              type="text"
+              placeholder="City"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              required
+              style={inputStyle}
+            />
+
+            <input
+              type="text"
+              placeholder="Website"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              required
+              style={inputStyle}
+            />
+
+            <input
+              type="text"
+              placeholder="Contact name"
+              value={contactName}
+              onChange={(e) => setContactName(e.target.value)}
+              required
+              style={inputStyle}
+            />
+
+            <input
+              type="email"
+              placeholder="Business email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              style={{ ...inputStyle, gridColumn: "1 / -1" }}
+            />
+
+            <textarea
+              placeholder="Tell us what type of clients or properties you are looking for"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              required
+              rows={6}
               style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                minWidth: "1000px",
+                ...inputStyle,
+                gridColumn: "1 / -1",
+                resize: "vertical" as const,
+              }}
+            />
+
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                ...buttonStyle,
+                gridColumn: "1 / -1",
+                opacity: loading ? 0.7 : 1,
+                cursor: loading ? "not-allowed" : "pointer",
               }}
             >
-              <thead>
-                <tr style={{ backgroundColor: "#1a1a1a" }}>
-                  <th style={thStyle}>Name</th>
-                  <th style={thStyle}>Email</th>
-                  <th style={thStyle}>Phone</th>
-                  <th style={thStyle}>City</th>
-                  <th style={thStyle}>Property type</th>
-                  <th style={thStyle}>Budget</th>
-                  <th style={thStyle}>Message</th>
-                  <th style={thStyle}>Created at</th>
-                </tr>
-              </thead>
+              {loading ? "Submitting..." : "Submit application"}
+            </button>
+          </form>
 
-              <tbody>
-                {leads.map((lead: any) => (
-                  <tr key={lead.id} style={{ borderTop: "1px solid #222" }}>
-                    <td style={tdStyle}>{lead.name ?? "-"}</td>
-                    <td style={tdStyle}>{lead.email ?? "-"}</td>
-                    <td style={tdStyle}>{lead.phone ?? "-"}</td>
-                    <td style={tdStyle}>{lead.city ?? "-"}</td>
-                    <td style={tdStyle}>{lead.property_type ?? "-"}</td>
-                    <td style={tdStyle}>{lead.budget ?? "-"}</td>
-                    <td style={tdStyle}>{lead.message ?? "-"}</td>
-                    <td style={tdStyle}>
-                      {lead.created_at
-                        ? new Date(lead.created_at).toLocaleString()
-                        : "-"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+          {statusMessage && (
+            <div
+              style={{
+                marginTop: "18px",
+                padding: "14px 16px",
+                borderRadius: "12px",
+                backgroundColor: "#181818",
+                border: "1px solid #2a2a2a",
+                color: "#e5e5e5",
+                lineHeight: "1.6",
+              }}
+            >
+              {statusMessage}
+            </div>
+          )}
+        </div>
       </section>
     </main>
   );
 }
 
-const thStyle = {
-  padding: "18px 16px",
-  textAlign: "left" as const,
-  fontSize: "15px",
-  fontWeight: 700,
+const inputStyle = {
+  padding: "14px",
+  borderRadius: "10px",
+  border: "1px solid #333",
+  backgroundColor: "#1a1a1a",
   color: "white",
-  whiteSpace: "nowrap" as const,
+  fontSize: "16px",
+  width: "100%",
 };
 
-const tdStyle = {
-  padding: "18px 16px",
-  textAlign: "left" as const,
-  verticalAlign: "top" as const,
-  fontSize: "14px",
-  color: "#e8e8e8",
-  lineHeight: "1.5",
+const buttonStyle = {
+  padding: "15px",
+  fontSize: "16px",
+  borderRadius: "10px",
+  border: "none",
+  backgroundColor: "white",
+  color: "black",
+  fontWeight: "bold",
 };
