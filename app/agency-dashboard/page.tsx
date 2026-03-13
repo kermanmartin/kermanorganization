@@ -33,6 +33,12 @@ export default async function AgencyDashboardPage() {
     .select("*")
     .order("created_at", { ascending: false });
 
+  const newLeads = leads?.filter((lead: any) => (lead.status ?? "new") === "new").length ?? 0;
+  const contactedLeads =
+    leads?.filter((lead: any) => lead.status === "contacted").length ?? 0;
+  const closedLeads =
+    leads?.filter((lead: any) => lead.status === "closed").length ?? 0;
+
   return (
     <main
       style={{
@@ -113,6 +119,19 @@ export default async function AgencyDashboardPage() {
           agencies can view the same leads.
         </div>
 
+        <div
+          style={{
+            display: "flex",
+            gap: "16px",
+            marginBottom: "30px",
+            flexWrap: "wrap",
+          }}
+        >
+          <StatCard title="New leads" value={newLeads} />
+          <StatCard title="Contacted" value={contactedLeads} />
+          <StatCard title="Closed" value={closedLeads} />
+        </div>
+
         {error && (
           <p style={{ color: "red", textAlign: "center" }}>
             Error loading leads.
@@ -177,6 +196,39 @@ export default async function AgencyDashboardPage() {
         )}
       </section>
     </main>
+  );
+}
+
+function StatCard({ title, value }: { title: string; value: number }) {
+  return (
+    <div
+      style={{
+        backgroundColor: "#111111",
+        border: "1px solid #1f1f1f",
+        borderRadius: "14px",
+        padding: "18px 24px",
+        minWidth: "160px",
+      }}
+    >
+      <div
+        style={{
+          fontSize: "14px",
+          color: "#9f9f9f",
+          marginBottom: "6px",
+        }}
+      >
+        {title}
+      </div>
+
+      <div
+        style={{
+          fontSize: "28px",
+          fontWeight: 700,
+        }}
+      >
+        {value}
+      </div>
+    </div>
   );
 }
 
