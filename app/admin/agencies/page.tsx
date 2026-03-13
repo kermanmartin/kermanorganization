@@ -1,50 +1,35 @@
-"use client";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 
-import { useEffect, useState } from "react";
-import AgencyApplicationsTable from "./AgencyApplicationsTable";
-import { createClient } from "@/lib/supabase/client";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-type AgencyApplication = {
-  id: string;
-  agency_name: string;
-  city: string;
-  website: string;
-  contact_name: string;
-  email: string;
-  message: string;
-  status: string;
-  created_at: string;
-};
+export default async function AgenciesPage() {
+  const supabase = await createClient();
 
-export default function AdminAgenciesPage() {
-  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const [applications, setApplications] = useState<AgencyApplication[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  if (!user?.email) {
+    redirect("/agency-access");
+  }
 
-  const loadApplications = async () => {
-    setLoading(true);
-    setError("");
+  const { data: application } = await supabase
+    .from("agency_applications")
+    .select("*")
+    .eq("email", user.email)
+    .eq("status", "approved")
+    .maybeSingle();
 
-    const { data, error } = await supabase
-      .from("agency_applications")
-      .select("*")
-      .order("created_at", { ascending: false });
+  if (!application) {
+    redirect("/agency-access");
+  }
 
-    if (error) {
-      setError("Error loading agency applications.");
-      setLoading(false);
-      return;
-    }
-
-    setApplications(data || []);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    loadApplications();
-  }, []);
+  const { data: leads, error } = await supabase
+    .from("leads")
+    .select("*")
+    .order("created_at", { ascending: false });
 
   return (
     <main
@@ -53,51 +38,105 @@ export default function AdminAgenciesPage() {
         backgroundColor: "#0a0a0a",
         color: "white",
         fontFamily: "Arial",
-        padding: "40px 20px",
+        padding: "50px 20px",
       }}
     >
-      <h1
-        style={{
-          fontSize: "40px",
-          marginBottom: "30px",
-          textAlign: "center",
-        }}
-      >
-        THE KERMAN ORGANIZATION — AGENCY APPLICATIONS
-      </h1>
-
-      <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <button
-          onClick={loadApplications}
+      <section style={{ maxWidth: "1200px", margin: "0 auto" }}>
+        <div
           style={{
-            padding: "10px 16px",
-            borderRadius: "10px",
-            border: "none",
-            backgroundColor: "white",
-            color: "black",
-            fontWeight: "bold",
-            cursor: "pointer",
+            marginBottom: "30px",
+            padding: "24px",
+            border: "1px solid #1f1f1f",
+            borderRadius: "16px",
+            backgroundColor: "#111111",
           }}
         >
-          Refresh data
-        </button>
-      </div>
+          <h1 style={{ fontSize: "42px", marginBottom: "12px" }}>
+            Agency Dashboard
+          </h1>
 
-      {loading && <p style={{ textAlign: "center" }}>Loading...</p>}
+          <p style={{ fontSize: "20px", color: "#d0d0d0", lineHeight: "1.6" }}>
+            Welcome, {application.agency_name}. You are viewing the current lead
+            flow from The Kerman Organization.
+          </p>
+        </div>
 
-      {error && (
-        <p style={{ textAlign: "center", color: "red" }}>
-          {error}
-        </p>
-      )}
+        <div
+          style={{
+            marginBottom: "24px",
+            padding: "18px 22px",
+            border: "1px solid #1f1f1f",
+            borderRadius: "14px",
+            backgroundColor: "#111111",
+            color: "#cfcfcf",
+          }}
+        >
+          <strong style={{ color: "white" }}>Current phase:</strong> all approved
+          agencies can see the same leads. Lead filtering by agency profile will
+          come later.
+        </div>
 
-      {!loading && !error && applications.length === 0 ? (
-        <p style={{ textAlign: "center" }}>No agency applications yet.</p>
-      ) : null}
+        {error && (
+          <p style={{ color: "red", textAlign: "center" }}>
+            Error loading leads.
+          </p>
+        )}
 
-      {!loading && !error && applications.length > 0 ? (
-        <AgencyApplicationsTable initialApplications={applications} />
-      ) : null}
+        {!leads || leads.length === 0 ? (
+          <p style={{ textAlign: "center" }}>No leads available yet.</p>
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                backgroundColor: "#111111",
+                borderRadius: "14px",
+                overflow: "hidden",
+              }}
+            >
+              <thead>
+                <tr style={{ backgroundColor: "#1a1a1a" }}>
+                  <th style={thStyle}>Name</th>
+                  <th style={thStyle}>Email</th>
+                  <th style={thStyle}>Type</th>
+                  <th style={thStyle}>Message</th>
+                  <th style={thStyle}>Created at</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {leads.map((lead: any) => (
+                  <tr key={lead.id} style={{ borderTop: "1px solid #222" }}>
+                    <td style={tdStyle}>{lead.name}</td>
+                    <td style={tdStyle}>{lead.email}</td>
+                    <td style={tdStyle}>{lead.user_type}</td>
+                    <td style={tdStyle}>{lead.message}</td>
+                    <td style={tdStyle}>
+                      {lead.created_at
+                        ? new Date(lead.created_at).toLocaleString()
+                        : ""}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </main>
   );
 }
+
+const thStyle = {
+  padding: "16px",
+  textAlign: "left" as const,
+  fontSize: "15px",
+};
+
+const tdStyle = {
+  padding: "16px",
+  textAlign: "left" as const,
+  verticalAlign: "top" as const,
+  fontSize: "14px",
+};
