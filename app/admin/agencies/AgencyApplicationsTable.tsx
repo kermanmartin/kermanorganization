@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type AgencyApplication = {
   id: string;
@@ -19,6 +20,7 @@ export default function AgencyApplicationsTable({
 }: {
   initialApplications: AgencyApplication[];
 }) {
+  const router = useRouter();
   const [applications, setApplications] = useState(initialApplications);
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
@@ -43,6 +45,8 @@ export default function AgencyApplicationsTable({
           app.id === id ? { ...app, status: newStatus } : app
         )
       );
+
+      router.refresh();
     } else {
       alert("Could not update status.");
     }
@@ -130,17 +134,25 @@ export default function AgencyApplicationsTable({
                   <button
                     onClick={() => updateStatus(app.id, "approved")}
                     disabled={loadingId === app.id}
-                    style={approveButton}
+                    style={{
+                      ...approveButton,
+                      opacity: loadingId === app.id ? 0.6 : 1,
+                      cursor: loadingId === app.id ? "not-allowed" : "pointer",
+                    }}
                   >
-                    Approve
+                    {loadingId === app.id ? "Updating..." : "Approve"}
                   </button>
 
                   <button
                     onClick={() => updateStatus(app.id, "rejected")}
                     disabled={loadingId === app.id}
-                    style={rejectButton}
+                    style={{
+                      ...rejectButton,
+                      opacity: loadingId === app.id ? 0.6 : 1,
+                      cursor: loadingId === app.id ? "not-allowed" : "pointer",
+                    }}
                   >
-                    Reject
+                    {loadingId === app.id ? "Updating..." : "Reject"}
                   </button>
                 </div>
               </td>
@@ -171,7 +183,6 @@ const approveButton = {
   border: "none",
   backgroundColor: "#1f7a3f",
   color: "white",
-  cursor: "pointer",
   fontWeight: "bold",
 };
 
@@ -181,6 +192,5 @@ const rejectButton = {
   border: "none",
   backgroundColor: "#8b1e1e",
   color: "white",
-  cursor: "pointer",
   fontWeight: "bold",
 };
