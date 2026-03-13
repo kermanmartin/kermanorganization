@@ -9,6 +9,8 @@ export default function HomePage() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [city, setCity] = useState("");
+  const [budget, setBudget] = useState("");
   const [userType, setUserType] = useState("");
   const [message, setMessage] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
@@ -29,6 +31,8 @@ export default function HomePage() {
       {
         name: name.trim(),
         email: email.trim().toLowerCase(),
+        city: city.trim(),
+        budget: budget.trim(),
         user_type: userType,
         message: message.trim(),
       },
@@ -43,6 +47,8 @@ export default function HomePage() {
     setStatusMessage("Submitted successfully. We will review your request.");
     setName("");
     setEmail("");
+    setCity("");
+    setBudget("");
     setUserType("");
     setMessage("");
     setLoading(false);
@@ -207,6 +213,32 @@ export default function HomePage() {
                   required
                   style={inputStyle}
                 />
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(2, 1fr)",
+                    gap: "10px",
+                  }}
+                >
+                  <input
+                    type="text"
+                    placeholder="City"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    required
+                    style={inputStyle}
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Budget"
+                    value={budget}
+                    onChange={(e) => setBudget(e.target.value)}
+                    required
+                    style={inputStyle}
+                  />
+                </div>
 
                 <div
                   style={{
