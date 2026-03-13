@@ -37,25 +37,39 @@ export default async function AgenciesPage() {
         minHeight: "100vh",
         backgroundColor: "#0a0a0a",
         color: "white",
-        fontFamily: "Arial",
+        fontFamily: "Arial, sans-serif",
         padding: "50px 20px",
       }}
     >
-      <section style={{ maxWidth: "1200px", margin: "0 auto" }}>
+      <section style={{ maxWidth: "1400px", margin: "0 auto" }}>
         <div
           style={{
             marginBottom: "30px",
-            padding: "24px",
+            padding: "28px",
             border: "1px solid #1f1f1f",
-            borderRadius: "16px",
+            borderRadius: "18px",
             backgroundColor: "#111111",
           }}
         >
-          <h1 style={{ fontSize: "42px", marginBottom: "12px" }}>
-            Agency Dashboard
+          <h1
+            style={{
+              fontSize: "48px",
+              marginBottom: "12px",
+              fontWeight: 400,
+              letterSpacing: "-1px",
+            }}
+          >
+            AGENCY DASHBOARD
           </h1>
 
-          <p style={{ fontSize: "20px", color: "#d0d0d0", lineHeight: "1.6" }}>
+          <p
+            style={{
+              fontSize: "20px",
+              color: "#d0d0d0",
+              lineHeight: "1.6",
+              margin: 0,
+            }}
+          >
             Welcome, {application.agency_name}. You are viewing the current lead
             flow from The Kerman Organization.
           </p>
@@ -69,37 +83,67 @@ export default async function AgenciesPage() {
             borderRadius: "14px",
             backgroundColor: "#111111",
             color: "#cfcfcf",
+            fontSize: "16px",
+            lineHeight: "1.6",
           }}
         >
           <strong style={{ color: "white" }}>Current phase:</strong> all approved
-          agencies can see the same leads. Lead filtering by agency profile will
-          come later.
+          agencies can view the same leads. Smart lead filtering and assignment
+          logic will be added later.
         </div>
 
         {leadsError && (
-          <p style={{ color: "red", textAlign: "center" }}>
+          <div
+            style={{
+              padding: "18px 22px",
+              border: "1px solid #4a1515",
+              borderRadius: "14px",
+              backgroundColor: "#1a0f0f",
+              color: "#ff6b6b",
+              marginBottom: "24px",
+            }}
+          >
             Error loading leads.
-          </p>
+          </div>
         )}
 
         {!leads || leads.length === 0 ? (
-          <p style={{ textAlign: "center" }}>No leads available yet.</p>
+          <div
+            style={{
+              padding: "24px",
+              border: "1px solid #1f1f1f",
+              borderRadius: "14px",
+              backgroundColor: "#111111",
+              textAlign: "center",
+              color: "#d0d0d0",
+            }}
+          >
+            No leads available yet.
+          </div>
         ) : (
-          <div style={{ overflowX: "auto" }}>
+          <div
+            style={{
+              overflowX: "auto",
+              border: "1px solid #1f1f1f",
+              borderRadius: "16px",
+              backgroundColor: "#111111",
+            }}
+          >
             <table
               style={{
                 width: "100%",
                 borderCollapse: "collapse",
-                backgroundColor: "#111111",
-                borderRadius: "14px",
-                overflow: "hidden",
+                minWidth: "1000px",
               }}
             >
               <thead>
                 <tr style={{ backgroundColor: "#1a1a1a" }}>
                   <th style={thStyle}>Name</th>
                   <th style={thStyle}>Email</th>
-                  <th style={thStyle}>Type</th>
+                  <th style={thStyle}>Phone</th>
+                  <th style={thStyle}>City</th>
+                  <th style={thStyle}>Property type</th>
+                  <th style={thStyle}>Budget</th>
                   <th style={thStyle}>Message</th>
                   <th style={thStyle}>Created at</th>
                 </tr>
@@ -108,14 +152,17 @@ export default async function AgenciesPage() {
               <tbody>
                 {leads.map((lead: any) => (
                   <tr key={lead.id} style={{ borderTop: "1px solid #222" }}>
-                    <td style={tdStyle}>{lead.name}</td>
-                    <td style={tdStyle}>{lead.email}</td>
-                    <td style={tdStyle}>{lead.user_type}</td>
-                    <td style={tdStyle}>{lead.message}</td>
+                    <td style={tdStyle}>{lead.name ?? "-"}</td>
+                    <td style={tdStyle}>{lead.email ?? "-"}</td>
+                    <td style={tdStyle}>{lead.phone ?? "-"}</td>
+                    <td style={tdStyle}>{lead.city ?? "-"}</td>
+                    <td style={tdStyle}>{lead.property_type ?? "-"}</td>
+                    <td style={tdStyle}>{lead.budget ?? "-"}</td>
+                    <td style={tdStyle}>{lead.message ?? "-"}</td>
                     <td style={tdStyle}>
                       {lead.created_at
                         ? new Date(lead.created_at).toLocaleString()
-                        : ""}
+                        : "-"}
                     </td>
                   </tr>
                 ))}
@@ -129,14 +176,19 @@ export default async function AgenciesPage() {
 }
 
 const thStyle = {
-  padding: "16px",
+  padding: "18px 16px",
   textAlign: "left" as const,
   fontSize: "15px",
+  fontWeight: 700,
+  color: "white",
+  whiteSpace: "nowrap" as const,
 };
 
 const tdStyle = {
-  padding: "16px",
+  padding: "18px 16px",
   textAlign: "left" as const,
   verticalAlign: "top" as const,
   fontSize: "14px",
+  color: "#e8e8e8",
+  lineHeight: "1.5",
 };
