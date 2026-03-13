@@ -41,12 +41,10 @@ export default function HomePage() {
     }
 
     setStatusMessage("Submitted successfully. We will review your request.");
-
     setName("");
     setEmail("");
     setUserType("");
     setMessage("");
-
     setLoading(false);
   };
 
@@ -63,19 +61,19 @@ export default function HomePage() {
         style={{
           minHeight: "100vh",
           backgroundImage:
-            "linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.58)), url('/wpaper.jpg')",
+            "linear-gradient(rgba(0,0,0,0.28), rgba(0,0,0,0.58)), url('/wpaper.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          padding: "32px 16px 56px",
+          padding: "28px 16px 56px",
           display: "flex",
           alignItems: "center",
         }}
       >
         <div
           style={{
-            maxWidth: "1450px",
             width: "100%",
+            maxWidth: "1380px",
             margin: "0 auto",
           }}
         >
@@ -87,7 +85,11 @@ export default function HomePage() {
               alignItems: "center",
             }}
           >
-            <div>
+            <div
+              style={{
+                maxWidth: "700px",
+              }}
+            >
               <div
                 style={{
                   display: "flex",
@@ -103,13 +105,13 @@ export default function HomePage() {
 
               <h1
                 style={{
-                  fontSize: "clamp(42px, 9vw, 92px)",
+                  fontSize: "clamp(44px, 7vw, 88px)",
                   lineHeight: "0.96",
                   fontWeight: 300,
                   letterSpacing: "-2px",
-                  margin: "0 0 20px 0",
+                  margin: "0 0 18px 0",
                   textTransform: "uppercase",
-                  maxWidth: "950px",
+                  maxWidth: "680px",
                 }}
               >
                 THE KERMAN ORGANIZATION
@@ -117,11 +119,10 @@ export default function HomePage() {
 
               <p
                 style={{
-                  fontSize: "clamp(20px, 3.4vw, 28px)",
-                  lineHeight: "1.45",
+                  fontSize: "clamp(20px, 2.6vw, 30px)",
+                  lineHeight: "1.4",
                   color: "#f1f1f1",
-                  maxWidth: "900px",
-                  margin: "0 0 16px 0",
+                  margin: "0 0 14px 0",
                 }}
               >
                 AI-powered real estate intelligence.
@@ -129,35 +130,37 @@ export default function HomePage() {
 
               <p
                 style={{
-                  fontSize: "clamp(16px, 2.8vw, 24px)",
+                  fontSize: "clamp(16px, 1.8vw, 23px)",
                   lineHeight: "1.65",
-                  color: "#d9d9d9",
-                  maxWidth: "920px",
+                  color: "#dddddd",
                   margin: 0,
+                  maxWidth: "660px",
                 }}
               >
                 Tell us whether you want to sell, buy or invest. Our AI will detect
-                your profile and route you according to the filter that best
-                matches your goals.
+                your profile and route you according to the filter that best matches
+                your goals.
               </p>
             </div>
 
             <div
               style={{
+                width: "100%",
+                maxWidth: "620px",
+                justifySelf: "end",
                 backgroundColor: "rgba(10,10,10,0.78)",
                 backdropFilter: "blur(10px)",
                 WebkitBackdropFilter: "blur(10px)",
                 border: "1px solid rgba(255,255,255,0.08)",
                 borderRadius: "24px",
-                padding: "clamp(20px, 4vw, 30px)",
+                padding: "clamp(22px, 4vw, 30px)",
                 boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
-                width: "100%",
               }}
             >
               <div style={{ marginBottom: "20px" }}>
                 <h2
                   style={{
-                    fontSize: "clamp(28px, 5vw, 38px)",
+                    fontSize: "clamp(30px, 4vw, 42px)",
                     margin: "0 0 10px 0",
                     fontWeight: 400,
                     letterSpacing: "-1px",
@@ -171,11 +174,11 @@ export default function HomePage() {
                     margin: 0,
                     color: "#d0d0d0",
                     lineHeight: "1.65",
-                    fontSize: "clamp(15px, 2.4vw, 17px)",
+                    fontSize: "clamp(15px, 2vw, 17px)",
                   }}
                 >
-                  This is the main interaction of the platform. Soon this form
-                  will be replaced by the AI assistant.
+                  This is the main interaction of the platform. Soon this form will
+                  be replaced by the AI assistant.
                 </p>
               </div>
 
@@ -208,7 +211,7 @@ export default function HomePage() {
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))",
+                    gridTemplateColumns: "repeat(3, 1fr)",
                     gap: "10px",
                   }}
                 >
@@ -217,8 +220,7 @@ export default function HomePage() {
                     onClick={() => setUserType("seller")}
                     style={{
                       ...choiceButton,
-                      backgroundColor:
-                        userType === "seller" ? "white" : "#111",
+                      backgroundColor: userType === "seller" ? "white" : "#111",
                       color: userType === "seller" ? "black" : "white",
                     }}
                   >
@@ -230,8 +232,7 @@ export default function HomePage() {
                     onClick={() => setUserType("buyer")}
                     style={{
                       ...choiceButton,
-                      backgroundColor:
-                        userType === "buyer" ? "white" : "#111",
+                      backgroundColor: userType === "buyer" ? "white" : "#111",
                       color: userType === "buyer" ? "black" : "white",
                     }}
                   >
@@ -243,8 +244,7 @@ export default function HomePage() {
                     onClick={() => setUserType("investor")}
                     style={{
                       ...choiceButton,
-                      backgroundColor:
-                        userType === "investor" ? "white" : "#111",
+                      backgroundColor: userType === "investor" ? "white" : "#111",
                       color: userType === "investor" ? "black" : "white",
                     }}
                   >
@@ -439,7 +439,7 @@ const inputStyle = {
 
 const choiceButton = {
   width: "100%",
-  padding: "16px",
+  padding: "16px 10px",
   borderRadius: "12px",
   border: "1px solid #333",
   cursor: "pointer",
