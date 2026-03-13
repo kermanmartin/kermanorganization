@@ -1,34 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+type LeadStatus = "new" | "contacted" | "closed";
 
 export default function StatusButton({
-  leadId,
-  currentStatus,
+  status,
+  onChange,
 }: {
-  leadId: number;
-  currentStatus: string;
+  status: LeadStatus;
+  onChange: () => void;
 }) {
-  const supabase = createClient();
-  const [status, setStatus] = useState(currentStatus);
-
-  const updateStatus = async () => {
-    let newStatus = "contacted";
-
-    if (status === "contacted") newStatus = "closed";
-    if (status === "closed") newStatus = "new";
-
-    const { error } = await supabase
-      .from("leads")
-      .update({ status: newStatus })
-      .eq("id", leadId);
-
-    if (!error) {
-      setStatus(newStatus);
-    }
-  };
-
   const getColors = () => {
     if (status === "new") {
       return {
@@ -54,7 +34,7 @@ export default function StatusButton({
 
   return (
     <button
-      onClick={updateStatus}
+      onClick={onChange}
       style={{
         padding: "6px 12px",
         borderRadius: "8px",

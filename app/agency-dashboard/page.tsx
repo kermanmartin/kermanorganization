@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import StatusButton from "./StatusButton";
 import LogoutButton from "./LogoutButton";
+import AgencyDashboardClient from "./AgencyDashboardClient";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -32,12 +32,6 @@ export default async function AgencyDashboardPage() {
     .from("leads")
     .select("*")
     .order("created_at", { ascending: false });
-
-  const newLeads = leads?.filter((lead: any) => (lead.status ?? "new") === "new").length ?? 0;
-  const contactedLeads =
-    leads?.filter((lead: any) => lead.status === "contacted").length ?? 0;
-  const closedLeads =
-    leads?.filter((lead: any) => lead.status === "closed").length ?? 0;
 
   return (
     <main
@@ -119,128 +113,14 @@ export default async function AgencyDashboardPage() {
           agencies can view the same leads.
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            gap: "16px",
-            marginBottom: "30px",
-            flexWrap: "wrap",
-          }}
-        >
-          <StatCard title="New leads" value={newLeads} />
-          <StatCard title="Contacted" value={contactedLeads} />
-          <StatCard title="Closed" value={closedLeads} />
-        </div>
-
         {error && (
           <p style={{ color: "red", textAlign: "center" }}>
             Error loading leads.
           </p>
         )}
 
-        {!leads || leads.length === 0 ? (
-          <p style={{ textAlign: "center" }}>No leads available yet.</p>
-        ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                backgroundColor: "#111111",
-                borderRadius: "14px",
-                overflow: "hidden",
-                minWidth: "1100px",
-              }}
-            >
-              <thead>
-                <tr style={{ backgroundColor: "#1a1a1a" }}>
-                  <th style={thStyle}>Name</th>
-                  <th style={thStyle}>Email</th>
-                  <th style={thStyle}>City</th>
-                  <th style={thStyle}>Budget</th>
-                  <th style={thStyle}>Type</th>
-                  <th style={thStyle}>Status</th>
-                  <th style={thStyle}>Message</th>
-                  <th style={thStyle}>Created</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {leads.map((lead: any) => (
-                  <tr key={lead.id} style={{ borderTop: "1px solid #222" }}>
-                    <td style={tdStyle}>{lead.name ?? "-"}</td>
-                    <td style={tdStyle}>{lead.email ?? "-"}</td>
-                    <td style={tdStyle}>{lead.city ?? "-"}</td>
-                    <td style={tdStyle}>{lead.budget ?? "-"}</td>
-                    <td style={tdStyle}>{lead.user_type ?? "-"}</td>
-
-                    <td style={tdStyle}>
-                      <StatusButton
-                        leadId={lead.id}
-                        currentStatus={lead.status ?? "new"}
-                      />
-                    </td>
-
-                    <td style={tdStyle}>{lead.message ?? "-"}</td>
-
-                    <td style={tdStyle}>
-                      {lead.created_at
-                        ? new Date(lead.created_at).toLocaleString()
-                        : "-"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <AgencyDashboardClient initialLeads={leads ?? []} />
       </section>
     </main>
   );
 }
-
-function StatCard({ title, value }: { title: string; value: number }) {
-  return (
-    <div
-      style={{
-        backgroundColor: "#111111",
-        border: "1px solid #1f1f1f",
-        borderRadius: "14px",
-        padding: "18px 24px",
-        minWidth: "160px",
-      }}
-    >
-      <div
-        style={{
-          fontSize: "14px",
-          color: "#9f9f9f",
-          marginBottom: "6px",
-        }}
-      >
-        {title}
-      </div>
-
-      <div
-        style={{
-          fontSize: "28px",
-          fontWeight: 700,
-        }}
-      >
-        {value}
-      </div>
-    </div>
-  );
-}
-
-const thStyle = {
-  padding: "16px",
-  textAlign: "left" as const,
-  fontSize: "15px",
-};
-
-const tdStyle = {
-  padding: "16px",
-  textAlign: "left" as const,
-  verticalAlign: "top" as const,
-  fontSize: "14px",
-};
