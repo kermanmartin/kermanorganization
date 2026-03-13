@@ -35,7 +35,19 @@ export default async function AdminAgenciesPage() {
             THE KERMAN ORGANIZATION — AGENCY APPLICATIONS
           </h1>
 
-          <p style={{ color: "red" }}>Error loading agency applications.</p>
+          <pre
+            style={{
+              color: "#ff4d4f",
+              backgroundColor: "#111111",
+              padding: "20px",
+              borderRadius: "12px",
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
+              border: "1px solid #222",
+            }}
+          >
+            {JSON.stringify(error, null, 2)}
+          </pre>
         </section>
       </main>
     );
