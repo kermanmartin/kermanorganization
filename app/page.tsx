@@ -109,16 +109,6 @@ export default function HomePage() {
                 <Badge text="Real estate intelligence" />
               </div>
 
-              {/* NUEVO LOGO */}
-              <img
-                src="/LogoKnuevo.jpeg"
-                alt="The Kerman Organization"
-                style={{
-                  width: "180px",
-                  marginBottom: "18px",
-                }}
-              />
-
               <h1
                 style={{
                   fontSize: "clamp(44px, 7vw, 88px)",
@@ -347,8 +337,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* TODO EL RESTO DE TU CÓDIGO SIGUE EXACTAMENTE IGUAL */}
 
       <section
         style={{
