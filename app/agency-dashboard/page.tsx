@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import StatusButton from "./StatusButton";
 import LogoutButton from "./LogoutButton";
 
 export const dynamic = "force-dynamic";
@@ -16,18 +17,18 @@ export default async function AgencyDashboardPage() {
     redirect("/agency-access");
   }
 
-  const { data: application, error: applicationError } = await supabase
+  const { data: application } = await supabase
     .from("agency_applications")
     .select("*")
     .eq("email", user.email)
     .eq("status", "approved")
     .maybeSingle();
 
-  if (applicationError || !application) {
+  if (!application) {
     redirect("/agency-access");
   }
 
-  const { data: leads, error: leadsError } = await supabase
+  const { data: leads, error } = await supabase
     .from("leads")
     .select("*")
     .order("created_at", { ascending: false });
@@ -109,51 +110,26 @@ export default async function AgencyDashboardPage() {
           }}
         >
           <strong style={{ color: "white" }}>Current phase:</strong> all approved
-          agencies can view the same leads. Smart lead filtering and assignment
-          logic will be added later.
+          agencies can view the same leads.
         </div>
 
-        {leadsError && (
-          <div
-            style={{
-              padding: "18px 22px",
-              border: "1px solid #4a1515",
-              borderRadius: "14px",
-              backgroundColor: "#1a0f0f",
-              color: "#ff6b6b",
-              marginBottom: "24px",
-            }}
-          >
+        {error && (
+          <p style={{ color: "red", textAlign: "center" }}>
             Error loading leads.
-          </div>
+          </p>
         )}
 
         {!leads || leads.length === 0 ? (
-          <div
-            style={{
-              padding: "24px",
-              border: "1px solid #1f1f1f",
-              borderRadius: "14px",
-              backgroundColor: "#111111",
-              textAlign: "center",
-              color: "#d0d0d0",
-            }}
-          >
-            No leads available yet.
-          </div>
+          <p style={{ textAlign: "center" }}>No leads available yet.</p>
         ) : (
-          <div
-            style={{
-              overflowX: "auto",
-              border: "1px solid #1f1f1f",
-              borderRadius: "16px",
-              backgroundColor: "#111111",
-            }}
-          >
+          <div style={{ overflowX: "auto" }}>
             <table
               style={{
                 width: "100%",
                 borderCollapse: "collapse",
+                backgroundColor: "#111111",
+                borderRadius: "14px",
+                overflow: "hidden",
                 minWidth: "1100px",
               }}
             >
@@ -164,10 +140,9 @@ export default async function AgencyDashboardPage() {
                   <th style={thStyle}>City</th>
                   <th style={thStyle}>Budget</th>
                   <th style={thStyle}>Type</th>
-                  <th style={thStyle}>Phone</th>
-                  <th style={thStyle}>Property type</th>
+                  <th style={thStyle}>Status</th>
                   <th style={thStyle}>Message</th>
-                  <th style={thStyle}>Created at</th>
+                  <th style={thStyle}>Created</th>
                 </tr>
               </thead>
 
@@ -179,9 +154,16 @@ export default async function AgencyDashboardPage() {
                     <td style={tdStyle}>{lead.city ?? "-"}</td>
                     <td style={tdStyle}>{lead.budget ?? "-"}</td>
                     <td style={tdStyle}>{lead.user_type ?? "-"}</td>
-                    <td style={tdStyle}>{lead.phone ?? "-"}</td>
-                    <td style={tdStyle}>{lead.property_type ?? "-"}</td>
+
+                    <td style={tdStyle}>
+                      <StatusButton
+                        leadId={lead.id}
+                        currentStatus={lead.status ?? "new"}
+                      />
+                    </td>
+
                     <td style={tdStyle}>{lead.message ?? "-"}</td>
+
                     <td style={tdStyle}>
                       {lead.created_at
                         ? new Date(lead.created_at).toLocaleString()
@@ -199,19 +181,14 @@ export default async function AgencyDashboardPage() {
 }
 
 const thStyle = {
-  padding: "18px 16px",
+  padding: "16px",
   textAlign: "left" as const,
   fontSize: "15px",
-  fontWeight: 700,
-  color: "white",
-  whiteSpace: "nowrap" as const,
 };
 
 const tdStyle = {
-  padding: "18px 16px",
+  padding: "16px",
   textAlign: "left" as const,
   verticalAlign: "top" as const,
   fontSize: "14px",
-  color: "#e8e8e8",
-  lineHeight: "1.5",
 };
