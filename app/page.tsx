@@ -109,6 +109,17 @@ export default function HomePage() {
                 <Badge text="Real estate intelligence" />
               </div>
 
+              <img
+                src="/LogoKnuevo.jpeg"
+                alt="The Kerman Organization"
+                style={{
+                  width: "200px",
+                  height: "auto",
+                  marginBottom: "20px",
+                  display: "block",
+                }}
+              />
+
               <h1
                 style={{
                   fontSize: "clamp(44px, 7vw, 88px)",
