@@ -1,19 +1,49 @@
-import { unstable_noStore as noStore } from "next/cache";
+"use client";
+
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 import AgencyApplicationsTable from "./AgencyApplicationsTable";
-import { createClient } from "@/lib/supabase/server";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+type AgencyApplication = {
+  id: string;
+  agency_name: string;
+  city: string;
+  website: string;
+  contact_name: string;
+  email: string;
+  message: string;
+  status: string;
+  created_at: string;
+};
 
-export default async function AdminAgenciesPage() {
-  noStore();
+export default function AdminAgenciesPage() {
+  const supabase = createClient();
+  const [applications, setApplications] = useState<AgencyApplication[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const supabase = await createClient();
+  useEffect(() => {
+    const loadApplications = async () => {
+      setLoading(true);
+      setError("");
 
-  const { data: applications, error } = await supabase
-    .from("agency_applications")
-    .select("*")
-    .order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("agency_applications")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        setError("Error loading agency applications.");
+        setLoading(false);
+        return;
+      }
+
+      setApplications(data || []);
+      setLoading(false);
+    };
+
+    loadApplications();
+  }, [supabase]);
 
   return (
     <main
@@ -35,17 +65,21 @@ export default async function AdminAgenciesPage() {
         THE KERMAN ORGANIZATION — AGENCY APPLICATIONS
       </h1>
 
+      {loading && <p style={{ textAlign: "center" }}>Loading...</p>}
+
       {error && (
         <p style={{ textAlign: "center", color: "red" }}>
-          Error loading agency applications.
+          {error}
         </p>
       )}
 
-      {!applications || applications.length === 0 ? (
+      {!loading && !error && applications.length === 0 ? (
         <p style={{ textAlign: "center" }}>No agency applications yet.</p>
-      ) : (
+      ) : null}
+
+      {!loading && !error && applications.length > 0 ? (
         <AgencyApplicationsTable initialApplications={applications} />
-      )}
+      ) : null}
     </main>
   );
 }
