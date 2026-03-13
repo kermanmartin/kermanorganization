@@ -154,17 +154,18 @@ export default async function AgencyDashboardPage() {
               style={{
                 width: "100%",
                 borderCollapse: "collapse",
-                minWidth: "1000px",
+                minWidth: "1100px",
               }}
             >
               <thead>
                 <tr style={{ backgroundColor: "#1a1a1a" }}>
                   <th style={thStyle}>Name</th>
                   <th style={thStyle}>Email</th>
-                  <th style={thStyle}>Phone</th>
                   <th style={thStyle}>City</th>
-                  <th style={thStyle}>Property type</th>
                   <th style={thStyle}>Budget</th>
+                  <th style={thStyle}>Type</th>
+                  <th style={thStyle}>Phone</th>
+                  <th style={thStyle}>Property type</th>
                   <th style={thStyle}>Message</th>
                   <th style={thStyle}>Created at</th>
                 </tr>
@@ -175,10 +176,11 @@ export default async function AgencyDashboardPage() {
                   <tr key={lead.id} style={{ borderTop: "1px solid #222" }}>
                     <td style={tdStyle}>{lead.name ?? "-"}</td>
                     <td style={tdStyle}>{lead.email ?? "-"}</td>
-                    <td style={tdStyle}>{lead.phone ?? "-"}</td>
                     <td style={tdStyle}>{lead.city ?? "-"}</td>
-                    <td style={tdStyle}>{lead.property_type ?? "-"}</td>
                     <td style={tdStyle}>{lead.budget ?? "-"}</td>
+                    <td style={tdStyle}>{lead.user_type ?? "-"}</td>
+                    <td style={tdStyle}>{lead.phone ?? "-"}</td>
+                    <td style={tdStyle}>{lead.property_type ?? "-"}</td>
                     <td style={tdStyle}>{lead.message ?? "-"}</td>
                     <td style={tdStyle}>
                       {lead.created_at
