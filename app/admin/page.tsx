@@ -1,13 +1,14 @@
-import { createClient } from "@supabase/supabase-js";
+import { unstable_noStore as noStore } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+export const revalidate = 0;
 
 export default async function AdminPage() {
+  noStore();
+
+  const supabase = await createClient();
+
   const { data: leads, error } = await supabase
     .from("leads")
     .select("*")
@@ -23,7 +24,13 @@ export default async function AdminPage() {
         padding: "40px 20px",
       }}
     >
-      <h1 style={{ fontSize: "40px", marginBottom: "30px", textAlign: "center" }}>
+      <h1
+        style={{
+          fontSize: "40px",
+          marginBottom: "30px",
+          textAlign: "center",
+        }}
+      >
         THE KERMAN ORGANIZATION — LEADS
       </h1>
 
@@ -55,6 +62,7 @@ export default async function AdminPage() {
                 <th style={thStyle}>Created at</th>
               </tr>
             </thead>
+
             <tbody>
               {leads.map((lead) => (
                 <tr key={lead.id} style={{ borderTop: "1px solid #222" }}>
