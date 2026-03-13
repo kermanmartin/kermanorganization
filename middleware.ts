@@ -1,6 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
+  let supabaseResponse = NextResponse.next({
+    request: req,
+  });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return req.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) =>
+            req.cookies.set(name, value)
+          );
+
+          supabaseResponse = NextResponse.next({
+            request: req,
+          });
+
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
+
+  await supabase.auth.getUser();
+
   if (req.nextUrl.pathname.startsWith("/admin")) {
     const basicAuth = req.headers.get("authorization");
 
@@ -12,7 +44,7 @@ export function middleware(req: NextRequest) {
       const validPassword = process.env.ADMIN_PASSWORD;
 
       if (user === validUser && password === validPassword) {
-        return NextResponse.next();
+        return supabaseResponse;
       }
     }
 
@@ -24,9 +56,9 @@ export function middleware(req: NextRequest) {
     });
   }
 
-  return NextResponse.next();
+  return supabaseResponse;
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/agency-access", "/agencies"],
 };
