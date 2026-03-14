@@ -134,20 +134,31 @@ export default function HomePage() {
                 AI-powered real estate intelligence.
               </p>
 
-              <p
+              <div
                 style={{
-                  fontSize: "clamp(16px, 1.8vw, 23px)",
-                  lineHeight: "1.65",
-                  color: "#dddddd",
-                  margin: 0,
+                  marginTop: "12px",
                   maxWidth: "660px",
-                  textShadow: "0 2px 8px rgba(0,0,0,0.8)",
+                  background: "rgba(20,20,20,0.55)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: "14px",
+                  padding: "16px 18px",
+                  backdropFilter: "blur(6px)",
+                  WebkitBackdropFilter: "blur(6px)",
                 }}
               >
-                Tell us whether you want to sell, buy or invest. Our AI will detect
-                your profile and route you according to the filter that best matches
-                your goals.
-              </p>
+                <p
+                  style={{
+                    fontSize: "clamp(16px, 1.8vw, 23px)",
+                    lineHeight: "1.65",
+                    color: "#dddddd",
+                    margin: 0,
+                  }}
+                >
+                  Tell us whether you want to sell, buy or invest. Our AI will detect
+                  your profile and route you according to the filter that best matches
+                  your goals.
+                </p>
+              </div>
             </div>
 
             <div
