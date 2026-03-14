@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
@@ -8,11 +8,30 @@ export default function AgencyAccessPage() {
   const supabase = createClient();
   const router = useRouter();
 
+  const [checkingSession, setCheckingSession] = useState(true);
+
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [status, setStatus] = useState("");
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session) {
+        router.replace("/agency-dashboard");
+        return;
+      }
+
+      setCheckingSession(false);
+    };
+
+    checkSession();
+  }, [router, supabase]);
 
   const handleAgencySignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,9 +83,32 @@ export default function AgencyAccessPage() {
     }
 
     setStatus("Login successful.");
-    router.push("/agency-dashboard");
+    router.replace("/agency-dashboard");
     router.refresh();
   };
+
+  if (checkingSession) {
+    return (
+      <main
+        style={{
+          minHeight: "100vh",
+          backgroundImage:
+            "linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.75)), url('/wpaper.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          color: "white",
+          fontFamily: "Arial",
+          padding: "70px 20px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <p style={{ fontSize: "18px" }}>Checking session...</p>
+      </main>
+    );
+  }
 
   return (
     <main
