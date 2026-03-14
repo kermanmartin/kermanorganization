@@ -24,14 +24,25 @@ export default async function AgencyDashboardPage() {
     .eq("status", "approved")
     .maybeSingle();
 
-  if (!application) {
-    redirect("/agency-access");
-  }
+  const isApproved = Boolean(application);
 
   const { data: leads, error } = await supabase
     .from("leads")
     .select("*")
     .order("created_at", { ascending: false });
+
+  const safeLeads =
+    leads?.map((lead) => ({
+      ...lead,
+      name: isApproved ? lead.name : lead.name ? "Contact locked" : "-",
+      email: isApproved ? lead.email : lead.email ? "Contact locked" : "-",
+      message: isApproved
+        ? lead.message
+        : lead.message
+        ? "Full message available after agency approval."
+        : "-",
+      contact_locked: !isApproved,
+    })) ?? [];
 
   return (
     <main
@@ -78,8 +89,8 @@ export default async function AgencyDashboardPage() {
                 margin: 0,
               }}
             >
-              Welcome, {application.agency_name}. You are viewing the current lead
-              flow from The Kerman Organization.
+              Welcome. You are viewing the current lead flow from The Kerman
+              Organization.
             </p>
 
             <p
@@ -109,8 +120,18 @@ export default async function AgencyDashboardPage() {
             lineHeight: "1.6",
           }}
         >
-          <strong style={{ color: "white" }}>Current phase:</strong> all approved
-          agencies can view the same leads.
+          {isApproved ? (
+            <>
+              <strong style={{ color: "white" }}>Agency approved:</strong> you
+              have full access to lead contact details.
+            </>
+          ) : (
+            <>
+              <strong style={{ color: "white" }}>Agency under review:</strong>{" "}
+              you can already see live lead activity, but contact details remain
+              locked until approval.
+            </>
+          )}
         </div>
 
         {error && (
@@ -119,7 +140,10 @@ export default async function AgencyDashboardPage() {
           </p>
         )}
 
-        <AgencyDashboardClient initialLeads={leads ?? []} />
+        <AgencyDashboardClient
+          initialLeads={safeLeads}
+          isApproved={isApproved}
+        />
       </section>
     </main>
   );

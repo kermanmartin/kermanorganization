@@ -16,12 +16,15 @@ type Lead = {
   status: string | null;
   message: string | null;
   created_at: string | null;
+  contact_locked?: boolean;
 };
 
 export default function AgencyDashboardClient({
   initialLeads,
+  isApproved,
 }: {
   initialLeads: Lead[];
+  isApproved: boolean;
 }) {
   const supabase = createClient();
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
@@ -43,7 +46,8 @@ export default function AgencyDashboardClient({
     if (selectedCity === "all") return leads;
 
     return leads.filter(
-      (lead) => (lead.city?.trim() ?? "").toLowerCase() === selectedCity.toLowerCase()
+      (lead) =>
+        (lead.city?.trim() ?? "").toLowerCase() === selectedCity.toLowerCase()
     );
   }, [leads, selectedCity]);
 
@@ -166,6 +170,25 @@ export default function AgencyDashboardClient({
         </div>
       </div>
 
+      {!isApproved && (
+        <div
+          style={{
+            marginBottom: "20px",
+            padding: "16px 18px",
+            borderRadius: "14px",
+            backgroundColor: "#111111",
+            border: "1px solid #1f1f1f",
+            color: "#cfcfcf",
+            fontSize: "15px",
+            lineHeight: "1.6",
+          }}
+        >
+          <strong style={{ color: "white" }}>Contact details locked:</strong>{" "}
+          name, email and full message content will be unlocked once your agency
+          is approved.
+        </div>
+      )}
+
       {filteredLeads.length === 0 ? (
         <div
           style={{
@@ -208,8 +231,18 @@ export default function AgencyDashboardClient({
             <tbody>
               {filteredLeads.map((lead) => (
                 <tr key={lead.id} style={{ borderTop: "1px solid #222" }}>
-                  <td style={tdStyle}>{lead.name ?? "-"}</td>
-                  <td style={tdStyle}>{lead.email ?? "-"}</td>
+                  <td style={tdStyle}>
+                    <LockedCell locked={Boolean(lead.contact_locked)}>
+                      {lead.name ?? "-"}
+                    </LockedCell>
+                  </td>
+
+                  <td style={tdStyle}>
+                    <LockedCell locked={Boolean(lead.contact_locked)}>
+                      {lead.email ?? "-"}
+                    </LockedCell>
+                  </td>
+
                   <td style={tdStyle}>{lead.city ?? "-"}</td>
                   <td style={tdStyle}>{lead.budget ?? "-"}</td>
                   <td style={tdStyle}>{lead.user_type ?? "-"}</td>
@@ -221,7 +254,11 @@ export default function AgencyDashboardClient({
                     />
                   </td>
 
-                  <td style={tdStyle}>{lead.message ?? "-"}</td>
+                  <td style={tdStyle}>
+                    <LockedCell locked={Boolean(lead.contact_locked)}>
+                      {lead.message ?? "-"}
+                    </LockedCell>
+                  </td>
 
                   <td style={tdStyle}>
                     {lead.created_at
@@ -235,6 +272,54 @@ export default function AgencyDashboardClient({
         </div>
       )}
     </>
+  );
+}
+
+function LockedCell({
+  locked,
+  children,
+}: {
+  locked: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      style={{
+        position: "relative",
+        minHeight: "22px",
+      }}
+    >
+      <div
+        style={{
+          filter: locked ? "blur(4px)" : "none",
+          userSelect: locked ? "none" : "text",
+          pointerEvents: locked ? "none" : "auto",
+          opacity: locked ? 0.85 : 1,
+        }}
+      >
+        {children}
+      </div>
+
+      {locked && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "11px",
+            fontWeight: 700,
+            letterSpacing: "0.4px",
+            textTransform: "uppercase",
+            color: "#f1f1f1",
+            pointerEvents: "none",
+          }}
+        >
+          Locked
+        </div>
+      )}
+    </div>
   );
 }
 
