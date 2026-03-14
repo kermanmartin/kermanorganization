@@ -141,6 +141,7 @@ export default function HomePage() {
                   color: "#dddddd",
                   margin: 0,
                   maxWidth: "660px",
+                  textShadow: "0 2px 8px rgba(0,0,0,0.8)",
                 }}
               >
                 Tell us whether you want to sell, buy or invest. Our AI will detect
