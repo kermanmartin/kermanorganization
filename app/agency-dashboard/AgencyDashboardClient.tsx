@@ -43,13 +43,17 @@ export default function AgencyDashboardClient({
   }, [leads]);
 
   const filteredLeads = useMemo(() => {
+    if (!isApproved) {
+      return leads;
+    }
+
     if (selectedCity === "all") return leads;
 
     return leads.filter(
       (lead) =>
         (lead.city?.trim() ?? "").toLowerCase() === selectedCity.toLowerCase()
     );
-  }, [leads, selectedCity]);
+  }, [leads, selectedCity, isApproved]);
 
   const newLeads = useMemo(
     () => filteredLeads.filter((lead) => (lead.status ?? "new") === "new").length,
@@ -131,6 +135,8 @@ export default function AgencyDashboardClient({
             border: "1px solid #1f1f1f",
             borderRadius: "14px",
             padding: "14px 16px",
+            position: "relative",
+            opacity: isApproved ? 1 : 0.7,
           }}
         >
           <label
@@ -145,28 +151,57 @@ export default function AgencyDashboardClient({
             Filter by city
           </label>
 
-          <select
-            id="city-filter"
-            value={selectedCity}
-            onChange={(e) => setSelectedCity(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "12px 14px",
-              borderRadius: "10px",
-              border: "1px solid #2a2a2a",
-              backgroundColor: "#1a1a1a",
-              color: "white",
-              fontSize: "15px",
-              outline: "none",
-            }}
-          >
-            <option value="all">All cities</option>
-            {cityOptions.map((city) => (
-              <option key={city} value={city}>
-                {city}
-              </option>
-            ))}
-          </select>
+          <div style={{ position: "relative" }}>
+            <select
+              id="city-filter"
+              value={selectedCity}
+              onChange={(e) => setSelectedCity(e.target.value)}
+              disabled={!isApproved}
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                borderRadius: "10px",
+                border: "1px solid #2a2a2a",
+                backgroundColor: "#1a1a1a",
+                color: "white",
+                fontSize: "15px",
+                outline: "none",
+                appearance: "none",
+                cursor: isApproved ? "pointer" : "not-allowed",
+              }}
+            >
+              <option value="all">All cities</option>
+              {cityOptions.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
+            </select>
+
+            {!isApproved && (
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "10px",
+                  backgroundColor: "rgba(0,0,0,0.35)",
+                  color: "white",
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                  pointerEvents: "none",
+                  backdropFilter: "blur(2px)",
+                  WebkitBackdropFilter: "blur(2px)",
+                }}
+              >
+                Locked
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -184,8 +219,8 @@ export default function AgencyDashboardClient({
           }}
         >
           <strong style={{ color: "white" }}>Contact details locked:</strong>{" "}
-          name, email and full message content will be unlocked once your agency
-          is approved.
+          name, email, full message content and advanced filtering will be
+          unlocked once your agency is approved.
         </div>
       )}
 
