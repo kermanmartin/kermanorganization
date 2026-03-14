@@ -13,6 +13,21 @@ export default function AgencyAccessPage() {
   const [loginPassword, setLoginPassword] = useState("");
   const [status, setStatus] = useState("");
 
+  const syncEmailVerification = async (
+    email: string,
+    emailConfirmedAt: string | null | undefined
+  ) => {
+    if (!emailConfirmedAt) return;
+
+    await supabase
+      .from("agency_applications")
+      .update({
+        email_verified: true,
+        email_verified_at: emailConfirmedAt,
+      })
+      .eq("email", email);
+  };
+
   useEffect(() => {
     const checkSession = async () => {
       const rejectedFromUrl =
@@ -37,6 +52,11 @@ export default function AgencyAccessPage() {
         setCheckingSession(false);
         return;
       }
+
+      await syncEmailVerification(
+        session.user.email,
+        session.user.email_confirmed_at
+      );
 
       const { data: application } = await supabase
         .from("agency_applications")
@@ -75,6 +95,14 @@ export default function AgencyAccessPage() {
     if (error) {
       setStatus(error.message);
       return;
+    }
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user?.email) {
+      await syncEmailVerification(user.email, user.email_confirmed_at);
     }
 
     const { data: application } = await supabase

@@ -12,6 +12,8 @@ type AgencyApplication = {
   email: string;
   message: string;
   status: string;
+  email_verified: boolean | null;
+  email_verified_at: string | null;
   created_at: string;
 };
 
@@ -63,6 +65,7 @@ export default function AgencyApplicationsTable({
           backgroundColor: "#111111",
           borderRadius: "12px",
           overflow: "hidden",
+          minWidth: "1500px",
         }}
       >
         <thead>
@@ -72,6 +75,8 @@ export default function AgencyApplicationsTable({
             <th style={thStyle}>Website</th>
             <th style={thStyle}>Contact</th>
             <th style={thStyle}>Email</th>
+            <th style={thStyle}>Email verified</th>
+            <th style={thStyle}>Verified at</th>
             <th style={thStyle}>Message</th>
             <th style={thStyle}>Status</th>
             <th style={thStyle}>Created at</th>
@@ -84,6 +89,7 @@ export default function AgencyApplicationsTable({
             <tr key={app.id} style={{ borderTop: "1px solid #222" }}>
               <td style={tdStyle}>{app.agency_name}</td>
               <td style={tdStyle}>{app.city}</td>
+
               <td style={tdStyle}>
                 {app.website ? (
                   <a
@@ -102,9 +108,33 @@ export default function AgencyApplicationsTable({
                   ""
                 )}
               </td>
+
               <td style={tdStyle}>{app.contact_name}</td>
               <td style={tdStyle}>{app.email}</td>
+
+              <td style={tdStyle}>
+                <span
+                  style={{
+                    padding: "6px 10px",
+                    borderRadius: "999px",
+                    backgroundColor: app.email_verified ? "#123d22" : "#2d2d2d",
+                    color: "white",
+                    fontSize: "12px",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {app.email_verified ? "verified" : "not verified"}
+                </span>
+              </td>
+
+              <td style={tdStyle}>
+                {app.email_verified_at
+                  ? new Date(app.email_verified_at).toLocaleString()
+                  : "-"}
+              </td>
+
               <td style={tdStyle}>{app.message}</td>
+
               <td style={tdStyle}>
                 <span
                   style={{
@@ -124,11 +154,13 @@ export default function AgencyApplicationsTable({
                   {app.status}
                 </span>
               </td>
+
               <td style={tdStyle}>
                 {app.created_at
                   ? new Date(app.created_at).toLocaleString()
                   : ""}
               </td>
+
               <td style={tdStyle}>
                 <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                   <button
