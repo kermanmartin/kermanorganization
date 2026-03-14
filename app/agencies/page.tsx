@@ -11,9 +11,19 @@ export default function AgenciesPage() {
   const [website, setWebsite] = useState("");
   const [contactName, setContactName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const normalizeWebsite = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return "";
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+      return trimmed;
+    }
+    return `https://${trimmed}`;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,6 +31,7 @@ export default function AgenciesPage() {
     setStatusMessage("");
 
     const normalizedEmail = email.trim().toLowerCase();
+    const normalizedWebsite = normalizeWebsite(website);
 
     const { data: existingApplication, error: existingError } = await supabase
       .from("agency_applications")
@@ -37,24 +48,37 @@ export default function AgenciesPage() {
     }
 
     if (existingApplication?.status === "pending") {
-      setStatusMessage("You already have a pending application under review.");
+      setStatusMessage(
+        "You already have a pending agency application. Please go to Agency Access to log in if your account is already created."
+      );
       setLoading(false);
       return;
     }
 
     if (existingApplication?.status === "approved") {
       setStatusMessage(
-        "This email has already been approved. Go to Agency Access to create your account or log in."
+        "This email is already approved. Please go to Agency Access to log in."
       );
       setLoading(false);
       return;
     }
 
-    const { error } = await supabase.from("agency_applications").insert([
+    const { error: signUpError } = await supabase.auth.signUp({
+      email: normalizedEmail,
+      password: password.trim(),
+    });
+
+    if (signUpError) {
+      setStatusMessage(signUpError.message);
+      setLoading(false);
+      return;
+    }
+
+    const { error: insertError } = await supabase.from("agency_applications").insert([
       {
         agency_name: agencyName.trim(),
         city: city.trim(),
-        website: website.trim(),
+        website: normalizedWebsite,
         contact_name: contactName.trim(),
         email: normalizedEmail,
         message: message.trim(),
@@ -62,14 +86,18 @@ export default function AgenciesPage() {
       },
     ]);
 
-    if (error) {
-      setStatusMessage("Could not submit your application. Please try again.");
+    if (insertError) {
+      setStatusMessage(
+        "Your account was created, but we could not save the agency application. Please contact support or try again."
+      );
       setLoading(false);
       return;
     }
 
+    await supabase.auth.signOut();
+
     setStatusMessage(
-      "Application submitted successfully. We will review it and contact you if approved."
+      "Agency account created successfully. Please verify your email if required, then log in through Agency Access. Your account is now under review."
     );
 
     setAgencyName("");
@@ -77,6 +105,7 @@ export default function AgenciesPage() {
     setWebsite("");
     setContactName("");
     setEmail("");
+    setPassword("");
     setMessage("");
     setLoading(false);
   };
@@ -118,8 +147,9 @@ export default function AgenciesPage() {
             lineHeight: "1.7",
           }}
         >
-          Apply to join The Kerman Organization agency network. Approved agencies
-          will receive access to a private dashboard and lead flow.
+          Apply to join The Kerman Organization agency network. Create your account
+          and submit your agency details in one step. Approved agencies unlock full
+          contact access inside the private dashboard.
         </p>
 
         <div
@@ -139,7 +169,7 @@ export default function AgenciesPage() {
               fontWeight: 400,
             }}
           >
-            Apply for access
+            Apply and create account
           </h2>
 
           <p
@@ -150,8 +180,9 @@ export default function AgenciesPage() {
               fontSize: "16px",
             }}
           >
-            Submit your agency details below. Once reviewed, approved agencies can
-            create an account from the Agency Access page.
+            Submit your agency details and create your agency login. You will be
+            able to access the dashboard immediately, while full contact details
+            remain locked until approval.
           </p>
 
           <form
@@ -207,6 +238,16 @@ export default function AgenciesPage() {
               style={{ ...inputStyle, gridColumn: "1 / -1" }}
             />
 
+            <input
+              type="password"
+              placeholder="Create password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              style={{ ...inputStyle, gridColumn: "1 / -1" }}
+            />
+
             <textarea
               placeholder="Tell us what type of clients or properties you are looking for"
               value={message}
@@ -230,7 +271,7 @@ export default function AgenciesPage() {
                 cursor: loading ? "not-allowed" : "pointer",
               }}
             >
-              {loading ? "Submitting..." : "Submit application"}
+              {loading ? "Creating account..." : "Apply and create account"}
             </button>
           </form>
 

@@ -2,69 +2,62 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function AgencyAccessPage() {
   const supabase = createClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [checkingSession, setCheckingSession] = useState(true);
-
-  const [signUpEmail, setSignUpEmail] = useState("");
-  const [signUpPassword, setSignUpPassword] = useState("");
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [status, setStatus] = useState("");
 
   useEffect(() => {
     const checkSession = async () => {
+      const rejectedFromUrl = searchParams.get("rejected");
+
+      if (rejectedFromUrl === "1") {
+        await supabase.auth.signOut();
+        setStatus(
+          "This agency account has been rejected. Dashboard access is blocked."
+        );
+        setCheckingSession(false);
+        return;
+      }
+
       const {
         data: { session },
       } = await supabase.auth.getSession();
 
-      if (session) {
-        router.replace("/agency-dashboard");
+      if (!session?.user?.email) {
+        setCheckingSession(false);
         return;
       }
 
-      setCheckingSession(false);
+      const { data: application } = await supabase
+        .from("agency_applications")
+        .select("status")
+        .eq("email", session.user.email)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (application?.status === "rejected") {
+        await supabase.auth.signOut();
+        setStatus(
+          "This agency account has been rejected. Dashboard access is blocked."
+        );
+        setCheckingSession(false);
+        return;
+      }
+
+      router.replace("/agency-dashboard");
     };
 
     checkSession();
-  }, [router, supabase]);
-
-  const handleAgencySignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus("Checking approval...");
-
-    const normalizedEmail = signUpEmail.trim().toLowerCase();
-
-    const { data: application, error: appError } = await supabase
-      .from("agency_applications")
-      .select("*")
-      .eq("email", normalizedEmail)
-      .eq("status", "approved")
-      .maybeSingle();
-
-    if (appError || !application) {
-      setStatus("This email is not approved for agency access yet.");
-      return;
-    }
-
-    const { error } = await supabase.auth.signUp({
-      email: normalizedEmail,
-      password: signUpPassword,
-    });
-
-    if (error) {
-      setStatus(error.message);
-      return;
-    }
-
-    setStatus("Account created. You can now log in.");
-    setSignUpEmail("");
-    setSignUpPassword("");
-  };
+  }, [router, searchParams, supabase]);
 
   const handleAgencyLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +72,22 @@ export default function AgencyAccessPage() {
 
     if (error) {
       setStatus(error.message);
+      return;
+    }
+
+    const { data: application } = await supabase
+      .from("agency_applications")
+      .select("status")
+      .eq("email", normalizedEmail)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (application?.status === "rejected") {
+      await supabase.auth.signOut();
+      setStatus(
+        "This agency account has been rejected. Dashboard access is blocked."
+      );
       return;
     }
 
@@ -124,7 +133,7 @@ export default function AgencyAccessPage() {
         padding: "70px 20px",
       }}
     >
-      <section style={{ maxWidth: "1100px", margin: "0 auto" }}>
+      <section style={{ maxWidth: "760px", margin: "0 auto" }}>
         <h1 style={{ fontSize: "48px", textAlign: "center", marginBottom: "16px" }}>
           Agency Access
         </h1>
@@ -139,84 +148,43 @@ export default function AgencyAccessPage() {
             lineHeight: "1.6",
           }}
         >
-          Approved agencies can create an account and access their private dashboard.
+          Log in to your agency dashboard. New agencies should first apply and create
+          their account through the Agencies page.
         </p>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
-            gap: "24px",
-          }}
-        >
-          <div style={panelStyle}>
-            <h2 style={panelTitle}>Create account</h2>
-            <p style={panelText}>
-              Only approved agencies can create an account. Use the same business
-              email you used in your agency application.
-            </p>
+        <div style={panelStyle}>
+          <h2 style={panelTitle}>Log in</h2>
+          <p style={panelText}>
+            Use the same business email and password you created during your agency
+            application.
+          </p>
 
-            <form
-              onSubmit={handleAgencySignup}
-              style={{ display: "flex", flexDirection: "column", gap: "14px" }}
-            >
-              <input
-                type="email"
-                placeholder="Approved business email"
-                value={signUpEmail}
-                onChange={(e) => setSignUpEmail(e.target.value)}
-                required
-                style={inputStyle}
-              />
+          <form
+            onSubmit={handleAgencyLogin}
+            style={{ display: "flex", flexDirection: "column", gap: "14px" }}
+          >
+            <input
+              type="email"
+              placeholder="Business email"
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
+              required
+              style={inputStyle}
+            />
 
-              <input
-                type="password"
-                placeholder="Create password"
-                value={signUpPassword}
-                onChange={(e) => setSignUpPassword(e.target.value)}
-                required
-                style={inputStyle}
-              />
+            <input
+              type="password"
+              placeholder="Password"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              required
+              style={inputStyle}
+            />
 
-              <button type="submit" style={buttonStyle}>
-                Create agency account
-              </button>
-            </form>
-          </div>
-
-          <div style={panelStyle}>
-            <h2 style={panelTitle}>Log in</h2>
-            <p style={panelText}>
-              Already have an approved agency account? Log in below.
-            </p>
-
-            <form
-              onSubmit={handleAgencyLogin}
-              style={{ display: "flex", flexDirection: "column", gap: "14px" }}
-            >
-              <input
-                type="email"
-                placeholder="Business email"
-                value={loginEmail}
-                onChange={(e) => setLoginEmail(e.target.value)}
-                required
-                style={inputStyle}
-              />
-
-              <input
-                type="password"
-                placeholder="Password"
-                value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
-                required
-                style={inputStyle}
-              />
-
-              <button type="submit" style={buttonStyle}>
-                Log in
-              </button>
-            </form>
-          </div>
+            <button type="submit" style={buttonStyle}>
+              Log in
+            </button>
+          </form>
         </div>
 
         {status && (

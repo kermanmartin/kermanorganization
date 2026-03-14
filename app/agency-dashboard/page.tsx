@@ -21,10 +21,19 @@ export default async function AgencyDashboardPage() {
     .from("agency_applications")
     .select("*")
     .eq("email", user.email)
-    .eq("status", "approved")
+    .order("created_at", { ascending: false })
+    .limit(1)
     .maybeSingle();
 
-  const isApproved = Boolean(application);
+  if (!application) {
+    redirect("/agencies");
+  }
+
+  if (application.status === "rejected") {
+    redirect("/agency-access?rejected=1");
+  }
+
+  const isApproved = application.status === "approved";
 
   const { data: leads, error } = await supabase
     .from("leads")
@@ -89,8 +98,8 @@ export default async function AgencyDashboardPage() {
                 margin: 0,
               }}
             >
-              Welcome. You are viewing the current lead flow from The Kerman
-              Organization.
+              Welcome, {application.agency_name}. You are viewing the current lead
+              flow from The Kerman Organization.
             </p>
 
             <p
