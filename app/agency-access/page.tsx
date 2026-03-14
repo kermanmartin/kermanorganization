@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function AgencyAccessPage() {
   const supabase = createClient();
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const [checkingSession, setCheckingSession] = useState(true);
   const [loginEmail, setLoginEmail] = useState("");
@@ -16,7 +15,10 @@ export default function AgencyAccessPage() {
 
   useEffect(() => {
     const checkSession = async () => {
-      const rejectedFromUrl = searchParams.get("rejected");
+      const rejectedFromUrl =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search).get("rejected")
+          : null;
 
       if (rejectedFromUrl === "1") {
         await supabase.auth.signOut();
@@ -57,7 +59,7 @@ export default function AgencyAccessPage() {
     };
 
     checkSession();
-  }, [router, searchParams, supabase]);
+  }, [router, supabase]);
 
   const handleAgencyLogin = async (e: React.FormEvent) => {
     e.preventDefault();
