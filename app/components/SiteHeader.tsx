@@ -39,32 +39,18 @@ export default function SiteHeader() {
               minWidth: 0,
             }}
           >
-            <div
+            <img
+              src="/LogoKnuevo.jpeg"
+              alt="The Kerman Organization"
               style={{
                 width: "40px",
                 height: "40px",
                 borderRadius: "999px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                objectFit: "cover",
                 border: "1px solid rgba(255,255,255,0.12)",
-                background:
-                  "radial-gradient(circle at 30% 30%, #1f1f1f, #090909)",
-                boxShadow: "0 0 18px rgba(255,215,100,0.12)",
                 flexShrink: 0,
               }}
-            >
-              <span
-                style={{
-                  color: "#e7c46a",
-                  fontWeight: 700,
-                  fontSize: "20px",
-                  lineHeight: 1,
-                }}
-              >
-                K
-              </span>
-            </div>
+            />
 
             <span
               style={{
