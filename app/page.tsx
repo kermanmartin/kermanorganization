@@ -263,7 +263,7 @@ export default function HomePage() {
 
                 <input
                   type="email"
-                  placeholder="Your email"
+                  placeholder="Your email *"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -288,13 +288,22 @@ export default function HomePage() {
 
                   <input
                     type="tel"
-                    placeholder="Phone number"
+                    placeholder="Phone number *"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
                     required
                     style={inputStyle}
                   />
                 </div>
+
+                <input
+                  type="text"
+                  placeholder="City"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  required
+                  style={inputStyle}
+                />
 
                 <div
                   style={{
@@ -354,34 +363,6 @@ export default function HomePage() {
 
                 <div
                   style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 130px",
-                    gap: "10px",
-                  }}
-                >
-                  <input
-                    type="text"
-                    placeholder="City"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    required
-                    style={inputStyle}
-                  />
-
-                  <select
-                    value={currency}
-                    onChange={(e) => setCurrency(e.target.value)}
-                    style={inputStyle}
-                  >
-                    <option value="EUR">EUR (€)</option>
-                    <option value="USD">USD ($)</option>
-                    <option value="GBP">GBP (£)</option>
-                    <option value="AED">AED</option>
-                  </select>
-                </div>
-
-                <div
-                  style={{
                     color: "#cfcfcf",
                     fontSize: "14px",
                     marginTop: "2px",
@@ -394,7 +375,7 @@ export default function HomePage() {
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
+                    gridTemplateColumns: "1fr 1fr 130px",
                     gap: "10px",
                   }}
                 >
@@ -415,6 +396,17 @@ export default function HomePage() {
                     required
                     style={inputStyle}
                   />
+
+                  <select
+                    value={currency}
+                    onChange={(e) => setCurrency(e.target.value)}
+                    style={inputStyle}
+                  >
+                    <option value="EUR">EUR (€)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="GBP">GBP (£)</option>
+                    <option value="AED">AED</option>
+                  </select>
                 </div>
 
                 <textarea
