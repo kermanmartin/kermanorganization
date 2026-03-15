@@ -299,7 +299,63 @@ export default function HomePage() {
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(2, 1fr)",
+                    gridTemplateColumns: "repeat(4, 1fr)",
+                    gap: "10px",
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setUserType("seller")}
+                    style={{
+                      ...choiceButton,
+                      backgroundColor: userType === "seller" ? "white" : "#111",
+                      color: userType === "seller" ? "black" : "white",
+                    }}
+                  >
+                    Sell
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setUserType("buyer")}
+                    style={{
+                      ...choiceButton,
+                      backgroundColor: userType === "buyer" ? "white" : "#111",
+                      color: userType === "buyer" ? "black" : "white",
+                    }}
+                  >
+                    Buy
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setUserType("rent")}
+                    style={{
+                      ...choiceButton,
+                      backgroundColor: userType === "rent" ? "white" : "#111",
+                      color: userType === "rent" ? "black" : "white",
+                    }}
+                  >
+                    Rent
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setUserType("investor")}
+                    style={{
+                      ...choiceButton,
+                      backgroundColor: userType === "investor" ? "white" : "#111",
+                      color: userType === "investor" ? "black" : "white",
+                    }}
+                  >
+                    Invest
+                  </button>
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 130px",
                     gap: "10px",
                   }}
                 >
@@ -359,62 +415,6 @@ export default function HomePage() {
                     required
                     style={inputStyle}
                   />
-                </div>
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(4, 1fr)",
-                    gap: "10px",
-                  }}
-                >
-                  <button
-                    type="button"
-                    onClick={() => setUserType("seller")}
-                    style={{
-                      ...choiceButton,
-                      backgroundColor: userType === "seller" ? "white" : "#111",
-                      color: userType === "seller" ? "black" : "white",
-                    }}
-                  >
-                    Sell
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setUserType("buyer")}
-                    style={{
-                      ...choiceButton,
-                      backgroundColor: userType === "buyer" ? "white" : "#111",
-                      color: userType === "buyer" ? "black" : "white",
-                    }}
-                  >
-                    Buy
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setUserType("rent")}
-                    style={{
-                      ...choiceButton,
-                      backgroundColor: userType === "rent" ? "white" : "#111",
-                      color: userType === "rent" ? "black" : "white",
-                    }}
-                  >
-                    Rent
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setUserType("investor")}
-                    style={{
-                      ...choiceButton,
-                      backgroundColor: userType === "investor" ? "white" : "#111",
-                      color: userType === "investor" ? "black" : "white",
-                    }}
-                  >
-                    Invest
-                  </button>
                 </div>
 
                 <textarea
