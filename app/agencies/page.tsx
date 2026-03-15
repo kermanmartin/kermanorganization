@@ -10,7 +10,8 @@ export default function AgenciesPage() {
   const [city, setCity] = useState("");
   const [website, setWebsite] = useState("");
   const [contactName, setContactName] = useState("");
-  const [businessPhone, setBusinessPhone] = useState("");
+  const [businessPhonePrefix, setBusinessPhonePrefix] = useState("");
+  const [businessPhoneNumber, setBusinessPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -26,6 +27,16 @@ export default function AgenciesPage() {
     return `https://${trimmed}`;
   };
 
+  const buildFullPhone = () => {
+    const prefix = businessPhonePrefix.trim();
+    const number = businessPhoneNumber.trim();
+
+    if (!prefix || !number) return "";
+
+    const normalizedPrefix = prefix.startsWith("+") ? prefix : `+${prefix}`;
+    return `${normalizedPrefix} ${number}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -33,6 +44,7 @@ export default function AgenciesPage() {
 
     const normalizedEmail = email.trim().toLowerCase();
     const normalizedWebsite = normalizeWebsite(website);
+    const fullBusinessPhone = buildFullPhone();
 
     const { data: existingApplication, error: existingError } = await supabase
       .from("agency_applications")
@@ -81,7 +93,7 @@ export default function AgenciesPage() {
         city: city.trim(),
         website: normalizedWebsite,
         contact_name: contactName.trim(),
-        business_phone: businessPhone.trim(),
+        business_phone: fullBusinessPhone,
         email: normalizedEmail,
         message: message.trim(),
         status: "pending",
@@ -106,7 +118,8 @@ export default function AgenciesPage() {
     setCity("");
     setWebsite("");
     setContactName("");
-    setBusinessPhone("");
+    setBusinessPhonePrefix("");
+    setBusinessPhoneNumber("");
     setEmail("");
     setPassword("");
     setMessage("");
@@ -232,14 +245,32 @@ export default function AgenciesPage() {
               style={inputStyle}
             />
 
-            <input
-              type="text"
-              placeholder="Business phone"
-              value={businessPhone}
-              onChange={(e) => setBusinessPhone(e.target.value)}
-              required
-              style={{ ...inputStyle, gridColumn: "1 / -1" }}
-            />
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "120px 1fr",
+                gap: "10px",
+                gridColumn: "1 / -1",
+              }}
+            >
+              <input
+                type="text"
+                placeholder="+34"
+                value={businessPhonePrefix}
+                onChange={(e) => setBusinessPhonePrefix(e.target.value)}
+                required
+                style={inputStyle}
+              />
+
+              <input
+                type="tel"
+                placeholder="Business phone"
+                value={businessPhoneNumber}
+                onChange={(e) => setBusinessPhoneNumber(e.target.value)}
+                required
+                style={inputStyle}
+              />
+            </div>
 
             <input
               type="email"

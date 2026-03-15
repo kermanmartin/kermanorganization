@@ -9,12 +9,24 @@ export default function HomePage() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phonePrefix, setPhonePrefix] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [city, setCity] = useState("");
   const [budget, setBudget] = useState("");
   const [userType, setUserType] = useState("");
   const [message, setMessage] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const buildFullPhone = () => {
+    const prefix = phonePrefix.trim();
+    const number = phoneNumber.trim();
+
+    if (!prefix || !number) return "";
+
+    const normalizedPrefix = prefix.startsWith("+") ? prefix : `+${prefix}`;
+    return `${normalizedPrefix} ${number}`;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,10 +39,13 @@ export default function HomePage() {
     setLoading(true);
     setStatusMessage("");
 
+    const fullPhone = buildFullPhone();
+
     const { error } = await supabase.from("leads").insert([
       {
         name: name.trim(),
         email: email.trim().toLowerCase(),
+        phone: fullPhone,
         city: city.trim(),
         budget: budget.trim(),
         user_type: userType,
@@ -47,6 +62,8 @@ export default function HomePage() {
     setStatusMessage("Submitted successfully. We will review your request.");
     setName("");
     setEmail("");
+    setPhonePrefix("");
+    setPhoneNumber("");
     setCity("");
     setBudget("");
     setUserType("");
@@ -225,6 +242,32 @@ export default function HomePage() {
                   required
                   style={inputStyle}
                 />
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "120px 1fr",
+                    gap: "10px",
+                  }}
+                >
+                  <input
+                    type="text"
+                    placeholder="+34"
+                    value={phonePrefix}
+                    onChange={(e) => setPhonePrefix(e.target.value)}
+                    required
+                    style={inputStyle}
+                  />
+
+                  <input
+                    type="tel"
+                    placeholder="Phone number"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    required
+                    style={inputStyle}
+                  />
+                </div>
 
                 <div
                   style={{
@@ -470,15 +513,23 @@ function InfoCard({ title, text }: { title: string; text: string }) {
 }
 
 const inputStyle = {
-  width: "100%",
-  padding: "18px",
-  borderRadius: "14px",
-  border: "1px solid rgba(255,255,255,0.08)",
-  backgroundColor: "rgba(24,24,24,0.86)",
+  padding: "14px",
+  borderRadius: "10px",
+  border: "1px solid #333",
+  backgroundColor: "#1a1a1a",
   color: "white",
   fontSize: "16px",
-  outline: "none",
-  boxSizing: "border-box" as const,
+  width: "100%",
+};
+
+const buttonStyle = {
+  padding: "15px",
+  fontSize: "16px",
+  borderRadius: "10px",
+  border: "none",
+  backgroundColor: "white",
+  color: "black",
+  fontWeight: "bold",
 };
 
 const choiceButton = {
