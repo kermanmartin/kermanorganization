@@ -9,11 +9,10 @@ type AgencyApplication = {
   city: string;
   website: string;
   contact_name: string;
+  business_phone: string | null;
   email: string;
   message: string;
   status: string;
-  email_verified: boolean | null;
-  email_verified_at: string | null;
   created_at: string;
 };
 
@@ -74,9 +73,8 @@ export default function AgencyApplicationsTable({
             <th style={thStyle}>City</th>
             <th style={thStyle}>Website</th>
             <th style={thStyle}>Contact</th>
+            <th style={thStyle}>Business phone</th>
             <th style={thStyle}>Email</th>
-            <th style={thStyle}>Email verified</th>
-            <th style={thStyle}>Verified at</th>
             <th style={thStyle}>Message</th>
             <th style={thStyle}>Status</th>
             <th style={thStyle}>Created at</th>
@@ -110,29 +108,8 @@ export default function AgencyApplicationsTable({
               </td>
 
               <td style={tdStyle}>{app.contact_name}</td>
+              <td style={tdStyle}>{app.business_phone ?? "-"}</td>
               <td style={tdStyle}>{app.email}</td>
-
-              <td style={tdStyle}>
-                <span
-                  style={{
-                    padding: "6px 10px",
-                    borderRadius: "999px",
-                    backgroundColor: app.email_verified ? "#123d22" : "#2d2d2d",
-                    color: "white",
-                    fontSize: "12px",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {app.email_verified ? "verified" : "not verified"}
-                </span>
-              </td>
-
-              <td style={tdStyle}>
-                {app.email_verified_at
-                  ? new Date(app.email_verified_at).toLocaleString()
-                  : "-"}
-              </td>
-
               <td style={tdStyle}>{app.message}</td>
 
               <td style={tdStyle}>

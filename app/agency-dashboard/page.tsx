@@ -26,7 +26,7 @@ export default async function AgencyDashboardPage() {
     .maybeSingle();
 
   if (!application) {
-    redirect("/agencies");
+    redirect("/agency-access?rejected=1");
   }
 
   if (application.status === "rejected") {

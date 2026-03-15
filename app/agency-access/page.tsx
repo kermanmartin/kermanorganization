@@ -13,21 +13,6 @@ export default function AgencyAccessPage() {
   const [loginPassword, setLoginPassword] = useState("");
   const [status, setStatus] = useState("");
 
-  const syncEmailVerification = async (
-    email: string,
-    emailConfirmedAt: string | null | undefined
-  ) => {
-    if (!emailConfirmedAt) return;
-
-    await supabase
-      .from("agency_applications")
-      .update({
-        email_verified: true,
-        email_verified_at: emailConfirmedAt,
-      })
-      .eq("email", email);
-  };
-
   useEffect(() => {
     const checkSession = async () => {
       const rejectedFromUrl =
@@ -38,7 +23,7 @@ export default function AgencyAccessPage() {
       if (rejectedFromUrl === "1") {
         await supabase.auth.signOut();
         setStatus(
-          "This agency account has been rejected. Dashboard access is blocked."
+          "This agency account is blocked. Dashboard access is not available."
         );
         setCheckingSession(false);
         return;
@@ -53,11 +38,6 @@ export default function AgencyAccessPage() {
         return;
       }
 
-      await syncEmailVerification(
-        session.user.email,
-        session.user.email_confirmed_at
-      );
-
       const { data: application } = await supabase
         .from("agency_applications")
         .select("status")
@@ -66,10 +46,10 @@ export default function AgencyAccessPage() {
         .limit(1)
         .maybeSingle();
 
-      if (application?.status === "rejected") {
+      if (!application || application.status === "rejected") {
         await supabase.auth.signOut();
         setStatus(
-          "This agency account has been rejected. Dashboard access is blocked."
+          "This agency account is blocked. Dashboard access is not available."
         );
         setCheckingSession(false);
         return;
@@ -97,14 +77,6 @@ export default function AgencyAccessPage() {
       return;
     }
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (user?.email) {
-      await syncEmailVerification(user.email, user.email_confirmed_at);
-    }
-
     const { data: application } = await supabase
       .from("agency_applications")
       .select("status")
@@ -113,10 +85,10 @@ export default function AgencyAccessPage() {
       .limit(1)
       .maybeSingle();
 
-    if (application?.status === "rejected") {
+    if (!application || application.status === "rejected") {
       await supabase.auth.signOut();
       setStatus(
-        "This agency account has been rejected. Dashboard access is blocked."
+        "This agency account is blocked. Dashboard access is not available."
       );
       return;
     }

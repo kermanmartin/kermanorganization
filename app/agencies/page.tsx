@@ -10,6 +10,7 @@ export default function AgenciesPage() {
   const [city, setCity] = useState("");
   const [website, setWebsite] = useState("");
   const [contactName, setContactName] = useState("");
+  const [businessPhone, setBusinessPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -80,6 +81,7 @@ export default function AgenciesPage() {
         city: city.trim(),
         website: normalizedWebsite,
         contact_name: contactName.trim(),
+        business_phone: businessPhone.trim(),
         email: normalizedEmail,
         message: message.trim(),
         status: "pending",
@@ -97,13 +99,14 @@ export default function AgenciesPage() {
     await supabase.auth.signOut();
 
     setStatusMessage(
-      "Agency account created successfully. Please verify your email if required, then log in through Agency Access. Your account is now under review."
+      "Agency account created successfully. You can now log in through Agency Access. Your account is under review."
     );
 
     setAgencyName("");
     setCity("");
     setWebsite("");
     setContactName("");
+    setBusinessPhone("");
     setEmail("");
     setPassword("");
     setMessage("");
@@ -227,6 +230,15 @@ export default function AgenciesPage() {
               onChange={(e) => setContactName(e.target.value)}
               required
               style={inputStyle}
+            />
+
+            <input
+              type="text"
+              placeholder="Business phone"
+              value={businessPhone}
+              onChange={(e) => setBusinessPhone(e.target.value)}
+              required
+              style={{ ...inputStyle, gridColumn: "1 / -1" }}
             />
 
             <input
