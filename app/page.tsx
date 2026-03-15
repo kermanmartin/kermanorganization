@@ -12,7 +12,9 @@ export default function HomePage() {
   const [phonePrefix, setPhonePrefix] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [city, setCity] = useState("");
-  const [budget, setBudget] = useState("");
+  const [currency, setCurrency] = useState("EUR");
+  const [budgetMin, setBudgetMin] = useState("");
+  const [budgetMax, setBudgetMax] = useState("");
   const [userType, setUserType] = useState("");
   const [message, setMessage] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
@@ -28,11 +30,33 @@ export default function HomePage() {
     return `${normalizedPrefix} ${number}`;
   };
 
+  const buildBudgetRange = () => {
+    const min = budgetMin.trim();
+    const max = budgetMax.trim();
+
+    if (!min || !max) return "";
+
+    return `${currency} ${min} - ${max}`;
+  };
+
+  const getBudgetLabel = () => {
+    if (userType === "seller") return "Expected value range";
+    if (userType === "buyer") return "Purchase budget range";
+    if (userType === "rent") return "Monthly rent range";
+    if (userType === "investor") return "Investment range";
+    return "Budget range";
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!userType) {
-      setStatusMessage("Please select whether you want to sell, buy or invest.");
+      setStatusMessage("Please select whether you want to sell, buy, rent or invest.");
+      return;
+    }
+
+    if (!budgetMin.trim() || !budgetMax.trim()) {
+      setStatusMessage("Please enter both minimum and maximum budget.");
       return;
     }
 
@@ -40,6 +64,7 @@ export default function HomePage() {
     setStatusMessage("");
 
     const fullPhone = buildFullPhone();
+    const fullBudget = buildBudgetRange();
 
     const { error } = await supabase.from("leads").insert([
       {
@@ -47,7 +72,7 @@ export default function HomePage() {
         email: email.trim().toLowerCase(),
         phone: fullPhone,
         city: city.trim(),
-        budget: budget.trim(),
+        budget: fullBudget,
         user_type: userType,
         message: message.trim(),
       },
@@ -65,7 +90,9 @@ export default function HomePage() {
     setPhonePrefix("");
     setPhoneNumber("");
     setCity("");
-    setBudget("");
+    setCurrency("EUR");
+    setBudgetMin("");
+    setBudgetMax("");
     setUserType("");
     setMessage("");
     setLoading(false);
@@ -171,7 +198,7 @@ export default function HomePage() {
                     margin: 0,
                   }}
                 >
-                  Tell us whether you want to sell, buy or invest. Our AI will detect
+                  Tell us whether you want to sell, buy, rent or invest. Our AI will detect
                   your profile and route you according to the filter that best matches
                   your goals.
                 </p>
@@ -285,11 +312,50 @@ export default function HomePage() {
                     style={inputStyle}
                   />
 
+                  <select
+                    value={currency}
+                    onChange={(e) => setCurrency(e.target.value)}
+                    style={inputStyle}
+                  >
+                    <option value="EUR">EUR (€)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="GBP">GBP (£)</option>
+                    <option value="AED">AED</option>
+                  </select>
+                </div>
+
+                <div
+                  style={{
+                    color: "#cfcfcf",
+                    fontSize: "14px",
+                    marginTop: "2px",
+                    marginBottom: "-4px",
+                  }}
+                >
+                  {getBudgetLabel()}
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "10px",
+                  }}
+                >
                   <input
                     type="text"
-                    placeholder="Budget"
-                    value={budget}
-                    onChange={(e) => setBudget(e.target.value)}
+                    placeholder="Min"
+                    value={budgetMin}
+                    onChange={(e) => setBudgetMin(e.target.value)}
+                    required
+                    style={inputStyle}
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Max"
+                    value={budgetMax}
+                    onChange={(e) => setBudgetMax(e.target.value)}
                     required
                     style={inputStyle}
                   />
@@ -298,7 +364,7 @@ export default function HomePage() {
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(3, 1fr)",
+                    gridTemplateColumns: "repeat(4, 1fr)",
                     gap: "10px",
                   }}
                 >
@@ -324,6 +390,18 @@ export default function HomePage() {
                     }}
                   >
                     Buy
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setUserType("rent")}
+                    style={{
+                      ...choiceButton,
+                      backgroundColor: userType === "rent" ? "white" : "#111",
+                      color: userType === "rent" ? "black" : "white",
+                    }}
+                  >
+                    Rent
                   </button>
 
                   <button
@@ -414,7 +492,7 @@ export default function HomePage() {
           >
             <InfoCard
               title="Profile detection"
-              text="The AI identifies whether the opportunity fits a seller, buyer or investor journey."
+              text="The AI identifies whether the opportunity fits a seller, buyer, renter or investor journey."
             />
             <InfoCard
               title="Qualified routing"
