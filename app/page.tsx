@@ -2,11 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 export default function HomePage() {
-  const supabase = createClient();
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phonePrefix, setPhonePrefix] = useState("");
@@ -17,6 +15,7 @@ export default function HomePage() {
   const [budgetMax, setBudgetMax] = useState("");
   const [userType, setUserType] = useState("");
   const [message, setMessage] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -60,42 +59,60 @@ export default function HomePage() {
       return;
     }
 
+    if (!turnstileToken) {
+      setStatusMessage("Please complete the security verification.");
+      return;
+    }
+
     setLoading(true);
     setStatusMessage("");
 
     const fullPhone = buildFullPhone();
     const fullBudget = buildBudgetRange();
 
-    const { error } = await supabase.from("leads").insert([
-      {
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
-        phone: fullPhone,
-        city: city.trim(),
-        budget: fullBudget,
-        user_type: userType,
-        message: message.trim(),
-      },
-    ]);
+    try {
+      const response = await fetch("/api/leads", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
+          phone: fullPhone,
+          city: city.trim(),
+          budget: fullBudget,
+          user_type: userType,
+          message: message.trim(),
+          turnstileToken,
+        }),
+      });
 
-    if (error) {
+      const result = await response.json();
+
+      if (!response.ok) {
+        setStatusMessage(result.error || "Something went wrong. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      setStatusMessage("Submitted successfully. We will review your request.");
+      setName("");
+      setEmail("");
+      setPhonePrefix("");
+      setPhoneNumber("");
+      setCity("");
+      setCurrency("EUR");
+      setBudgetMin("");
+      setBudgetMax("");
+      setUserType("");
+      setMessage("");
+      setTurnstileToken("");
+      setLoading(false);
+    } catch {
       setStatusMessage("Something went wrong. Please try again.");
       setLoading(false);
-      return;
     }
-
-    setStatusMessage("Submitted successfully. We will review your request.");
-    setName("");
-    setEmail("");
-    setPhonePrefix("");
-    setPhoneNumber("");
-    setCity("");
-    setCurrency("EUR");
-    setBudgetMin("");
-    setBudgetMax("");
-    setUserType("");
-    setMessage("");
-    setLoading(false);
   };
 
   return (
@@ -407,6 +424,21 @@ export default function HomePage() {
                     <option value="GBP">GBP (£)</option>
                     <option value="AED">AED</option>
                   </select>
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginTop: "4px",
+                  }}
+                >
+                  <Turnstile
+                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                    onSuccess={(token: string) => setTurnstileToken(token)}
+                    onExpire={() => setTurnstileToken("")}
+                    onError={() => setTurnstileToken("")}
+                  />
                 </div>
 
                 <textarea
