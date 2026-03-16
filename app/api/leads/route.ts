@@ -75,10 +75,6 @@ export async function POST(req: Request) {
     formData.append("secret", process.env.TURNSTILE_SECRET_KEY!);
     formData.append("response", turnstileToken);
 
-    if (ip && ip !== "unknown") {
-      formData.append("remoteip", ip);
-    }
-
     const turnstileResponse = await fetch(
       "https://challenges.cloudflare.com/turnstile/v0/siteverify",
       {
@@ -91,7 +87,10 @@ export async function POST(req: Request) {
 
     if (!turnstileResult.success) {
       return NextResponse.json(
-        { error: "Security verification failed." },
+        {
+          error: "Security verification failed.",
+          details: turnstileResult["error-codes"] ?? [],
+        },
         { status: 400 }
       );
     }

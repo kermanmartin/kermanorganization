@@ -97,7 +97,11 @@ export default function HomePage() {
       const result = await response.json();
 
       if (!response.ok) {
-        setStatusMessage(result.error || "Something went wrong. Please try again.");
+        setStatusMessage(
+          result.details?.length
+            ? `${result.error} ${result.details.join(", ")}`
+            : result.error || "Something went wrong. Please try again."
+        );
         resetTurnstile();
         setLoading(false);
         return;
