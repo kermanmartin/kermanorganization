@@ -1,13 +1,41 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { Redis } from "@upstash/redis";
+import { Ratelimit } from "@upstash/ratelimit";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+const redis = Redis.fromEnv();
+
+const ratelimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, "1 m"),
+  analytics: true,
+  prefix: "ratelimit:leads",
+});
+
 export async function POST(req: Request) {
   try {
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      req.headers.get("x-real-ip") ||
+      "unknown";
+
+    const { success } = await ratelimit.limit(ip);
+
+    if (!success) {
+      return NextResponse.json(
+        {
+          error:
+            "Too many submissions from this connection. Please wait a moment and try again.",
+        },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
 
     const {
@@ -43,16 +71,11 @@ export async function POST(req: Request) {
       );
     }
 
-    const ip =
-      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      req.headers.get("x-real-ip") ||
-      "";
-
     const formData = new FormData();
     formData.append("secret", process.env.TURNSTILE_SECRET_KEY!);
     formData.append("response", turnstileToken);
 
-    if (ip) {
+    if (ip && ip !== "unknown") {
       formData.append("remoteip", ip);
     }
 
