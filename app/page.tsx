@@ -16,6 +16,7 @@ export default function HomePage() {
   const [userType, setUserType] = useState("");
   const [message, setMessage] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileKey, setTurnstileKey] = useState(0);
   const [statusMessage, setStatusMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -44,6 +45,11 @@ export default function HomePage() {
     if (userType === "rent") return "Monthly rent range";
     if (userType === "investor") return "Investment range";
     return "Budget range";
+  };
+
+  const resetTurnstile = () => {
+    setTurnstileToken("");
+    setTurnstileKey((prev) => prev + 1);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -92,6 +98,7 @@ export default function HomePage() {
 
       if (!response.ok) {
         setStatusMessage(result.error || "Something went wrong. Please try again.");
+        resetTurnstile();
         setLoading(false);
         return;
       }
@@ -107,10 +114,11 @@ export default function HomePage() {
       setBudgetMax("");
       setUserType("");
       setMessage("");
-      setTurnstileToken("");
+      resetTurnstile();
       setLoading(false);
     } catch {
       setStatusMessage("Something went wrong. Please try again.");
+      resetTurnstile();
       setLoading(false);
     }
   };
@@ -431,13 +439,24 @@ export default function HomePage() {
                     display: "flex",
                     justifyContent: "center",
                     marginTop: "4px",
+                    minHeight: "70px",
                   }}
                 >
                   <Turnstile
+                    key={turnstileKey}
                     siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                    options={{
+                      theme: "dark",
+                      size: "normal",
+                    }}
                     onSuccess={(token: string) => setTurnstileToken(token)}
                     onExpire={() => setTurnstileToken("")}
-                    onError={() => setTurnstileToken("")}
+                    onError={() => {
+                      setTurnstileToken("");
+                      setStatusMessage(
+                        "Security verification could not be loaded. Please refresh the page."
+                      );
+                    }}
                   />
                 </div>
 
