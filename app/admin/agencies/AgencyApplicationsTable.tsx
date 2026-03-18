@@ -11,6 +11,15 @@ type AgencyApplication = {
   contact_name: string;
   business_phone: string | null;
   email: string;
+  preferred_cities: string | null;
+  preferred_areas: string | null;
+  property_types: string[] | null;
+  client_types: string[] | null;
+  min_budget: string | null;
+  max_budget: string | null;
+  budget_range: string | null;
+  deals_per_month: string | null;
+  coverage_details: string | null;
   message: string;
   status: string;
   created_at: string;
@@ -64,17 +73,26 @@ export default function AgencyApplicationsTable({
           backgroundColor: "#111111",
           borderRadius: "12px",
           overflow: "hidden",
-          minWidth: "1500px",
+          minWidth: "2400px",
         }}
       >
         <thead>
           <tr style={{ backgroundColor: "#1a1a1a" }}>
             <th style={thStyle}>Agency</th>
-            <th style={thStyle}>City</th>
+            <th style={thStyle}>Main city</th>
             <th style={thStyle}>Website</th>
             <th style={thStyle}>Contact</th>
             <th style={thStyle}>Business phone</th>
             <th style={thStyle}>Email</th>
+            <th style={thStyle}>Preferred cities</th>
+            <th style={thStyle}>Preferred areas</th>
+            <th style={thStyle}>Property types</th>
+            <th style={thStyle}>Client types</th>
+            <th style={thStyle}>Min budget</th>
+            <th style={thStyle}>Max budget</th>
+            <th style={thStyle}>Budget range</th>
+            <th style={thStyle}>Deals / month</th>
+            <th style={thStyle}>Coverage details</th>
             <th style={thStyle}>Message</th>
             <th style={thStyle}>Status</th>
             <th style={thStyle}>Created at</th>
@@ -103,18 +121,28 @@ export default function AgencyApplicationsTable({
                     {app.website}
                   </a>
                 ) : (
-                  ""
+                  "-"
                 )}
               </td>
 
               <td style={tdStyle}>{app.contact_name}</td>
               <td style={tdStyle}>{app.business_phone ?? "-"}</td>
               <td style={tdStyle}>{app.email}</td>
-              <td style={tdStyle}>{app.message}</td>
+              <td style={tdStyleText}>{app.preferred_cities ?? "-"}</td>
+              <td style={tdStyleText}>{app.preferred_areas ?? "-"}</td>
+              <td style={tdStyle}>{formatArray(app.property_types)}</td>
+              <td style={tdStyle}>{formatArray(app.client_types)}</td>
+              <td style={tdStyle}>{app.min_budget ?? "-"}</td>
+              <td style={tdStyle}>{app.max_budget ?? "-"}</td>
+              <td style={tdStyle}>{app.budget_range ?? "-"}</td>
+              <td style={tdStyle}>{app.deals_per_month ?? "-"}</td>
+              <td style={tdStyleText}>{app.coverage_details ?? "-"}</td>
+              <td style={tdStyleMessage}>{app.message}</td>
 
               <td style={tdStyle}>
                 <span
                   style={{
+                    display: "inline-block",
                     padding: "6px 10px",
                     borderRadius: "999px",
                     backgroundColor:
@@ -125,7 +153,10 @@ export default function AgencyApplicationsTable({
                         : "#2d2d2d",
                     color: "white",
                     fontSize: "12px",
+                    fontWeight: 700,
                     textTransform: "uppercase",
+                    letterSpacing: "0.3px",
+                    whiteSpace: "nowrap",
                   }}
                 >
                   {app.status}
@@ -173,10 +204,24 @@ export default function AgencyApplicationsTable({
   );
 }
 
+function formatArray(value: string[] | null) {
+  if (!value || value.length === 0) return "-";
+
+  return value
+    .map((item) =>
+      item
+        .split("_")
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ")
+    )
+    .join(", ");
+}
+
 const thStyle = {
   padding: "16px",
   textAlign: "left" as const,
   fontSize: "15px",
+  whiteSpace: "nowrap" as const,
 };
 
 const tdStyle = {
@@ -184,6 +229,26 @@ const tdStyle = {
   textAlign: "left" as const,
   verticalAlign: "top" as const,
   fontSize: "14px",
+};
+
+const tdStyleText = {
+  padding: "16px",
+  textAlign: "left" as const,
+  verticalAlign: "top" as const,
+  fontSize: "14px",
+  minWidth: "180px",
+  maxWidth: "260px",
+  lineHeight: "1.6",
+};
+
+const tdStyleMessage = {
+  padding: "16px",
+  textAlign: "left" as const,
+  verticalAlign: "top" as const,
+  fontSize: "14px",
+  minWidth: "260px",
+  maxWidth: "360px",
+  lineHeight: "1.6",
 };
 
 const approveButton = {

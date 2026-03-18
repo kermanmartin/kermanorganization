@@ -17,6 +17,54 @@ const ratelimit = new Ratelimit({
   prefix: "ratelimit:leads",
 });
 
+const ALLOWED_USER_TYPES = ["buyer", "seller", "rental", "investor"];
+const ALLOWED_PROPERTY_TYPES = [
+  "apartment",
+  "house",
+  "villa",
+  "penthouse",
+  "studio",
+  "office",
+  "retail",
+  "building",
+  "land",
+  "other",
+];
+const ALLOWED_TIMEFRAMES = [
+  "asap",
+  "within_30_days",
+  "1_3_months",
+  "3_6_months",
+  "6_plus_months",
+  "just_exploring",
+];
+const ALLOWED_FINANCING_STATUSES = [
+  "cash_ready",
+  "mortgage_preapproved",
+  "needs_financing",
+  "evaluating_options",
+];
+const ALLOWED_SELLER_STATUSES = [
+  "ready_to_list",
+  "comparing_agencies",
+  "just_exploring",
+  "already_listed",
+];
+const ALLOWED_RENTAL_PROFILES = [
+  "tenant",
+  "landlord",
+  "short_term",
+  "long_term",
+];
+
+function cleanString(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function isValidOption(value: string, allowed: string[]) {
+  return allowed.includes(value);
+}
+
 export async function POST(req: Request) {
   try {
     const ip =
@@ -38,25 +86,32 @@ export async function POST(req: Request) {
 
     const body = await req.json();
 
-    const {
-      name,
-      email,
-      phone,
-      city,
-      budget,
-      user_type,
-      message,
-      turnstileToken,
-    } = body ?? {};
+    const name = cleanString(body?.name);
+    const email = cleanString(body?.email).toLowerCase();
+    const phone = cleanString(body?.phone);
+    const city = cleanString(body?.city);
+    const preferredArea = cleanString(body?.preferred_area);
+    const propertyType = cleanString(body?.property_type);
+    const timeframe = cleanString(body?.timeframe);
+    const financingStatus = cleanString(body?.financing_status);
+    const sellerStatus = cleanString(body?.seller_status);
+    const rentalProfile = cleanString(body?.rental_profile);
+    const budget = cleanString(body?.budget);
+    const userType = cleanString(body?.user_type);
+    const message = cleanString(body?.message);
+    const turnstileToken = cleanString(body?.turnstileToken);
 
     if (
-      !name?.trim() ||
-      !email?.trim() ||
-      !phone?.trim() ||
-      !city?.trim() ||
-      !budget?.trim() ||
-      !user_type?.trim() ||
-      !message?.trim()
+      !name ||
+      !email ||
+      !phone ||
+      !city ||
+      !preferredArea ||
+      !propertyType ||
+      !timeframe ||
+      !budget ||
+      !userType ||
+      !message
     ) {
       return NextResponse.json(
         { error: "Missing required fields." },
@@ -64,9 +119,60 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!turnstileToken?.trim()) {
+    if (!turnstileToken) {
       return NextResponse.json(
         { error: "Missing security verification." },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidOption(userType, ALLOWED_USER_TYPES)) {
+      return NextResponse.json(
+        { error: "Invalid user type." },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidOption(propertyType, ALLOWED_PROPERTY_TYPES)) {
+      return NextResponse.json(
+        { error: "Invalid property type." },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidOption(timeframe, ALLOWED_TIMEFRAMES)) {
+      return NextResponse.json(
+        { error: "Invalid timeframe." },
+        { status: 400 }
+      );
+    }
+
+    if (
+      (userType === "buyer" || userType === "investor") &&
+      !isValidOption(financingStatus, ALLOWED_FINANCING_STATUSES)
+    ) {
+      return NextResponse.json(
+        { error: "Invalid financing status." },
+        { status: 400 }
+      );
+    }
+
+    if (
+      userType === "seller" &&
+      !isValidOption(sellerStatus, ALLOWED_SELLER_STATUSES)
+    ) {
+      return NextResponse.json(
+        { error: "Invalid seller status." },
+        { status: 400 }
+      );
+    }
+
+    if (
+      userType === "rental" &&
+      !isValidOption(rentalProfile, ALLOWED_RENTAL_PROFILES)
+    ) {
+      return NextResponse.json(
+        { error: "Invalid rental profile." },
         { status: 400 }
       );
     }
@@ -95,19 +201,27 @@ export async function POST(req: Request) {
       );
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    const insertPayload = {
+      name,
+      email,
+      phone,
+      city,
+      preferred_area: preferredArea,
+      property_type: propertyType,
+      timeframe,
+      financing_status:
+        userType === "buyer" || userType === "investor"
+          ? financingStatus
+          : null,
+      seller_status: userType === "seller" ? sellerStatus : null,
+      rental_profile: userType === "rental" ? rentalProfile : null,
+      budget,
+      user_type: userType,
+      message,
+      status: "new",
+    };
 
-    const { error } = await supabase.from("leads").insert([
-      {
-        name: name.trim(),
-        email: normalizedEmail,
-        phone: phone.trim(),
-        city: city.trim(),
-        budget: budget.trim(),
-        user_type: user_type.trim(),
-        message: message.trim(),
-      },
-    ]);
+    const { error } = await supabase.from("leads").insert([insertPayload]);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });

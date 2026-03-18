@@ -10,7 +10,14 @@ type Lead = {
   id: number;
   name: string | null;
   email: string | null;
+  phone: string | null;
   city: string | null;
+  preferred_area: string | null;
+  property_type: string | null;
+  timeframe: string | null;
+  financing_status: string | null;
+  seller_status: string | null;
+  rental_profile: string | null;
   budget: string | null;
   user_type: string | null;
   status: string | null;
@@ -219,8 +226,8 @@ export default function AgencyDashboardClient({
           }}
         >
           <strong style={{ color: "white" }}>Contact details locked:</strong>{" "}
-          name, email, full message content and advanced filtering will be
-          unlocked once your agency is approved.
+          name, email, phone, full message content and advanced filtering remain
+          locked until your agency is approved.
         </div>
       )}
 
@@ -247,14 +254,21 @@ export default function AgencyDashboardClient({
               backgroundColor: "#111111",
               borderRadius: "14px",
               overflow: "hidden",
-              minWidth: "1100px",
+              minWidth: "1800px",
             }}
           >
             <thead>
               <tr style={{ backgroundColor: "#1a1a1a" }}>
                 <th style={thStyle}>Name</th>
                 <th style={thStyle}>Email</th>
+                <th style={thStyle}>Phone</th>
                 <th style={thStyle}>City</th>
+                <th style={thStyle}>Preferred area</th>
+                <th style={thStyle}>Property type</th>
+                <th style={thStyle}>Timeframe</th>
+                <th style={thStyle}>Financing</th>
+                <th style={thStyle}>Seller status</th>
+                <th style={thStyle}>Rental profile</th>
                 <th style={thStyle}>Budget</th>
                 <th style={thStyle}>Type</th>
                 <th style={thStyle}>Status</th>
@@ -278,9 +292,21 @@ export default function AgencyDashboardClient({
                     </LockedCell>
                   </td>
 
+                  <td style={tdStyle}>
+                    <LockedCell locked={Boolean(lead.contact_locked)}>
+                      {lead.phone ?? "-"}
+                    </LockedCell>
+                  </td>
+
                   <td style={tdStyle}>{lead.city ?? "-"}</td>
+                  <td style={tdStyle}>{lead.preferred_area ?? "-"}</td>
+                  <td style={tdStyle}>{formatValue(lead.property_type)}</td>
+                  <td style={tdStyle}>{formatValue(lead.timeframe)}</td>
+                  <td style={tdStyle}>{formatValue(lead.financing_status)}</td>
+                  <td style={tdStyle}>{formatValue(lead.seller_status)}</td>
+                  <td style={tdStyle}>{formatValue(lead.rental_profile)}</td>
                   <td style={tdStyle}>{lead.budget ?? "-"}</td>
-                  <td style={tdStyle}>{lead.user_type ?? "-"}</td>
+                  <td style={tdStyle}>{formatValue(lead.user_type)}</td>
 
                   <td style={tdStyle}>
                     <StatusButton
@@ -289,7 +315,7 @@ export default function AgencyDashboardClient({
                     />
                   </td>
 
-                  <td style={tdStyle}>
+                  <td style={tdStyleMessage}>
                     <LockedCell locked={Boolean(lead.contact_locked)}>
                       {lead.message ?? "-"}
                     </LockedCell>
@@ -308,6 +334,15 @@ export default function AgencyDashboardClient({
       )}
     </>
   );
+}
+
+function formatValue(value: string | null) {
+  if (!value) return "-";
+
+  return value
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 }
 
 function LockedCell({
@@ -395,6 +430,7 @@ const thStyle = {
   padding: "16px",
   textAlign: "left" as const,
   fontSize: "15px",
+  whiteSpace: "nowrap" as const,
 };
 
 const tdStyle = {
@@ -402,4 +438,14 @@ const tdStyle = {
   textAlign: "left" as const,
   verticalAlign: "top" as const,
   fontSize: "14px",
+};
+
+const tdStyleMessage = {
+  padding: "16px",
+  textAlign: "left" as const,
+  verticalAlign: "top" as const,
+  fontSize: "14px",
+  minWidth: "280px",
+  maxWidth: "380px",
+  lineHeight: "1.6",
 };

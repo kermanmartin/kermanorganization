@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Turnstile } from "@marsidev/react-turnstile";
+
+type UserType = "buyer" | "seller" | "rental" | "investor" | "";
 
 export default function HomePage() {
   const [name, setName] = useState("");
@@ -10,15 +12,29 @@ export default function HomePage() {
   const [phonePrefix, setPhonePrefix] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [city, setCity] = useState("");
+  const [preferredArea, setPreferredArea] = useState("");
+  const [propertyType, setPropertyType] = useState("");
+  const [timeframe, setTimeframe] = useState("");
+  const [financingStatus, setFinancingStatus] = useState("");
+  const [sellerStatus, setSellerStatus] = useState("");
+  const [rentalProfile, setRentalProfile] = useState("");
   const [currency, setCurrency] = useState("EUR");
   const [budgetMin, setBudgetMin] = useState("");
   const [budgetMax, setBudgetMax] = useState("");
-  const [userType, setUserType] = useState("");
+  const [userType, setUserType] = useState<UserType>("");
   const [message, setMessage] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileKey, setTurnstileKey] = useState(0);
   const [statusMessage, setStatusMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const budgetLabel = useMemo(() => {
+    if (userType === "seller") return "Expected value range";
+    if (userType === "buyer") return "Purchase budget range";
+    if (userType === "rental") return "Monthly rental range";
+    if (userType === "investor") return "Investment range";
+    return "Budget range";
+  }, [userType]);
 
   const buildFullPhone = () => {
     const prefix = phonePrefix.trim();
@@ -35,16 +51,7 @@ export default function HomePage() {
     const max = budgetMax.trim();
 
     if (!min || !max) return "";
-
     return `${currency} ${min} - ${max}`;
-  };
-
-  const getBudgetLabel = () => {
-    if (userType === "seller") return "Expected value range";
-    if (userType === "buyer") return "Purchase budget range";
-    if (userType === "rent") return "Monthly rent range";
-    if (userType === "investor") return "Investment range";
-    return "Budget range";
   };
 
   const resetTurnstile = () => {
@@ -52,21 +59,40 @@ export default function HomePage() {
     setTurnstileKey((prev) => prev + 1);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const validateConditionalFields = () => {
     if (!userType) {
-      setStatusMessage("Please select whether you want to sell, buy, rent or invest.");
-      return;
+      return "Please select your profile: seller, buyer, rental or investor.";
     }
 
     if (!budgetMin.trim() || !budgetMax.trim()) {
-      setStatusMessage("Please enter both minimum and maximum budget.");
-      return;
+      return "Please enter both minimum and maximum budget.";
+    }
+
+    if ((userType === "buyer" || userType === "investor") && !financingStatus) {
+      return "Please select your financing status.";
+    }
+
+    if (userType === "seller" && !sellerStatus) {
+      return "Please select your seller status.";
+    }
+
+    if (userType === "rental" && !rentalProfile) {
+      return "Please select your rental profile.";
     }
 
     if (!turnstileToken) {
-      setStatusMessage("Please complete the security verification.");
+      return "Please complete the security verification.";
+    }
+
+    return "";
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const validationError = validateConditionalFields();
+    if (validationError) {
+      setStatusMessage(validationError);
       return;
     }
 
@@ -87,6 +113,12 @@ export default function HomePage() {
           email: email.trim().toLowerCase(),
           phone: fullPhone,
           city: city.trim(),
+          preferred_area: preferredArea.trim(),
+          property_type: propertyType,
+          timeframe,
+          financing_status: financingStatus,
+          seller_status: sellerStatus,
+          rental_profile: rentalProfile,
           budget: fullBudget,
           user_type: userType,
           message: message.trim(),
@@ -108,11 +140,18 @@ export default function HomePage() {
       }
 
       setStatusMessage("Submitted successfully. We will review your request.");
+
       setName("");
       setEmail("");
       setPhonePrefix("");
       setPhoneNumber("");
       setCity("");
+      setPreferredArea("");
+      setPropertyType("");
+      setTimeframe("");
+      setFinancingStatus("");
+      setSellerStatus("");
+      setRentalProfile("");
       setCurrency("EUR");
       setBudgetMin("");
       setBudgetMax("");
@@ -127,6 +166,10 @@ export default function HomePage() {
     }
   };
 
+  const showFinancingStatus = userType === "buyer" || userType === "investor";
+  const showSellerStatus = userType === "seller";
+  const showRentalProfile = userType === "rental";
+
   return (
     <main
       style={{
@@ -140,7 +183,7 @@ export default function HomePage() {
         style={{
           minHeight: "calc(100vh - 90px)",
           backgroundImage:
-            "linear-gradient(rgba(0,0,0,0.24), rgba(0,0,0,0.60)), url('/wpaper.jpg')",
+            "linear-gradient(rgba(0,0,0,0.28), rgba(0,0,0,0.68)), url('/wpaper.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -152,23 +195,19 @@ export default function HomePage() {
         <div
           style={{
             width: "100%",
-            maxWidth: "1380px",
+            maxWidth: "1420px",
             margin: "0 auto",
           }}
         >
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-              gap: "30px",
+              gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
+              gap: "32px",
               alignItems: "center",
             }}
           >
-            <div
-              style={{
-                maxWidth: "700px",
-              }}
-            >
+            <div style={{ maxWidth: "720px" }}>
               <div
                 style={{
                   display: "flex",
@@ -184,13 +223,13 @@ export default function HomePage() {
 
               <h1
                 style={{
-                  fontSize: "clamp(40px, 6vw, 76px)",
+                  fontSize: "clamp(40px, 6vw, 78px)",
                   lineHeight: "0.96",
                   fontWeight: 300,
                   letterSpacing: "-2px",
                   margin: "0 0 18px 0",
                   textTransform: "uppercase",
-                  maxWidth: "680px",
+                  maxWidth: "720px",
                 }}
               >
                 THE KERMAN ORGANIZATION
@@ -198,7 +237,7 @@ export default function HomePage() {
 
               <p
                 style={{
-                  fontSize: "clamp(20px, 2.6vw, 30px)",
+                  fontSize: "clamp(20px, 2.5vw, 30px)",
                   lineHeight: "1.4",
                   color: "#f1f1f1",
                   margin: "0 0 14px 0",
@@ -210,8 +249,8 @@ export default function HomePage() {
               <div
                 style={{
                   marginTop: "12px",
-                  maxWidth: "660px",
-                  background: "rgba(20,20,20,0.55)",
+                  maxWidth: "680px",
+                  background: "rgba(20,20,20,0.56)",
                   border: "1px solid rgba(255,255,255,0.08)",
                   borderRadius: "14px",
                   padding: "16px 18px",
@@ -221,15 +260,15 @@ export default function HomePage() {
               >
                 <p
                   style={{
-                    fontSize: "clamp(16px, 1.8vw, 23px)",
+                    fontSize: "clamp(16px, 1.8vw, 22px)",
                     lineHeight: "1.65",
                     color: "#dddddd",
                     margin: 0,
                   }}
                 >
-                  Tell us whether you want to sell, buy, rent or invest. Our AI will detect
-                  your profile and route you according to the filter that best matches
-                  your goals.
+                  Tell us exactly what you need and we will structure your lead
+                  with enough detail to enable high-quality matching with the
+                  right agency.
                 </p>
               </div>
             </div>
@@ -237,9 +276,9 @@ export default function HomePage() {
             <div
               style={{
                 width: "100%",
-                maxWidth: "620px",
+                maxWidth: "760px",
                 justifySelf: "end",
-                backgroundColor: "rgba(10,10,10,0.78)",
+                backgroundColor: "rgba(10,10,10,0.82)",
                 backdropFilter: "blur(10px)",
                 WebkitBackdropFilter: "blur(10px)",
                 border: "1px solid rgba(255,255,255,0.08)",
@@ -268,8 +307,8 @@ export default function HomePage() {
                     fontSize: "clamp(15px, 2vw, 17px)",
                   }}
                 >
-                  This is the main interaction of the platform. Soon this form will
-                  be replaced by the AI assistant.
+                  This is the lead intake version designed to capture better
+                  information from day one.
                 </p>
               </div>
 
@@ -281,23 +320,103 @@ export default function HomePage() {
                   gap: "14px",
                 }}
               >
-                <input
-                  type="text"
-                  placeholder="Your name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  style={inputStyle}
-                />
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(4, 1fr)",
+                    gap: "10px",
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUserType("seller");
+                      setFinancingStatus("");
+                      setRentalProfile("");
+                    }}
+                    style={{
+                      ...choiceButton,
+                      backgroundColor: userType === "seller" ? "white" : "#111",
+                      color: userType === "seller" ? "black" : "white",
+                    }}
+                  >
+                    Sell
+                  </button>
 
-                <input
-                  type="email"
-                  placeholder="Your email *"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  style={inputStyle}
-                />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUserType("buyer");
+                      setSellerStatus("");
+                      setRentalProfile("");
+                    }}
+                    style={{
+                      ...choiceButton,
+                      backgroundColor: userType === "buyer" ? "white" : "#111",
+                      color: userType === "buyer" ? "black" : "white",
+                    }}
+                  >
+                    Buy
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUserType("rental");
+                      setFinancingStatus("");
+                      setSellerStatus("");
+                    }}
+                    style={{
+                      ...choiceButton,
+                      backgroundColor: userType === "rental" ? "white" : "#111",
+                      color: userType === "rental" ? "black" : "white",
+                    }}
+                  >
+                    Rent
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUserType("investor");
+                      setSellerStatus("");
+                      setRentalProfile("");
+                    }}
+                    style={{
+                      ...choiceButton,
+                      backgroundColor: userType === "investor" ? "white" : "#111",
+                      color: userType === "investor" ? "black" : "white",
+                    }}
+                  >
+                    Invest
+                  </button>
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "10px",
+                  }}
+                >
+                  <input
+                    type="text"
+                    placeholder="Your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    style={inputStyle}
+                  />
+
+                  <input
+                    type="email"
+                    placeholder="Your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    style={inputStyle}
+                  />
+                </div>
 
                 <div
                   style={{
@@ -317,7 +436,7 @@ export default function HomePage() {
 
                   <input
                     type="tel"
-                    placeholder="Phone number *"
+                    placeholder="Phone number"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
                     required
@@ -325,70 +444,128 @@ export default function HomePage() {
                   />
                 </div>
 
-                <input
-                  type="text"
-                  placeholder="City"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  required
-                  style={inputStyle}
-                />
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "10px",
+                  }}
+                >
+                  <input
+                    type="text"
+                    placeholder="City"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    required
+                    style={inputStyle}
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Preferred area / district / zone"
+                    value={preferredArea}
+                    onChange={(e) => setPreferredArea(e.target.value)}
+                    required
+                    style={inputStyle}
+                  />
+                </div>
 
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(4, 1fr)",
+                    gridTemplateColumns: "1fr 1fr",
                     gap: "10px",
                   }}
                 >
-                  <button
-                    type="button"
-                    onClick={() => setUserType("seller")}
-                    style={{
-                      ...choiceButton,
-                      backgroundColor: userType === "seller" ? "white" : "#111",
-                      color: userType === "seller" ? "black" : "white",
-                    }}
+                  <select
+                    value={propertyType}
+                    onChange={(e) => setPropertyType(e.target.value)}
+                    required
+                    style={inputStyle}
                   >
-                    Sell
-                  </button>
+                    <option value="">Property type</option>
+                    <option value="apartment">Apartment</option>
+                    <option value="house">House</option>
+                    <option value="villa">Villa</option>
+                    <option value="penthouse">Penthouse</option>
+                    <option value="studio">Studio</option>
+                    <option value="office">Office</option>
+                    <option value="retail">Retail</option>
+                    <option value="building">Building</option>
+                    <option value="land">Land</option>
+                    <option value="other">Other</option>
+                  </select>
 
-                  <button
-                    type="button"
-                    onClick={() => setUserType("buyer")}
-                    style={{
-                      ...choiceButton,
-                      backgroundColor: userType === "buyer" ? "white" : "#111",
-                      color: userType === "buyer" ? "black" : "white",
-                    }}
+                  <select
+                    value={timeframe}
+                    onChange={(e) => setTimeframe(e.target.value)}
+                    required
+                    style={inputStyle}
                   >
-                    Buy
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setUserType("rent")}
-                    style={{
-                      ...choiceButton,
-                      backgroundColor: userType === "rent" ? "white" : "#111",
-                      color: userType === "rent" ? "black" : "white",
-                    }}
-                  >
-                    Rent
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setUserType("investor")}
-                    style={{
-                      ...choiceButton,
-                      backgroundColor: userType === "investor" ? "white" : "#111",
-                      color: userType === "investor" ? "black" : "white",
-                    }}
-                  >
-                    Invest
-                  </button>
+                    <option value="">Timeframe</option>
+                    <option value="asap">ASAP</option>
+                    <option value="within_30_days">Within 30 days</option>
+                    <option value="1_3_months">1 to 3 months</option>
+                    <option value="3_6_months">3 to 6 months</option>
+                    <option value="6_plus_months">6+ months</option>
+                    <option value="just_exploring">Just exploring</option>
+                  </select>
                 </div>
+
+                {showFinancingStatus && (
+                  <select
+                    value={financingStatus}
+                    onChange={(e) => setFinancingStatus(e.target.value)}
+                    required={showFinancingStatus}
+                    style={inputStyle}
+                  >
+                    <option value="">Financing status</option>
+                    <option value="cash_ready">Cash ready</option>
+                    <option value="mortgage_preapproved">
+                      Mortgage pre-approved
+                    </option>
+                    <option value="needs_financing">
+                      Needs financing
+                    </option>
+                    <option value="evaluating_options">
+                      Evaluating options
+                    </option>
+                  </select>
+                )}
+
+                {showSellerStatus && (
+                  <select
+                    value={sellerStatus}
+                    onChange={(e) => setSellerStatus(e.target.value)}
+                    required={showSellerStatus}
+                    style={inputStyle}
+                  >
+                    <option value="">Seller status</option>
+                    <option value="ready_to_list">Ready to list now</option>
+                    <option value="comparing_agencies">
+                      Comparing agencies
+                    </option>
+                    <option value="just_exploring">Just exploring</option>
+                    <option value="already_listed">
+                      Already listed elsewhere
+                    </option>
+                  </select>
+                )}
+
+                {showRentalProfile && (
+                  <select
+                    value={rentalProfile}
+                    onChange={(e) => setRentalProfile(e.target.value)}
+                    required={showRentalProfile}
+                    style={inputStyle}
+                  >
+                    <option value="">Rental profile</option>
+                    <option value="tenant">Tenant</option>
+                    <option value="landlord">Landlord</option>
+                    <option value="short_term">Short-term rental</option>
+                    <option value="long_term">Long-term rental</option>
+                  </select>
+                )}
 
                 <div
                   style={{
@@ -398,7 +575,7 @@ export default function HomePage() {
                     marginBottom: "-4px",
                   }}
                 >
-                  {getBudgetLabel()}
+                  {budgetLabel}
                 </div>
 
                 <div
@@ -438,6 +615,19 @@ export default function HomePage() {
                   </select>
                 </div>
 
+                <textarea
+                  placeholder="Tell us exactly what you are looking for or what you want to achieve"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  required
+                  rows={6}
+                  style={{
+                    ...inputStyle,
+                    resize: "vertical",
+                    minHeight: "140px",
+                  }}
+                />
+
                 <div
                   style={{
                     display: "flex",
@@ -463,19 +653,6 @@ export default function HomePage() {
                     }}
                   />
                 </div>
-
-                <textarea
-                  placeholder="Tell us what you are looking for"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  required
-                  rows={6}
-                  style={{
-                    ...inputStyle,
-                    resize: "vertical",
-                    minHeight: "140px",
-                  }}
-                />
 
                 <button
                   type="submit"
@@ -538,16 +715,16 @@ export default function HomePage() {
             }}
           >
             <InfoCard
-              title="Profile detection"
-              text="The AI identifies whether the opportunity fits a seller, buyer, renter or investor journey."
+              title="Better lead structure"
+              text="The form captures commercial detail that is actually useful for routing and matching."
             />
             <InfoCard
-              title="Qualified routing"
-              text="Requests can later be filtered and routed according to your matching theory."
+              title="Smarter qualification"
+              text="Property type, urgency and financial profile help determine who should receive each opportunity."
             />
             <InfoCard
-              title="Agency network"
-              text="Approved agencies receive qualified opportunities through a private dashboard."
+              title="Agency network ready"
+              text="This structure is designed for a pay-per-lead model from the beginning."
             />
           </div>
 
@@ -645,16 +822,6 @@ const inputStyle = {
   color: "white",
   fontSize: "16px",
   width: "100%",
-};
-
-const buttonStyle = {
-  padding: "15px",
-  fontSize: "16px",
-  borderRadius: "10px",
-  border: "none",
-  backgroundColor: "white",
-  color: "black",
-  fontWeight: "bold",
 };
 
 const choiceButton = {

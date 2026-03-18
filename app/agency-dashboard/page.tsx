@@ -6,6 +6,26 @@ import AgencyDashboardClient from "./AgencyDashboardClient";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+type Lead = {
+  id: number;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  city: string | null;
+  preferred_area: string | null;
+  property_type: string | null;
+  timeframe: string | null;
+  financing_status: string | null;
+  seller_status: string | null;
+  rental_profile: string | null;
+  budget: string | null;
+  user_type: string | null;
+  status: string | null;
+  message: string | null;
+  created_at: string | null;
+  contact_locked?: boolean;
+};
+
 export default async function AgencyDashboardPage() {
   const supabase = await createClient();
 
@@ -36,19 +56,20 @@ export default async function AgencyDashboardPage() {
     .select("*")
     .order("created_at", { ascending: false });
 
-  const safeLeads =
-    leads?.map((lead) => ({
-      ...lead,
-      name: isApproved ? lead.name : lead.name ? "Contact locked" : "-",
-      email: isApproved ? lead.email : lead.email ? "Contact locked" : "-",
-      phone: isApproved ? lead.phone : lead.phone ? "Contact locked" : "-",
-      message: isApproved
-        ? lead.message
-        : lead.message
-        ? "Full message available after agency approval."
-        : "-",
-      contact_locked: !isApproved,
-    })) ?? [];
+  const typedLeads: Lead[] = (leads ?? []) as Lead[];
+
+  const safeLeads: Lead[] = typedLeads.map((lead) => ({
+    ...lead,
+    name: isApproved ? lead.name : lead.name ? "Contact locked" : "-",
+    email: isApproved ? lead.email : lead.email ? "Contact locked" : "-",
+    phone: isApproved ? lead.phone : lead.phone ? "Contact locked" : "-",
+    message: isApproved
+      ? lead.message
+      : lead.message
+      ? "Full message available after agency approval."
+      : "-",
+    contact_locked: !isApproved,
+  }));
 
   return (
     <main

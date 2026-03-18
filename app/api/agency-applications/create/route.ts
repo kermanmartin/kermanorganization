@@ -9,30 +9,53 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+function cleanString(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function isNonEmptyArray(value: unknown) {
+  return Array.isArray(value) && value.length > 0;
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const {
-      agency_name,
-      city,
-      website,
-      contact_name,
-      business_phone,
-      email,
-      password,
-      message,
-    } = body ?? {};
+    const agency_name = cleanString(body?.agency_name);
+    const city = cleanString(body?.city);
+    const website = cleanString(body?.website);
+    const contact_name = cleanString(body?.contact_name);
+    const business_phone = cleanString(body?.business_phone);
+    const email = cleanString(body?.email).toLowerCase();
+    const password = cleanString(body?.password);
+
+    const preferred_cities = cleanString(body?.preferred_cities);
+    const preferred_areas = cleanString(body?.preferred_areas);
+    const property_types = body?.property_types;
+    const client_types = body?.client_types;
+    const min_budget = cleanString(body?.min_budget);
+    const max_budget = cleanString(body?.max_budget);
+    const budget_range = cleanString(body?.budget_range);
+    const deals_per_month = cleanString(body?.deals_per_month);
+    const coverage_details = cleanString(body?.coverage_details);
+    const message = cleanString(body?.message);
 
     if (
-      !agency_name?.trim() ||
-      !city?.trim() ||
-      !website?.trim() ||
-      !contact_name?.trim() ||
-      !business_phone?.trim() ||
-      !email?.trim() ||
-      !password?.trim() ||
-      !message?.trim()
+      !agency_name ||
+      !city ||
+      !website ||
+      !contact_name ||
+      !business_phone ||
+      !email ||
+      !password ||
+      !preferred_cities ||
+      !preferred_areas ||
+      !min_budget ||
+      !max_budget ||
+      !budget_range ||
+      !deals_per_month ||
+      !coverage_details ||
+      !message
     ) {
       return NextResponse.json(
         { error: "Missing required fields." },
@@ -40,12 +63,24 @@ export async function POST(req: Request) {
       );
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    if (!isNonEmptyArray(property_types)) {
+      return NextResponse.json(
+        { error: "Please select at least one property type." },
+        { status: 400 }
+      );
+    }
+
+    if (!isNonEmptyArray(client_types)) {
+      return NextResponse.json(
+        { error: "Please select at least one client type." },
+        { status: 400 }
+      );
+    }
 
     const { data: existingApplication, error: existingError } = await supabase
       .from("agency_applications")
       .select("id, status")
-      .eq("email", normalizedEmail)
+      .eq("email", email)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -78,8 +113,8 @@ export async function POST(req: Request) {
     }
 
     const { error: signUpError } = await supabase.auth.signUp({
-      email: normalizedEmail,
-      password: password.trim(),
+      email,
+      password,
     });
 
     if (signUpError) {
@@ -93,13 +128,22 @@ export async function POST(req: Request) {
       .from("agency_applications")
       .insert([
         {
-          agency_name: agency_name.trim(),
-          city: city.trim(),
-          website: website.trim(),
-          contact_name: contact_name.trim(),
-          business_phone: business_phone.trim(),
-          email: normalizedEmail,
-          message: message.trim(),
+          agency_name,
+          city,
+          website,
+          contact_name,
+          business_phone,
+          email,
+          preferred_cities,
+          preferred_areas,
+          property_types,
+          client_types,
+          min_budget,
+          max_budget,
+          budget_range,
+          deals_per_month,
+          coverage_details,
+          message,
           status: "pending",
         },
       ]);
@@ -124,14 +168,21 @@ export async function POST(req: Request) {
         html: `
           <h2>New agency application submitted</h2>
 
-          <p><strong>Agency name:</strong> ${agency_name.trim()}</p>
-          <p><strong>City:</strong> ${city.trim()}</p>
-          <p><strong>Website:</strong> ${website.trim()}</p>
-          <p><strong>Contact name:</strong> ${contact_name.trim()}</p>
-          <p><strong>Business phone:</strong> ${business_phone.trim()}</p>
-          <p><strong>Email:</strong> ${normalizedEmail}</p>
+          <p><strong>Agency name:</strong> ${agency_name}</p>
+          <p><strong>Main city:</strong> ${city}</p>
+          <p><strong>Website:</strong> ${website}</p>
+          <p><strong>Contact name:</strong> ${contact_name}</p>
+          <p><strong>Business phone:</strong> ${business_phone}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Preferred cities:</strong> ${preferred_cities}</p>
+          <p><strong>Preferred areas:</strong> ${preferred_areas}</p>
+          <p><strong>Property types:</strong> ${property_types.join(", ")}</p>
+          <p><strong>Client types:</strong> ${client_types.join(", ")}</p>
+          <p><strong>Budget range:</strong> ${budget_range}</p>
+          <p><strong>Deals per month:</strong> ${deals_per_month}</p>
+          <p><strong>Coverage details:</strong> ${coverage_details}</p>
           <p><strong>Message:</strong></p>
-          <p>${message.trim()}</p>
+          <p>${message}</p>
 
           <p>Review here:</p>
           <p>https://kermanorganization.com/admin/agencies</p>
@@ -144,12 +195,12 @@ export async function POST(req: Request) {
     try {
       await resend.emails.send({
         from: "The Kerman Organization <contact@kermanorganization.com>",
-        to: normalizedEmail,
+        to: email,
         subject: "Your agency application is under review",
         html: `
           <h2>Your agency application has been received</h2>
 
-          <p>Hello ${contact_name.trim() || agency_name.trim()},</p>
+          <p>Hello ${contact_name || agency_name},</p>
 
           <p>
             We have received your agency application for The Kerman Organization.
@@ -160,17 +211,11 @@ export async function POST(req: Request) {
             to view the currently locked content inside the dashboard.
           </p>
 
-          <p>
-            Access page:
-          </p>
+          <p>Access page:</p>
 
-          <p>
-            https://kermanorganization.com/agency-access
-          </p>
+          <p>https://kermanorganization.com/agency-access</p>
 
-          <p>
-            The Kerman Organization
-          </p>
+          <p>The Kerman Organization</p>
         `,
       });
     } catch (emailError) {

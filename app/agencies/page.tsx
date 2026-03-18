@@ -2,6 +2,22 @@
 
 import { useState } from "react";
 
+type MultiOption =
+  | "buyer"
+  | "seller"
+  | "rental"
+  | "investor"
+  | "apartment"
+  | "house"
+  | "villa"
+  | "penthouse"
+  | "studio"
+  | "office"
+  | "retail"
+  | "building"
+  | "land"
+  | "other";
+
 export default function AgenciesPage() {
   const [agencyName, setAgencyName] = useState("");
   const [city, setCity] = useState("");
@@ -11,7 +27,18 @@ export default function AgenciesPage() {
   const [businessPhoneNumber, setBusinessPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [preferredCities, setPreferredCities] = useState("");
+  const [preferredAreas, setPreferredAreas] = useState("");
+  const [propertyTypes, setPropertyTypes] = useState<string[]>([]);
+  const [clientTypes, setClientTypes] = useState<string[]>([]);
+  const [currency, setCurrency] = useState("EUR");
+  const [minBudget, setMinBudget] = useState("");
+  const [maxBudget, setMaxBudget] = useState("");
+  const [dealsPerMonth, setDealsPerMonth] = useState("");
+  const [coverageDetails, setCoverageDetails] = useState("");
   const [message, setMessage] = useState("");
+
   const [statusMessage, setStatusMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -34,13 +61,49 @@ export default function AgenciesPage() {
     return `${normalizedPrefix} ${number}`;
   };
 
+  const buildBudgetRange = () => {
+    const min = minBudget.trim();
+    const max = maxBudget.trim();
+
+    if (!min || !max) return "";
+    return `${currency} ${min} - ${max}`;
+  };
+
+  const toggleMultiSelect = (value: MultiOption, current: string[], setter: (next: string[]) => void) => {
+    if (current.includes(value)) {
+      setter(current.filter((item) => item !== value));
+      return;
+    }
+
+    setter([...current, value]);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setStatusMessage("");
 
+    if (propertyTypes.length === 0) {
+      setStatusMessage("Please select at least one property type.");
+      setLoading(false);
+      return;
+    }
+
+    if (clientTypes.length === 0) {
+      setStatusMessage("Please select at least one client type.");
+      setLoading(false);
+      return;
+    }
+
+    if (!minBudget.trim() || !maxBudget.trim()) {
+      setStatusMessage("Please enter both minimum and maximum budget.");
+      setLoading(false);
+      return;
+    }
+
     const normalizedWebsite = normalizeWebsite(website);
     const fullBusinessPhone = buildFullPhone();
+    const budgetRange = buildBudgetRange();
 
     try {
       const response = await fetch("/api/agency-applications/create", {
@@ -56,6 +119,15 @@ export default function AgenciesPage() {
           business_phone: fullBusinessPhone,
           email: email.trim().toLowerCase(),
           password: password.trim(),
+          preferred_cities: preferredCities.trim(),
+          preferred_areas: preferredAreas.trim(),
+          property_types: propertyTypes,
+          client_types: clientTypes,
+          min_budget: minBudget.trim(),
+          max_budget: maxBudget.trim(),
+          budget_range: budgetRange,
+          deals_per_month: dealsPerMonth.trim(),
+          coverage_details: coverageDetails.trim(),
           message: message.trim(),
         }),
       });
@@ -80,6 +152,15 @@ export default function AgenciesPage() {
       setBusinessPhoneNumber("");
       setEmail("");
       setPassword("");
+      setPreferredCities("");
+      setPreferredAreas("");
+      setPropertyTypes([]);
+      setClientTypes([]);
+      setCurrency("EUR");
+      setMinBudget("");
+      setMaxBudget("");
+      setDealsPerMonth("");
+      setCoverageDetails("");
       setMessage("");
       setLoading(false);
     } catch {
@@ -93,7 +174,7 @@ export default function AgenciesPage() {
       style={{
         minHeight: "100vh",
         backgroundImage:
-          "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('/wpaper.jpg')",
+          "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.82)), url('/wpaper.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
@@ -102,7 +183,7 @@ export default function AgenciesPage() {
         padding: "70px 20px",
       }}
     >
-      <section style={{ maxWidth: "1100px", margin: "0 auto" }}>
+      <section style={{ maxWidth: "1180px", margin: "0 auto" }}>
         <h1
           style={{
             fontSize: "56px",
@@ -119,20 +200,20 @@ export default function AgenciesPage() {
           style={{
             fontSize: "20px",
             textAlign: "center",
-            maxWidth: "820px",
+            maxWidth: "900px",
             margin: "0 auto 50px",
             color: "#d0d0d0",
             lineHeight: "1.7",
           }}
         >
           Apply to join The Kerman Organization agency network. Create your account
-          and submit your agency details in one step. Approved agencies unlock full
-          contact access inside the private dashboard.
+          and submit the commercial profile of your agency so we can qualify and
+          match future opportunities more intelligently.
         </p>
 
         <div
           style={{
-            maxWidth: "820px",
+            maxWidth: "980px",
             margin: "0 auto",
             backgroundColor: "#111111",
             border: "1px solid #1f1f1f",
@@ -182,7 +263,7 @@ export default function AgenciesPage() {
 
             <input
               type="text"
-              placeholder="City"
+              placeholder="Main city"
               value={city}
               onChange={(e) => setCity(e.target.value)}
               required
@@ -240,7 +321,7 @@ export default function AgenciesPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              style={{ ...inputStyle, gridColumn: "1 / -1" }}
+              style={inputStyle}
             />
 
             <input
@@ -250,11 +331,159 @@ export default function AgenciesPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
+              style={inputStyle}
+            />
+
+            <input
+              type="text"
+              placeholder="Preferred cities (comma separated)"
+              value={preferredCities}
+              onChange={(e) => setPreferredCities(e.target.value)}
+              required
               style={{ ...inputStyle, gridColumn: "1 / -1" }}
             />
 
+            <input
+              type="text"
+              placeholder="Preferred areas / districts / zones (comma separated)"
+              value={preferredAreas}
+              onChange={(e) => setPreferredAreas(e.target.value)}
+              required
+              style={{ ...inputStyle, gridColumn: "1 / -1" }}
+            />
+
+            <div style={{ gridColumn: "1 / -1" }}>
+              <div style={sectionLabel}>Property types</div>
+              <div style={choiceGrid}>
+                {[
+                  ["apartment", "Apartment"],
+                  ["house", "House"],
+                  ["villa", "Villa"],
+                  ["penthouse", "Penthouse"],
+                  ["studio", "Studio"],
+                  ["office", "Office"],
+                  ["retail", "Retail"],
+                  ["building", "Building"],
+                  ["land", "Land"],
+                  ["other", "Other"],
+                ].map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() =>
+                      toggleMultiSelect(
+                        value as MultiOption,
+                        propertyTypes,
+                        setPropertyTypes
+                      )
+                    }
+                    style={{
+                      ...choiceButton,
+                      backgroundColor: propertyTypes.includes(value)
+                        ? "white"
+                        : "#111111",
+                      color: propertyTypes.includes(value) ? "black" : "white",
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ gridColumn: "1 / -1" }}>
+              <div style={sectionLabel}>Client types</div>
+              <div style={choiceGrid}>
+                {[
+                  ["buyer", "Buyer"],
+                  ["seller", "Seller"],
+                  ["rental", "Rental"],
+                  ["investor", "Investor"],
+                ].map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() =>
+                      toggleMultiSelect(
+                        value as MultiOption,
+                        clientTypes,
+                        setClientTypes
+                      )
+                    }
+                    style={{
+                      ...choiceButton,
+                      backgroundColor: clientTypes.includes(value)
+                        ? "white"
+                        : "#111111",
+                      color: clientTypes.includes(value) ? "black" : "white",
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ gridColumn: "1 / -1" }}>
+              <div style={sectionLabel}>Budget range you usually work with</div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr 130px",
+                  gap: "10px",
+                }}
+              >
+                <input
+                  type="text"
+                  placeholder="Min budget"
+                  value={minBudget}
+                  onChange={(e) => setMinBudget(e.target.value)}
+                  required
+                  style={inputStyle}
+                />
+
+                <input
+                  type="text"
+                  placeholder="Max budget"
+                  value={maxBudget}
+                  onChange={(e) => setMaxBudget(e.target.value)}
+                  required
+                  style={inputStyle}
+                />
+
+                <select
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  style={inputStyle}
+                >
+                  <option value="EUR">EUR (€)</option>
+                  <option value="USD">USD ($)</option>
+                  <option value="GBP">GBP (£)</option>
+                  <option value="AED">AED</option>
+                </select>
+              </div>
+            </div>
+
+            <input
+              type="text"
+              placeholder="Approximate deals per month"
+              value={dealsPerMonth}
+              onChange={(e) => setDealsPerMonth(e.target.value)}
+              required
+              style={inputStyle}
+            />
+
+            <input
+              type="text"
+              placeholder="Coverage details (for example: central Madrid, Salamanca, Chamartín, luxury buyer focus)"
+              value={coverageDetails}
+              onChange={(e) => setCoverageDetails(e.target.value)}
+              required
+              style={inputStyle}
+            />
+
             <textarea
-              placeholder="Tell us what type of clients or properties you are looking for"
+              placeholder="Tell us about your agency, the kind of opportunities you want, and anything relevant for matching"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               required
@@ -319,4 +548,26 @@ const buttonStyle = {
   backgroundColor: "white",
   color: "black",
   fontWeight: "bold",
+};
+
+const sectionLabel = {
+  fontSize: "14px",
+  color: "#cfcfcf",
+  marginBottom: "10px",
+};
+
+const choiceGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+  gap: "10px",
+};
+
+const choiceButton = {
+  width: "100%",
+  padding: "14px 10px",
+  borderRadius: "12px",
+  border: "1px solid #333",
+  cursor: "pointer",
+  fontSize: "14px",
+  fontWeight: 700,
 };
