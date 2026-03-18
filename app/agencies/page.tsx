@@ -1,11 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 
 export default function AgenciesPage() {
-  const supabase = createClient();
-
   const [agencyName, setAgencyName] = useState("");
   const [city, setCity] = useState("");
   const [website, setWebsite] = useState("");
@@ -42,88 +39,53 @@ export default function AgenciesPage() {
     setLoading(true);
     setStatusMessage("");
 
-    const normalizedEmail = email.trim().toLowerCase();
     const normalizedWebsite = normalizeWebsite(website);
     const fullBusinessPhone = buildFullPhone();
 
-    const { data: existingApplication, error: existingError } = await supabase
-      .from("agency_applications")
-      .select("id, status")
-      .eq("email", normalizedEmail)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    try {
+      const response = await fetch("/api/agency-applications/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          agency_name: agencyName.trim(),
+          city: city.trim(),
+          website: normalizedWebsite,
+          contact_name: contactName.trim(),
+          business_phone: fullBusinessPhone,
+          email: email.trim().toLowerCase(),
+          password: password.trim(),
+          message: message.trim(),
+        }),
+      });
 
-    if (existingError) {
-      setStatusMessage("Could not check existing application. Please try again.");
-      setLoading(false);
-      return;
-    }
+      const result = await response.json();
 
-    if (existingApplication?.status === "pending") {
+      if (!response.ok) {
+        setStatusMessage(result.error || "Something went wrong. Please try again.");
+        setLoading(false);
+        return;
+      }
+
       setStatusMessage(
-        "You already have a pending agency application. Please go to Agency Access to log in if your account is already created."
+        "Agency account created successfully. You can now log in through Agency Access. Your account is under review."
       );
+
+      setAgencyName("");
+      setCity("");
+      setWebsite("");
+      setContactName("");
+      setBusinessPhonePrefix("");
+      setBusinessPhoneNumber("");
+      setEmail("");
+      setPassword("");
+      setMessage("");
       setLoading(false);
-      return;
-    }
-
-    if (existingApplication?.status === "approved") {
-      setStatusMessage(
-        "This email is already approved. Please go to Agency Access to log in."
-      );
+    } catch {
+      setStatusMessage("Something went wrong. Please try again.");
       setLoading(false);
-      return;
     }
-
-    const { error: signUpError } = await supabase.auth.signUp({
-      email: normalizedEmail,
-      password: password.trim(),
-    });
-
-    if (signUpError) {
-      setStatusMessage(signUpError.message);
-      setLoading(false);
-      return;
-    }
-
-    const { error: insertError } = await supabase.from("agency_applications").insert([
-      {
-        agency_name: agencyName.trim(),
-        city: city.trim(),
-        website: normalizedWebsite,
-        contact_name: contactName.trim(),
-        business_phone: fullBusinessPhone,
-        email: normalizedEmail,
-        message: message.trim(),
-        status: "pending",
-      },
-    ]);
-
-    if (insertError) {
-      setStatusMessage(
-        "Your account was created, but we could not save the agency application. Please contact support or try again."
-      );
-      setLoading(false);
-      return;
-    }
-
-    await supabase.auth.signOut();
-
-    setStatusMessage(
-      "Agency account created successfully. You can now log in through Agency Access. Your account is under review."
-    );
-
-    setAgencyName("");
-    setCity("");
-    setWebsite("");
-    setContactName("");
-    setBusinessPhonePrefix("");
-    setBusinessPhoneNumber("");
-    setEmail("");
-    setPassword("");
-    setMessage("");
-    setLoading(false);
   };
 
   return (
