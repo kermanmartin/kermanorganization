@@ -26,11 +26,7 @@ export default async function AgencyDashboardPage() {
     .maybeSingle();
 
   if (!application) {
-    redirect("/agency-access?rejected=1");
-  }
-
-  if (application.status === "rejected") {
-    redirect("/agency-access?rejected=1");
+    redirect("/agencies");
   }
 
   const isApproved = application.status === "approved";
@@ -45,6 +41,7 @@ export default async function AgencyDashboardPage() {
       ...lead,
       name: isApproved ? lead.name : lead.name ? "Contact locked" : "-",
       email: isApproved ? lead.email : lead.email ? "Contact locked" : "-",
+      phone: isApproved ? lead.phone : lead.phone ? "Contact locked" : "-",
       message: isApproved
         ? lead.message
         : lead.message
@@ -136,8 +133,8 @@ export default async function AgencyDashboardPage() {
             </>
           ) : (
             <>
-              <strong style={{ color: "white" }}>Agency under review:</strong>{" "}
-              you can already see live lead activity, but contact details remain
+              <strong style={{ color: "white" }}>Agency not approved:</strong>{" "}
+              you can still access the dashboard, but contact details remain
               locked until approval.
             </>
           )}

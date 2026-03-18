@@ -15,20 +15,6 @@ export default function AgencyAccessPage() {
 
   useEffect(() => {
     const checkSession = async () => {
-      const rejectedFromUrl =
-        typeof window !== "undefined"
-          ? new URLSearchParams(window.location.search).get("rejected")
-          : null;
-
-      if (rejectedFromUrl === "1") {
-        await supabase.auth.signOut();
-        setStatus(
-          "This agency account is blocked. Dashboard access is not available."
-        );
-        setCheckingSession(false);
-        return;
-      }
-
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -46,11 +32,8 @@ export default function AgencyAccessPage() {
         .limit(1)
         .maybeSingle();
 
-      if (!application || application.status === "rejected") {
+      if (!application) {
         await supabase.auth.signOut();
-        setStatus(
-          "This agency account is blocked. Dashboard access is not available."
-        );
         setCheckingSession(false);
         return;
       }
@@ -85,11 +68,9 @@ export default function AgencyAccessPage() {
       .limit(1)
       .maybeSingle();
 
-    if (!application || application.status === "rejected") {
+    if (!application) {
       await supabase.auth.signOut();
-      setStatus(
-        "This agency account is blocked. Dashboard access is not available."
-      );
+      setStatus("This agency account does not have an application record.");
       return;
     }
 
