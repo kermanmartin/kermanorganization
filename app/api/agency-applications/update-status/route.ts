@@ -20,7 +20,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Buscar email de la agencia
     const { data: agency, error: fetchError } = await supabase
       .from("agency_applications")
       .select("email, agency_name")
@@ -31,7 +30,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: fetchError.message }, { status: 500 });
     }
 
-    // Actualizar status
     const { error: updateError } = await supabase
       .from("agency_applications")
       .update({ status })
@@ -41,39 +39,30 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
 
-    // Si el status es APPROVED enviamos correo
     if (status === "approved") {
       try {
-        await resend.emails.send({
-          from: "The Kerman Organization <onboarding@resend.dev>",
+        const resendResult = await resend.emails.send({
+          from: "The Kerman Organization <contact@kermanorganization.com>",
           to: agency.email,
           subject: "Your agency has been approved",
           html: `
-          <h2>Your agency has been approved</h2>
+            <h2>Your agency has been approved</h2>
 
-          <p>Hello ${agency.agency_name || ""},</p>
+            <p>Hello ${agency.agency_name || ""},</p>
 
-          <p>
-          Your agency has successfully passed verification.
-          </p>
+            <p>Your agency has successfully passed verification.</p>
 
-          <p>
-          You can now access the full information inside the dashboard.
-          </p>
+            <p>You can now access the full information inside the dashboard.</p>
 
-          <p>
-          Access here:
-          </p>
+            <p>Access here:</p>
 
-          <p>
-          https://kermanorganization.com/agency-access
-          </p>
+            <p>https://kermanorganization.com/agency-access</p>
 
-          <p>
-          The Kerman Organization
-          </p>
+            <p>The Kerman Organization</p>
           `,
         });
+
+        console.log("RESEND RESULT:", resendResult);
       } catch (emailError) {
         console.error("Email error:", emailError);
       }
