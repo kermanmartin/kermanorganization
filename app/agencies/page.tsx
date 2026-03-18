@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 type MultiOption =
   | "buyer"
   | "seller"
-  | "rental"
+  | "tenant"
+  | "landlord"
   | "investor"
   | "apartment"
   | "house"
@@ -18,8 +19,59 @@ type MultiOption =
   | "land"
   | "other";
 
+const COUNTRY_OPTIONS = [
+  { value: "spain", label: "Spain" },
+  { value: "portugal", label: "Portugal" },
+  { value: "france", label: "France" },
+  { value: "united_kingdom", label: "United Kingdom" },
+  { value: "united_states", label: "United States" },
+  { value: "uae", label: "United Arab Emirates" },
+] as const;
+
+const CITY_OPTIONS_BY_COUNTRY: Record<string, { value: string; label: string }[]> = {
+  spain: [
+    { value: "madrid", label: "Madrid" },
+    { value: "barcelona", label: "Barcelona" },
+    { value: "valencia", label: "Valencia" },
+    { value: "malaga", label: "Málaga" },
+    { value: "sevilla", label: "Sevilla" },
+    { value: "bilbao", label: "Bilbao" },
+    { value: "alicante", label: "Alicante" },
+    { value: "marbella", label: "Marbella" },
+    { value: "palma", label: "Palma" },
+  ],
+  portugal: [
+    { value: "lisbon", label: "Lisbon" },
+    { value: "porto", label: "Porto" },
+    { value: "faro", label: "Faro" },
+    { value: "cascais", label: "Cascais" },
+  ],
+  france: [
+    { value: "paris", label: "Paris" },
+    { value: "nice", label: "Nice" },
+    { value: "lyon", label: "Lyon" },
+    { value: "marseille", label: "Marseille" },
+  ],
+  united_kingdom: [
+    { value: "london", label: "London" },
+    { value: "manchester", label: "Manchester" },
+    { value: "birmingham", label: "Birmingham" },
+  ],
+  united_states: [
+    { value: "new_york", label: "New York" },
+    { value: "miami", label: "Miami" },
+    { value: "los_angeles", label: "Los Angeles" },
+    { value: "dallas", label: "Dallas" },
+  ],
+  uae: [
+    { value: "dubai", label: "Dubai" },
+    { value: "abu_dhabi", label: "Abu Dhabi" },
+  ],
+};
+
 export default function AgenciesPage() {
   const [agencyName, setAgencyName] = useState("");
+  const [country, setCountry] = useState("");
   const [city, setCity] = useState("");
   const [website, setWebsite] = useState("");
   const [contactName, setContactName] = useState("");
@@ -28,7 +80,7 @@ export default function AgenciesPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [preferredCities, setPreferredCities] = useState("");
+  const [preferredCities, setPreferredCities] = useState<string[]>([]);
   const [preferredAreas, setPreferredAreas] = useState("");
   const [propertyTypes, setPropertyTypes] = useState<string[]>([]);
   const [clientTypes, setClientTypes] = useState<string[]>([]);
@@ -41,6 +93,11 @@ export default function AgenciesPage() {
 
   const [statusMessage, setStatusMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const availableCityOptions = useMemo(() => {
+    if (!country) return [];
+    return CITY_OPTIONS_BY_COUNTRY[country] ?? [];
+  }, [country]);
 
   const normalizeWebsite = (value: string) => {
     const trimmed = value.trim();
@@ -69,7 +126,11 @@ export default function AgenciesPage() {
     return `${currency} ${min} - ${max}`;
   };
 
-  const toggleMultiSelect = (value: MultiOption, current: string[], setter: (next: string[]) => void) => {
+  const toggleMultiSelect = (
+    value: MultiOption,
+    current: string[],
+    setter: (next: string[]) => void
+  ) => {
     if (current.includes(value)) {
       setter(current.filter((item) => item !== value));
       return;
@@ -78,10 +139,37 @@ export default function AgenciesPage() {
     setter([...current, value]);
   };
 
+  const togglePreferredCity = (value: string) => {
+    if (preferredCities.includes(value)) {
+      setPreferredCities(preferredCities.filter((item) => item !== value));
+      return;
+    }
+
+    setPreferredCities([...preferredCities, value]);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setStatusMessage("");
+
+    if (!country) {
+      setStatusMessage("Please select a country.");
+      setLoading(false);
+      return;
+    }
+
+    if (!city) {
+      setStatusMessage("Please select a main city.");
+      setLoading(false);
+      return;
+    }
+
+    if (preferredCities.length === 0) {
+      setStatusMessage("Please select at least one covered city.");
+      setLoading(false);
+      return;
+    }
 
     if (propertyTypes.length === 0) {
       setStatusMessage("Please select at least one property type.");
@@ -113,13 +201,14 @@ export default function AgenciesPage() {
         },
         body: JSON.stringify({
           agency_name: agencyName.trim(),
-          city: city.trim(),
+          country,
+          city,
           website: normalizedWebsite,
           contact_name: contactName.trim(),
           business_phone: fullBusinessPhone,
           email: email.trim().toLowerCase(),
           password: password.trim(),
-          preferred_cities: preferredCities.trim(),
+          preferred_cities: preferredCities.join(", "),
           preferred_areas: preferredAreas.trim(),
           property_types: propertyTypes,
           client_types: clientTypes,
@@ -145,6 +234,7 @@ export default function AgenciesPage() {
       );
 
       setAgencyName("");
+      setCountry("");
       setCity("");
       setWebsite("");
       setContactName("");
@@ -152,7 +242,7 @@ export default function AgenciesPage() {
       setBusinessPhoneNumber("");
       setEmail("");
       setPassword("");
-      setPreferredCities("");
+      setPreferredCities([]);
       setPreferredAreas("");
       setPropertyTypes([]);
       setClientTypes([]);
@@ -261,14 +351,42 @@ export default function AgenciesPage() {
               style={inputStyle}
             />
 
-            <input
-              type="text"
-              placeholder="Main city"
+            <select
+              value={country}
+              onChange={(e) => {
+                setCountry(e.target.value);
+                setCity("");
+                setPreferredCities([]);
+              }}
+              required
+              style={inputStyle}
+            >
+              <option value="">Country</option>
+              {COUNTRY_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+
+            <select
               value={city}
               onChange={(e) => setCity(e.target.value)}
               required
-              style={inputStyle}
-            />
+              disabled={!country}
+              style={{
+                ...inputStyle,
+                opacity: country ? 1 : 0.7,
+                cursor: country ? "pointer" : "not-allowed",
+              }}
+            >
+              <option value="">{country ? "Main city" : "Select country first"}</option>
+              {availableCityOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
 
             <input
               type="text"
@@ -334,14 +452,29 @@ export default function AgenciesPage() {
               style={inputStyle}
             />
 
-            <input
-              type="text"
-              placeholder="Preferred cities (comma separated)"
-              value={preferredCities}
-              onChange={(e) => setPreferredCities(e.target.value)}
-              required
-              style={{ ...inputStyle, gridColumn: "1 / -1" }}
-            />
+            <div style={{ gridColumn: "1 / -1" }}>
+              <div style={sectionLabel}>Covered cities</div>
+              <div style={choiceGrid}>
+                {availableCityOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => togglePreferredCity(option.value)}
+                    style={{
+                      ...choiceButton,
+                      backgroundColor: preferredCities.includes(option.value)
+                        ? "white"
+                        : "#111111",
+                      color: preferredCities.includes(option.value)
+                        ? "black"
+                        : "white",
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <input
               type="text"
@@ -397,7 +530,8 @@ export default function AgenciesPage() {
                 {[
                   ["buyer", "Buyer"],
                   ["seller", "Seller"],
-                  ["rental", "Rental"],
+                  ["tenant", "Tenant"],
+                  ["landlord", "Landlord"],
                   ["investor", "Investor"],
                 ].map(([value, label]) => (
                   <button

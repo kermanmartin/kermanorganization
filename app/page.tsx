@@ -4,20 +4,77 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Turnstile } from "@marsidev/react-turnstile";
 
-type UserType = "buyer" | "seller" | "rental" | "investor" | "";
+type UserType = "buyer" | "seller" | "tenant" | "landlord" | "investor" | "";
+
+const COUNTRY_OPTIONS = [
+  { value: "spain", label: "Spain" },
+  { value: "portugal", label: "Portugal" },
+  { value: "france", label: "France" },
+  { value: "united_kingdom", label: "United Kingdom" },
+  { value: "united_states", label: "United States" },
+  { value: "uae", label: "United Arab Emirates" },
+] as const;
+
+const CITY_OPTIONS_BY_COUNTRY: Record<string, { value: string; label: string }[]> = {
+  spain: [
+    { value: "madrid", label: "Madrid" },
+    { value: "barcelona", label: "Barcelona" },
+    { value: "valencia", label: "Valencia" },
+    { value: "malaga", label: "Málaga" },
+    { value: "sevilla", label: "Sevilla" },
+    { value: "bilbao", label: "Bilbao" },
+    { value: "alicante", label: "Alicante" },
+    { value: "marbella", label: "Marbella" },
+    { value: "palma", label: "Palma" },
+  ],
+  portugal: [
+    { value: "lisbon", label: "Lisbon" },
+    { value: "porto", label: "Porto" },
+    { value: "faro", label: "Faro" },
+    { value: "cascais", label: "Cascais" },
+  ],
+  france: [
+    { value: "paris", label: "Paris" },
+    { value: "nice", label: "Nice" },
+    { value: "lyon", label: "Lyon" },
+    { value: "marseille", label: "Marseille" },
+  ],
+  united_kingdom: [
+    { value: "london", label: "London" },
+    { value: "manchester", label: "Manchester" },
+    { value: "birmingham", label: "Birmingham" },
+  ],
+  united_states: [
+    { value: "new_york", label: "New York" },
+    { value: "miami", label: "Miami" },
+    { value: "los_angeles", label: "Los Angeles" },
+    { value: "dallas", label: "Dallas" },
+  ],
+  uae: [
+    { value: "dubai", label: "Dubai" },
+    { value: "abu_dhabi", label: "Abu Dhabi" },
+  ],
+};
+
+function formatOptionLabel(value: string) {
+  return value
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
 
 export default function HomePage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phonePrefix, setPhonePrefix] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [country, setCountry] = useState("");
   const [city, setCity] = useState("");
   const [preferredArea, setPreferredArea] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [timeframe, setTimeframe] = useState("");
   const [financingStatus, setFinancingStatus] = useState("");
   const [sellerStatus, setSellerStatus] = useState("");
-  const [rentalProfile, setRentalProfile] = useState("");
   const [currency, setCurrency] = useState("EUR");
   const [budgetMin, setBudgetMin] = useState("");
   const [budgetMax, setBudgetMax] = useState("");
@@ -28,10 +85,16 @@ export default function HomePage() {
   const [statusMessage, setStatusMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const cityOptions = useMemo(() => {
+    if (!country) return [];
+    return CITY_OPTIONS_BY_COUNTRY[country] ?? [];
+  }, [country]);
+
   const budgetLabel = useMemo(() => {
-    if (userType === "seller") return "Expected value range";
+    if (userType === "seller") return "Expected sale value range";
     if (userType === "buyer") return "Purchase budget range";
-    if (userType === "rental") return "Monthly rental range";
+    if (userType === "tenant") return "Monthly rental budget range";
+    if (userType === "landlord") return "Expected monthly rental range";
     if (userType === "investor") return "Investment range";
     return "Budget range";
   }, [userType]);
@@ -61,7 +124,15 @@ export default function HomePage() {
 
   const validateConditionalFields = () => {
     if (!userType) {
-      return "Please select your profile: seller, buyer, rental or investor.";
+      return "Please select your profile: seller, buyer, tenant, landlord or investor.";
+    }
+
+    if (!country) {
+      return "Please select a country.";
+    }
+
+    if (!city) {
+      return "Please select a city.";
     }
 
     if (!budgetMin.trim() || !budgetMax.trim()) {
@@ -74,10 +145,6 @@ export default function HomePage() {
 
     if (userType === "seller" && !sellerStatus) {
       return "Please select your seller status.";
-    }
-
-    if (userType === "rental" && !rentalProfile) {
-      return "Please select your rental profile.";
     }
 
     if (!turnstileToken) {
@@ -112,13 +179,14 @@ export default function HomePage() {
           name: name.trim(),
           email: email.trim().toLowerCase(),
           phone: fullPhone,
-          city: city.trim(),
+          country,
+          city,
           preferred_area: preferredArea.trim(),
           property_type: propertyType,
           timeframe,
           financing_status: financingStatus,
           seller_status: sellerStatus,
-          rental_profile: rentalProfile,
+          rental_profile: null,
           budget: fullBudget,
           user_type: userType,
           message: message.trim(),
@@ -145,13 +213,13 @@ export default function HomePage() {
       setEmail("");
       setPhonePrefix("");
       setPhoneNumber("");
+      setCountry("");
       setCity("");
       setPreferredArea("");
       setPropertyType("");
       setTimeframe("");
       setFinancingStatus("");
       setSellerStatus("");
-      setRentalProfile("");
       setCurrency("EUR");
       setBudgetMin("");
       setBudgetMax("");
@@ -168,7 +236,6 @@ export default function HomePage() {
 
   const showFinancingStatus = userType === "buyer" || userType === "investor";
   const showSellerStatus = userType === "seller";
-  const showRentalProfile = userType === "rental";
 
   return (
     <main
@@ -323,7 +390,7 @@ export default function HomePage() {
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(4, 1fr)",
+                    gridTemplateColumns: "repeat(5, 1fr)",
                     gap: "10px",
                   }}
                 >
@@ -332,7 +399,6 @@ export default function HomePage() {
                     onClick={() => {
                       setUserType("seller");
                       setFinancingStatus("");
-                      setRentalProfile("");
                     }}
                     style={{
                       ...choiceButton,
@@ -348,7 +414,6 @@ export default function HomePage() {
                     onClick={() => {
                       setUserType("buyer");
                       setSellerStatus("");
-                      setRentalProfile("");
                     }}
                     style={{
                       ...choiceButton,
@@ -362,14 +427,14 @@ export default function HomePage() {
                   <button
                     type="button"
                     onClick={() => {
-                      setUserType("rental");
+                      setUserType("tenant");
                       setFinancingStatus("");
                       setSellerStatus("");
                     }}
                     style={{
                       ...choiceButton,
-                      backgroundColor: userType === "rental" ? "white" : "#111",
-                      color: userType === "rental" ? "black" : "white",
+                      backgroundColor: userType === "tenant" ? "white" : "#111",
+                      color: userType === "tenant" ? "black" : "white",
                     }}
                   >
                     Rent
@@ -378,9 +443,24 @@ export default function HomePage() {
                   <button
                     type="button"
                     onClick={() => {
+                      setUserType("landlord");
+                      setFinancingStatus("");
+                      setSellerStatus("");
+                    }}
+                    style={{
+                      ...choiceButton,
+                      backgroundColor: userType === "landlord" ? "white" : "#111",
+                      color: userType === "landlord" ? "black" : "white",
+                    }}
+                  >
+                    Rent out
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
                       setUserType("investor");
                       setSellerStatus("");
-                      setRentalProfile("");
                     }}
                     style={{
                       ...choiceButton,
@@ -451,24 +531,51 @@ export default function HomePage() {
                     gap: "10px",
                   }}
                 >
-                  <input
-                    type="text"
-                    placeholder="City"
+                  <select
+                    value={country}
+                    onChange={(e) => {
+                      setCountry(e.target.value);
+                      setCity("");
+                    }}
+                    required
+                    style={inputStyle}
+                  >
+                    <option value="">Country</option>
+                    {COUNTRY_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+
+                  <select
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     required
-                    style={inputStyle}
-                  />
-
-                  <input
-                    type="text"
-                    placeholder="Preferred area / district / zone"
-                    value={preferredArea}
-                    onChange={(e) => setPreferredArea(e.target.value)}
-                    required
-                    style={inputStyle}
-                  />
+                    disabled={!country}
+                    style={{
+                      ...inputStyle,
+                      opacity: country ? 1 : 0.7,
+                      cursor: country ? "pointer" : "not-allowed",
+                    }}
+                  >
+                    <option value="">{country ? "City" : "Select country first"}</option>
+                    {cityOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
+
+                <input
+                  type="text"
+                  placeholder="Preferred area / district / zone"
+                  value={preferredArea}
+                  onChange={(e) => setPreferredArea(e.target.value)}
+                  required
+                  style={inputStyle}
+                />
 
                 <div
                   style={{
@@ -549,21 +656,6 @@ export default function HomePage() {
                     <option value="already_listed">
                       Already listed elsewhere
                     </option>
-                  </select>
-                )}
-
-                {showRentalProfile && (
-                  <select
-                    value={rentalProfile}
-                    onChange={(e) => setRentalProfile(e.target.value)}
-                    required={showRentalProfile}
-                    style={inputStyle}
-                  >
-                    <option value="">Rental profile</option>
-                    <option value="tenant">Tenant</option>
-                    <option value="landlord">Landlord</option>
-                    <option value="short_term">Short-term rental</option>
-                    <option value="long_term">Long-term rental</option>
                   </select>
                 )}
 

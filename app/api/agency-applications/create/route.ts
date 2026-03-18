@@ -9,6 +9,15 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+const ALLOWED_COUNTRIES = [
+  "spain",
+  "portugal",
+  "france",
+  "united_kingdom",
+  "united_states",
+  "uae",
+];
+
 function cleanString(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -17,11 +26,16 @@ function isNonEmptyArray(value: unknown) {
   return Array.isArray(value) && value.length > 0;
 }
 
+function isValidOption(value: string, allowed: string[]) {
+  return allowed.includes(value);
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
 
     const agency_name = cleanString(body?.agency_name);
+    const country = cleanString(body?.country);
     const city = cleanString(body?.city);
     const website = cleanString(body?.website);
     const contact_name = cleanString(body?.contact_name);
@@ -42,6 +56,7 @@ export async function POST(req: Request) {
 
     if (
       !agency_name ||
+      !country ||
       !city ||
       !website ||
       !contact_name ||
@@ -59,6 +74,13 @@ export async function POST(req: Request) {
     ) {
       return NextResponse.json(
         { error: "Missing required fields." },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidOption(country, ALLOWED_COUNTRIES)) {
+      return NextResponse.json(
+        { error: "Invalid country." },
         { status: 400 }
       );
     }
@@ -129,6 +151,7 @@ export async function POST(req: Request) {
       .insert([
         {
           agency_name,
+          country,
           city,
           website,
           contact_name,
@@ -169,6 +192,7 @@ export async function POST(req: Request) {
           <h2>New agency application submitted</h2>
 
           <p><strong>Agency name:</strong> ${agency_name}</p>
+          <p><strong>Country:</strong> ${country}</p>
           <p><strong>Main city:</strong> ${city}</p>
           <p><strong>Website:</strong> ${website}</p>
           <p><strong>Contact name:</strong> ${contact_name}</p>

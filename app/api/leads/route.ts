@@ -17,7 +17,52 @@ const ratelimit = new Ratelimit({
   prefix: "ratelimit:leads",
 });
 
-const ALLOWED_USER_TYPES = ["buyer", "seller", "rental", "investor"];
+const ALLOWED_USER_TYPES = [
+  "buyer",
+  "seller",
+  "tenant",
+  "landlord",
+  "investor",
+];
+
+const ALLOWED_COUNTRIES = [
+  "spain",
+  "portugal",
+  "france",
+  "united_kingdom",
+  "united_states",
+  "uae",
+];
+
+const ALLOWED_CITIES = [
+  "madrid",
+  "barcelona",
+  "valencia",
+  "malaga",
+  "sevilla",
+  "bilbao",
+  "alicante",
+  "marbella",
+  "palma",
+  "lisbon",
+  "porto",
+  "faro",
+  "cascais",
+  "paris",
+  "nice",
+  "lyon",
+  "marseille",
+  "london",
+  "manchester",
+  "birmingham",
+  "new_york",
+  "miami",
+  "los_angeles",
+  "dallas",
+  "dubai",
+  "abu_dhabi",
+];
+
 const ALLOWED_PROPERTY_TYPES = [
   "apartment",
   "house",
@@ -30,6 +75,7 @@ const ALLOWED_PROPERTY_TYPES = [
   "land",
   "other",
 ];
+
 const ALLOWED_TIMEFRAMES = [
   "asap",
   "within_30_days",
@@ -38,23 +84,19 @@ const ALLOWED_TIMEFRAMES = [
   "6_plus_months",
   "just_exploring",
 ];
+
 const ALLOWED_FINANCING_STATUSES = [
   "cash_ready",
   "mortgage_preapproved",
   "needs_financing",
   "evaluating_options",
 ];
+
 const ALLOWED_SELLER_STATUSES = [
   "ready_to_list",
   "comparing_agencies",
   "just_exploring",
   "already_listed",
-];
-const ALLOWED_RENTAL_PROFILES = [
-  "tenant",
-  "landlord",
-  "short_term",
-  "long_term",
 ];
 
 function cleanString(value: unknown) {
@@ -89,13 +131,13 @@ export async function POST(req: Request) {
     const name = cleanString(body?.name);
     const email = cleanString(body?.email).toLowerCase();
     const phone = cleanString(body?.phone);
+    const country = cleanString(body?.country);
     const city = cleanString(body?.city);
     const preferredArea = cleanString(body?.preferred_area);
     const propertyType = cleanString(body?.property_type);
     const timeframe = cleanString(body?.timeframe);
     const financingStatus = cleanString(body?.financing_status);
     const sellerStatus = cleanString(body?.seller_status);
-    const rentalProfile = cleanString(body?.rental_profile);
     const budget = cleanString(body?.budget);
     const userType = cleanString(body?.user_type);
     const message = cleanString(body?.message);
@@ -105,6 +147,7 @@ export async function POST(req: Request) {
       !name ||
       !email ||
       !phone ||
+      !country ||
       !city ||
       !preferredArea ||
       !propertyType ||
@@ -129,6 +172,20 @@ export async function POST(req: Request) {
     if (!isValidOption(userType, ALLOWED_USER_TYPES)) {
       return NextResponse.json(
         { error: "Invalid user type." },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidOption(country, ALLOWED_COUNTRIES)) {
+      return NextResponse.json(
+        { error: "Invalid country." },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidOption(city, ALLOWED_CITIES)) {
+      return NextResponse.json(
+        { error: "Invalid city." },
         { status: 400 }
       );
     }
@@ -167,16 +224,6 @@ export async function POST(req: Request) {
       );
     }
 
-    if (
-      userType === "rental" &&
-      !isValidOption(rentalProfile, ALLOWED_RENTAL_PROFILES)
-    ) {
-      return NextResponse.json(
-        { error: "Invalid rental profile." },
-        { status: 400 }
-      );
-    }
-
     const formData = new FormData();
     formData.append("secret", process.env.TURNSTILE_SECRET_KEY!);
     formData.append("response", turnstileToken);
@@ -205,6 +252,7 @@ export async function POST(req: Request) {
       name,
       email,
       phone,
+      country,
       city,
       preferred_area: preferredArea,
       property_type: propertyType,
@@ -214,7 +262,7 @@ export async function POST(req: Request) {
           ? financingStatus
           : null,
       seller_status: userType === "seller" ? sellerStatus : null,
-      rental_profile: userType === "rental" ? rentalProfile : null,
+      rental_profile: null,
       budget,
       user_type: userType,
       message,

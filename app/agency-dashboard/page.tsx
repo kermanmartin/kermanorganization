@@ -11,6 +11,7 @@ type Lead = {
   name: string | null;
   email: string | null;
   phone: string | null;
+  country: string | null;
   city: string | null;
   preferred_area: string | null;
   property_type: string | null;
@@ -26,6 +27,119 @@ type Lead = {
   contact_locked?: boolean;
 };
 
+type AgencyApplication = {
+  id: string;
+  agency_name: string;
+  email: string;
+  status: string;
+  country: string | null;
+  preferred_cities: string | null;
+  property_types: string[] | null;
+  client_types: string[] | null;
+  min_budget: string | null;
+  max_budget: string | null;
+};
+
+function normalizeText(value: string | null | undefined) {
+  return (value ?? "").trim().toLowerCase();
+}
+
+function splitCommaValues(value: string | null | undefined) {
+  return (value ?? "")
+    .split(",")
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+function parseBudgetNumber(value: string | null | undefined) {
+  if (!value) return null;
+
+  const cleaned = value
+    .replace(/[^\d.,]/g, "")
+    .replace(/\./g, "")
+    .replace(",", ".");
+  const parsed = Number(cleaned);
+
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function parseLeadBudgetRange(budget: string | null | undefined) {
+  if (!budget) {
+    return { min: null as number | null, max: null as number | null };
+  }
+
+  const normalized = budget.replace(/[^\d\-–—,.\s]/g, " ");
+  const matches = normalized.match(/\d[\d.,]*/g) ?? [];
+
+  if (matches.length < 2) {
+    return { min: null as number | null, max: null as number | null };
+  }
+
+  const min = parseBudgetNumber(matches[0]);
+  const max = parseBudgetNumber(matches[1]);
+
+  return { min, max };
+}
+
+function matchesCountry(lead: Lead, application: AgencyApplication) {
+  const agencyCountry = normalizeText(application.country);
+  if (!agencyCountry) return true;
+
+  const leadCountry = normalizeText(lead.country);
+  return agencyCountry === leadCountry;
+}
+
+function matchesCity(lead: Lead, application: AgencyApplication) {
+  const agencyCities = splitCommaValues(application.preferred_cities);
+  if (agencyCities.length === 0) return true;
+
+  const leadCity = normalizeText(lead.city);
+  return agencyCities.includes(leadCity);
+}
+
+function matchesPropertyType(lead: Lead, application: AgencyApplication) {
+  const agencyPropertyTypes =
+    application.property_types?.map((item) => item.trim().toLowerCase()) ?? [];
+
+  if (agencyPropertyTypes.length === 0) return true;
+
+  const leadPropertyType = normalizeText(lead.property_type);
+  return agencyPropertyTypes.includes(leadPropertyType);
+}
+
+function matchesClientType(lead: Lead, application: AgencyApplication) {
+  const agencyClientTypes =
+    application.client_types?.map((item) => item.trim().toLowerCase()) ?? [];
+
+  if (agencyClientTypes.length === 0) return true;
+
+  const leadUserType = normalizeText(lead.user_type);
+  return agencyClientTypes.includes(leadUserType);
+}
+
+function matchesBudget(lead: Lead, application: AgencyApplication) {
+  const agencyMin = parseBudgetNumber(application.min_budget);
+  const agencyMax = parseBudgetNumber(application.max_budget);
+
+  if (agencyMin === null || agencyMax === null) return true;
+
+  const leadBudget = parseLeadBudgetRange(lead.budget);
+
+  if (leadBudget.min === null || leadBudget.max === null) return true;
+
+  return leadBudget.max >= agencyMin && leadBudget.min <= agencyMax;
+}
+
+function leadMatchesAgency(lead: Lead, application: AgencyApplication) {
+  return (
+    matchesCountry(lead, application) &&
+    matchesCity(lead, application) &&
+    matchesPropertyType(lead, application) &&
+    matchesClientType(lead, application) &&
+    matchesBudget(lead, application)
+  );
+}
+
 export default async function AgencyDashboardPage() {
   const supabase = await createClient();
 
@@ -37,7 +151,7 @@ export default async function AgencyDashboardPage() {
     redirect("/agency-access");
   }
 
-  const { data: application } = await supabase
+  const { data: applicationData } = await supabase
     .from("agency_applications")
     .select("*")
     .eq("email", user.email)
@@ -45,10 +159,11 @@ export default async function AgencyDashboardPage() {
     .limit(1)
     .maybeSingle();
 
-  if (!application) {
+  if (!applicationData) {
     redirect("/agencies");
   }
 
+  const application = applicationData as AgencyApplication;
   const isApproved = application.status === "approved";
 
   const { data: leads, error } = await supabase
@@ -58,7 +173,11 @@ export default async function AgencyDashboardPage() {
 
   const typedLeads: Lead[] = (leads ?? []) as Lead[];
 
-  const safeLeads: Lead[] = typedLeads.map((lead) => ({
+  const matchedLeads = typedLeads.filter((lead) =>
+    leadMatchesAgency(lead, application)
+  );
+
+  const safeLeads: Lead[] = matchedLeads.map((lead) => ({
     ...lead,
     name: isApproved ? lead.name : lead.name ? "Contact locked" : "-",
     email: isApproved ? lead.email : lead.email ? "Contact locked" : "-",
@@ -116,7 +235,7 @@ export default async function AgencyDashboardPage() {
                 margin: 0,
               }}
             >
-              Welcome, {application.agency_name}. You are viewing the current lead
+              Welcome, {application.agency_name}. You are viewing the matched lead
               flow from The Kerman Organization.
             </p>
 
@@ -150,12 +269,12 @@ export default async function AgencyDashboardPage() {
           {isApproved ? (
             <>
               <strong style={{ color: "white" }}>Agency approved:</strong> you
-              have full access to lead contact details.
+              have full access to matched lead contact details.
             </>
           ) : (
             <>
               <strong style={{ color: "white" }}>Agency not approved:</strong>{" "}
-              you can still access the dashboard, but contact details remain
+              you can still access matched leads, but contact details remain
               locked until approval.
             </>
           )}
