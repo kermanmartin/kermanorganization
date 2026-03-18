@@ -133,17 +133,48 @@ export async function POST(req: Request) {
           <p><strong>Message:</strong></p>
           <p>${message.trim()}</p>
 
-          <p>
-            Review here:
-          </p>
-
-          <p>
-            https://kermanorganization.com/admin/agencies
-          </p>
+          <p>Review here:</p>
+          <p>https://kermanorganization.com/admin/agencies</p>
         `,
       });
     } catch (emailError) {
       console.error("Admin notification email error:", emailError);
+    }
+
+    try {
+      await resend.emails.send({
+        from: "The Kerman Organization <contact@kermanorganization.com>",
+        to: normalizedEmail,
+        subject: "Your agency application is under review",
+        html: `
+          <h2>Your agency application has been received</h2>
+
+          <p>Hello ${contact_name.trim() || agency_name.trim()},</p>
+
+          <p>
+            We have received your agency application for The Kerman Organization.
+          </p>
+
+          <p>
+            Your account will be reviewed shortly. Once verified, you will be able
+            to view the currently locked content inside the dashboard.
+          </p>
+
+          <p>
+            Access page:
+          </p>
+
+          <p>
+            https://kermanorganization.com/agency-access
+          </p>
+
+          <p>
+            The Kerman Organization
+          </p>
+        `,
+      });
+    } catch (emailError) {
+      console.error("Agency pending email error:", emailError);
     }
 
     return NextResponse.json({ success: true });

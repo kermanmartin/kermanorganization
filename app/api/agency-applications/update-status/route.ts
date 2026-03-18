@@ -22,13 +22,15 @@ export async function POST(req: Request) {
 
     const { data: agency, error: fetchError } = await supabase
       .from("agency_applications")
-      .select("email, agency_name")
+      .select("email, agency_name, contact_name, status")
       .eq("id", id)
       .single();
 
     if (fetchError) {
       return NextResponse.json({ error: fetchError.message }, { status: 500 });
     }
+
+    const previousStatus = agency.status;
 
     const { error: updateError } = await supabase
       .from("agency_applications")
@@ -39,32 +41,78 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
 
-    if (status === "approved") {
+    const shouldSendApprovedEmail =
+      status === "approved" && previousStatus !== "approved";
+
+    const shouldSendRejectedEmail =
+      status === "rejected" && previousStatus !== "rejected";
+
+    if (shouldSendApprovedEmail) {
       try {
-        const resendResult = await resend.emails.send({
+        await resend.emails.send({
           from: "The Kerman Organization <contact@kermanorganization.com>",
           to: agency.email,
           subject: "Your agency has been approved",
           html: `
             <h2>Your agency has been approved</h2>
 
-            <p>Hello ${agency.agency_name || ""},</p>
+            <p>Hello ${agency.contact_name || agency.agency_name || ""},</p>
 
             <p>Your agency has successfully passed verification.</p>
 
-            <p>You can now access the full information inside the dashboard.</p>
+            <p>
+              You can now access the full information inside the dashboard,
+              including the content that was previously locked.
+            </p>
 
-            <p>Access here:</p>
+            <p>
+              Access here:
+            </p>
 
-            <p>https://kermanorganization.com/agency-access</p>
+            <p>
+              https://kermanorganization.com/agency-access
+            </p>
 
-            <p>The Kerman Organization</p>
+            <p>
+              The Kerman Organization
+            </p>
           `,
         });
-
-        console.log("RESEND RESULT:", resendResult);
       } catch (emailError) {
-        console.error("Email error:", emailError);
+        console.error("Approved email error:", emailError);
+      }
+    }
+
+    if (shouldSendRejectedEmail) {
+      try {
+        await resend.emails.send({
+          from: "The Kerman Organization <contact@kermanorganization.com>",
+          to: agency.email,
+          subject: "Your agency application was not approved",
+          html: `
+            <h2>Your agency application was not approved</h2>
+
+            <p>Hello ${agency.contact_name || agency.agency_name || ""},</p>
+
+            <p>
+              At this time, your agency application has been marked as rejected.
+            </p>
+
+            <p>
+              If you believe this was a mistake, please contact us at:
+            </p>
+
+            <p>
+              thekermanorganization@gmail.com
+            </p>
+
+            <p>
+              The Kerman Organization
+            </p>
+          `,
+        });
+      } catch (emailError) {
+        console.error("Rejected email error:", emailError);
       }
     }
 
