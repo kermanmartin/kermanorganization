@@ -30,6 +30,13 @@ function isValidOption(value: string, allowed: string[]) {
   return allowed.includes(value);
 }
 
+function formatOption(value: string) {
+  return value
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -63,7 +70,6 @@ export async function POST(req: Request) {
       !business_phone ||
       !email ||
       !password ||
-      !preferred_cities ||
       !preferred_areas ||
       !min_budget ||
       !max_budget ||
@@ -79,10 +85,7 @@ export async function POST(req: Request) {
     }
 
     if (!isValidOption(country, ALLOWED_COUNTRIES)) {
-      return NextResponse.json(
-        { error: "Invalid country." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid country." }, { status: 400 });
     }
 
     if (!isNonEmptyArray(property_types)) {
@@ -192,13 +195,15 @@ export async function POST(req: Request) {
           <h2>New agency application submitted</h2>
 
           <p><strong>Agency name:</strong> ${agency_name}</p>
-          <p><strong>Country:</strong> ${country}</p>
-          <p><strong>Main city:</strong> ${city}</p>
+          <p><strong>Country:</strong> ${formatOption(country)}</p>
+          <p><strong>Main city:</strong> ${formatOption(city)}</p>
           <p><strong>Website:</strong> ${website}</p>
           <p><strong>Contact name:</strong> ${contact_name}</p>
           <p><strong>Business phone:</strong> ${business_phone}</p>
           <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Preferred cities:</strong> ${preferred_cities}</p>
+          <p><strong>Additional covered cities:</strong> ${
+            preferred_cities || "-"
+          }</p>
           <p><strong>Preferred areas:</strong> ${preferred_areas}</p>
           <p><strong>Property types:</strong> ${property_types.join(", ")}</p>
           <p><strong>Client types:</strong> ${client_types.join(", ")}</p>
@@ -220,26 +225,39 @@ export async function POST(req: Request) {
       await resend.emails.send({
         from: "The Kerman Organization <contact@kermanorganization.com>",
         to: email,
-        subject: "Your agency application is under review",
+        subject: "Your agency account has been created and is under review",
         html: `
-          <h2>Your agency application has been received</h2>
+          <h2>Your agency account has been created</h2>
 
           <p>Hello ${contact_name || agency_name},</p>
 
           <p>
-            We have received your agency application for The Kerman Organization.
+            Thank you for submitting your agency application to The Kerman Organization.
           </p>
 
           <p>
-            Your account will be reviewed shortly. Once verified, you will be able
-            to view the currently locked content inside the dashboard.
+            Your account has been created successfully and you can already log in through the Agency Access page.
           </p>
 
-          <p>Access page:</p>
+          <p>
+            Please note that contact details inside the dashboard will remain locked until your agency is reviewed and approved.
+          </p>
 
-          <p>https://kermanorganization.com/agency-access</p>
+          <p>
+            We will review your application shortly and notify you in either case, whether your agency is approved or not approved.
+          </p>
 
-          <p>The Kerman Organization</p>
+          <p>
+            Agency Access:
+          </p>
+
+          <p>
+            https://kermanorganization.com/agency-access
+          </p>
+
+          <p>
+            The Kerman Organization
+          </p>
         `,
       });
     } catch (emailError) {
