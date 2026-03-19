@@ -42,10 +42,10 @@ export default function AboutPage() {
 
           <h1
             style={{
-              fontSize: "clamp(42px, 6vw, 72px)",
+              fontSize: "clamp(36px, 6vw, 72px)",
               lineHeight: "0.98",
               fontWeight: 400,
-              letterSpacing: "-1.6px",
+              letterSpacing: "-1.4px",
               margin: "0 0 18px 0",
             }}
           >
@@ -56,7 +56,7 @@ export default function AboutPage() {
             style={{
               margin: 0,
               color: "#cfcfcf",
-              fontSize: "19px",
+              fontSize: "clamp(16px, 2vw, 19px)",
               lineHeight: "1.9",
               maxWidth: "820px",
             }}
@@ -70,9 +70,9 @@ export default function AboutPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
             gap: "22px",
-            marginBottom: "42px",
+            marginBottom: "26px",
           }}
         >
           <SectionCard
@@ -90,9 +90,10 @@ export default function AboutPage() {
         </div>
 
         <div
+          className="about-bottom-grid"
           style={{
             display: "grid",
-            gridTemplateColumns: "1.2fr 0.8fr",
+            gridTemplateColumns: "minmax(0, 1.2fr) minmax(0, 0.8fr)",
             gap: "22px",
           }}
         >
@@ -136,16 +137,24 @@ export default function AboutPage() {
           <div style={sideCard}>
             <h2 style={sectionTitle}>Why this matters</h2>
 
-            <ul style={listStyle}>
-              <li>Better lead quality</li>
-              <li>Less noise for agencies</li>
-              <li>Cleaner territory logic</li>
-              <li>More scalable routing</li>
-              <li>Stronger fit for pay-per-lead</li>
-            </ul>
+            <div style={reasonsList}>
+              <ReasonItem text="Better lead quality" />
+              <ReasonItem text="Less noise for agencies" />
+              <ReasonItem text="Cleaner territory logic" />
+              <ReasonItem text="More scalable routing" />
+              <ReasonItem text="Stronger fit for pay-per-lead" />
+            </div>
           </div>
         </div>
       </section>
+
+      <style jsx>{`
+        @media (max-width: 900px) {
+          .about-bottom-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </main>
   );
 }
@@ -170,10 +179,10 @@ function SectionCard({
       <h3
         style={{
           margin: "0 0 12px 0",
-          fontSize: "28px",
-          lineHeight: "1.1",
+          fontSize: "clamp(24px, 3vw, 28px)",
+          lineHeight: "1.12",
           fontWeight: 400,
-          letterSpacing: "-0.6px",
+          letterSpacing: "-0.5px",
           color: "white",
         }}
       >
@@ -194,12 +203,46 @@ function SectionCard({
   );
 }
 
+function ReasonItem({ text }: { text: string }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "flex-start",
+        gap: "12px",
+      }}
+    >
+      <div
+        style={{
+          width: "8px",
+          height: "8px",
+          borderRadius: "999px",
+          backgroundColor: "#d8d8d8",
+          marginTop: "9px",
+          flexShrink: 0,
+        }}
+      />
+
+      <div
+        style={{
+          color: "#d0d0d0",
+          fontSize: "17px",
+          lineHeight: "1.8",
+        }}
+      >
+        {text}
+      </div>
+    </div>
+  );
+}
+
 const largeCard: React.CSSProperties = {
   background:
     "linear-gradient(180deg, rgba(15,15,15,1) 0%, rgba(10,10,10,1) 100%)",
   border: "1px solid #1d1d1d",
   borderRadius: "22px",
   padding: "30px",
+  minWidth: 0,
 };
 
 const sideCard: React.CSSProperties = {
@@ -208,18 +251,20 @@ const sideCard: React.CSSProperties = {
   border: "1px solid #1d1d1d",
   borderRadius: "22px",
   padding: "30px",
+  minWidth: 0,
 };
 
 const sectionTitle: React.CSSProperties = {
   margin: "0 0 18px 0",
-  fontSize: "32px",
+  fontSize: "clamp(28px, 4vw, 32px)",
   fontWeight: 400,
   letterSpacing: "-0.8px",
+  lineHeight: "1.1",
 };
 
 const flowBlock: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "64px 1fr",
+  gridTemplateColumns: "56px minmax(0, 1fr)",
   gap: "16px",
   alignItems: "start",
   padding: "18px 0",
@@ -227,8 +272,8 @@ const flowBlock: React.CSSProperties = {
 };
 
 const flowStep: React.CSSProperties = {
-  width: "52px",
-  height: "52px",
+  width: "48px",
+  height: "48px",
   borderRadius: "999px",
   display: "flex",
   alignItems: "center",
@@ -241,10 +286,11 @@ const flowStep: React.CSSProperties = {
 };
 
 const flowTitle: React.CSSProperties = {
-  fontSize: "20px",
+  fontSize: "clamp(22px, 3vw, 24px)",
   fontWeight: 500,
   marginBottom: "8px",
   color: "white",
+  lineHeight: "1.2",
 };
 
 const flowText: React.CSSProperties = {
@@ -253,10 +299,8 @@ const flowText: React.CSSProperties = {
   color: "#cfcfcf",
 };
 
-const listStyle: React.CSSProperties = {
-  margin: 0,
-  paddingLeft: "20px",
-  color: "#cfcfcf",
-  lineHeight: "2",
-  fontSize: "17px",
+const reasonsList: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "16px",
 };
