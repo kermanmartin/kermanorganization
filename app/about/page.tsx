@@ -90,10 +90,9 @@ export default function AboutPage() {
         </div>
 
         <div
-          className="about-bottom-grid"
           style={{
             display: "grid",
-            gridTemplateColumns: "minmax(0, 1.2fr) minmax(0, 0.8fr)",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
             gap: "22px",
           }}
         >
@@ -147,14 +146,6 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-
-      <style jsx>{`
-        @media (max-width: 900px) {
-          .about-bottom-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
     </main>
   );
 }
