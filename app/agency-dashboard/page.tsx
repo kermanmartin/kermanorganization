@@ -33,6 +33,7 @@ type AgencyApplication = {
   email: string;
   status: string;
   country: string | null;
+  city: string | null;
   preferred_cities: string | null;
   property_types: string[] | null;
   client_types: string[] | null;
@@ -90,11 +91,15 @@ function matchesCountry(lead: Lead, application: AgencyApplication) {
 }
 
 function matchesCity(lead: Lead, application: AgencyApplication) {
-  const agencyCities = splitCommaValues(application.preferred_cities);
-  if (agencyCities.length === 0) return true;
-
   const leadCity = normalizeText(lead.city);
-  return agencyCities.includes(leadCity);
+  const mainCity = normalizeText(application.city);
+  const extraCities = splitCommaValues(application.preferred_cities);
+
+  if (!leadCity) return false;
+  if (leadCity === mainCity) return true;
+  if (extraCities.includes(leadCity)) return true;
+
+  return false;
 }
 
 function matchesPropertyType(lead: Lead, application: AgencyApplication) {

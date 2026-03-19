@@ -140,6 +140,8 @@ export default function AgenciesPage() {
   };
 
   const togglePreferredCity = (value: string) => {
+    if (value === city) return;
+
     if (preferredCities.includes(value)) {
       setPreferredCities(preferredCities.filter((item) => item !== value));
       return;
@@ -161,12 +163,6 @@ export default function AgenciesPage() {
 
     if (!city) {
       setStatusMessage("Please select a main city.");
-      setLoading(false);
-      return;
-    }
-
-    if (preferredCities.length === 0) {
-      setStatusMessage("Please select at least one covered city.");
       setLoading(false);
       return;
     }
@@ -329,9 +325,8 @@ export default function AgenciesPage() {
               fontSize: "16px",
             }}
           >
-            Submit your agency details and create your agency login. You will be
-            able to access the dashboard immediately, while full contact details
-            remain locked until approval.
+            Your main city is always treated as covered. Use additional covered
+            cities only for extra markets beyond your main base.
           </p>
 
           <form
@@ -371,7 +366,12 @@ export default function AgenciesPage() {
 
             <select
               value={city}
-              onChange={(e) => setCity(e.target.value)}
+              onChange={(e) => {
+                setCity(e.target.value);
+                setPreferredCities((prev) =>
+                  prev.filter((item) => item !== e.target.value)
+                );
+              }}
               required
               disabled={!country}
               style={{
@@ -453,26 +453,42 @@ export default function AgenciesPage() {
             />
 
             <div style={{ gridColumn: "1 / -1" }}>
-              <div style={sectionLabel}>Covered cities</div>
+              <div style={sectionLabel}>Additional covered cities</div>
+              <div style={helpText}>
+                Main city is included automatically. Select extra cities only if
+                you actively work there too.
+              </div>
+
               <div style={choiceGrid}>
-                {availableCityOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => togglePreferredCity(option.value)}
-                    style={{
-                      ...choiceButton,
-                      backgroundColor: preferredCities.includes(option.value)
-                        ? "white"
-                        : "#111111",
-                      color: preferredCities.includes(option.value)
-                        ? "black"
-                        : "white",
-                    }}
-                  >
-                    {option.label}
-                  </button>
-                ))}
+                {availableCityOptions.map((option) => {
+                  const isMainCity = option.value === city;
+
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      disabled={isMainCity}
+                      onClick={() => togglePreferredCity(option.value)}
+                      style={{
+                        ...choiceButton,
+                        backgroundColor: isMainCity
+                          ? "#1f1f1f"
+                          : preferredCities.includes(option.value)
+                          ? "white"
+                          : "#111111",
+                        color: isMainCity
+                          ? "#8f8f8f"
+                          : preferredCities.includes(option.value)
+                          ? "black"
+                          : "white",
+                        cursor: isMainCity ? "not-allowed" : "pointer",
+                        opacity: isMainCity ? 0.7 : 1,
+                      }}
+                    >
+                      {isMainCity ? `${option.label} (main)` : option.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -687,7 +703,14 @@ const buttonStyle = {
 const sectionLabel = {
   fontSize: "14px",
   color: "#cfcfcf",
-  marginBottom: "10px",
+  marginBottom: "8px",
+};
+
+const helpText = {
+  fontSize: "13px",
+  color: "#9f9f9f",
+  marginBottom: "12px",
+  lineHeight: "1.5",
 };
 
 const choiceGrid = {
