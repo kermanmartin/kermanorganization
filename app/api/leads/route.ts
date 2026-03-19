@@ -2,11 +2,14 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
+import { Resend } from "resend";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const redis = Redis.fromEnv();
 
@@ -105,6 +108,13 @@ function cleanString(value: unknown) {
 
 function isValidOption(value: string, allowed: string[]) {
   return allowed.includes(value);
+}
+
+function formatOption(value: string) {
+  return value
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 }
 
 export async function POST(req: Request) {
@@ -273,6 +283,45 @@ export async function POST(req: Request) {
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    try {
+      await resend.emails.send({
+        from: "The Kerman Organization <contact@kermanorganization.com>",
+        to: email,
+        subject: "Your request is being reviewed",
+        html: `
+          <h2>Your request has been received</h2>
+
+          <p>Hello ${name},</p>
+
+          <p>
+            Thank you for submitting your request to The Kerman Organization.
+          </p>
+
+          <p>
+            An agency is currently reviewing your case and you will be contacted shortly if your request matches the current profile and territory criteria.
+          </p>
+
+          <p>
+            Summary of your request:
+          </p>
+
+          <p><strong>Profile:</strong> ${formatOption(userType)}</p>
+          <p><strong>Country:</strong> ${formatOption(country)}</p>
+          <p><strong>City:</strong> ${formatOption(city)}</p>
+          <p><strong>Preferred area:</strong> ${preferredArea}</p>
+          <p><strong>Property type:</strong> ${formatOption(propertyType)}</p>
+          <p><strong>Timeframe:</strong> ${formatOption(timeframe)}</p>
+          <p><strong>Budget:</strong> ${budget}</p>
+
+          <p>
+            The Kerman Organization
+          </p>
+        `,
+      });
+    } catch (emailError) {
+      console.error("Lead confirmation email error:", emailError);
     }
 
     return NextResponse.json({ success: true });
