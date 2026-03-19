@@ -35,46 +35,20 @@ export default function AgencyDashboardClient({
 }) {
   const supabase = createClient();
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
-  const [selectedCity, setSelectedCity] = useState("all");
-
-  const cityOptions = useMemo(() => {
-    const uniqueCities = Array.from(
-      new Set(
-        leads
-          .map((lead) => lead.city?.trim())
-          .filter((city): city is string => Boolean(city))
-      )
-    ).sort((a, b) => a.localeCompare(b));
-
-    return uniqueCities;
-  }, [leads]);
-
-  const filteredLeads = useMemo(() => {
-    if (!isApproved) {
-      return leads;
-    }
-
-    if (selectedCity === "all") return leads;
-
-    return leads.filter(
-      (lead) =>
-        (lead.city?.trim() ?? "").toLowerCase() === selectedCity.toLowerCase()
-    );
-  }, [leads, selectedCity, isApproved]);
 
   const newLeads = useMemo(
-    () => filteredLeads.filter((lead) => (lead.status ?? "new") === "new").length,
-    [filteredLeads]
+    () => leads.filter((lead) => (lead.status ?? "new") === "new").length,
+    [leads]
   );
 
   const contactedLeads = useMemo(
-    () => filteredLeads.filter((lead) => lead.status === "contacted").length,
-    [filteredLeads]
+    () => leads.filter((lead) => lead.status === "contacted").length,
+    [leads]
   );
 
   const closedLeads = useMemo(
-    () => filteredLeads.filter((lead) => lead.status === "closed").length,
-    [filteredLeads]
+    () => leads.filter((lead) => lead.status === "closed").length,
+    [leads]
   );
 
   const getNextStatus = (currentStatus: string | null): LeadStatus => {
@@ -108,157 +82,155 @@ export default function AgencyDashboardClient({
   };
 
   if (!leads || leads.length === 0) {
-    return <p style={{ textAlign: "center" }}>No leads available yet.</p>;
+    return (
+      <div
+        style={{
+          padding: "34px",
+          borderRadius: "18px",
+          background:
+            "linear-gradient(180deg, rgba(17,17,17,0.98) 0%, rgba(12,12,12,0.98) 100%)",
+          border: "1px solid #1f1f1f",
+          textAlign: "center",
+        }}
+      >
+        <div
+          style={{
+            fontSize: "28px",
+            fontWeight: 500,
+            marginBottom: "10px",
+            letterSpacing: "-0.5px",
+          }}
+        >
+          No matched leads yet
+        </div>
+
+        <p
+          style={{
+            margin: 0,
+            color: "#a9a9a9",
+            fontSize: "16px",
+            lineHeight: "1.7",
+            maxWidth: "760px",
+            marginInline: "auto",
+          }}
+        >
+          When a new lead matches your territory, property profile and budget
+          range, it will appear here automatically.
+        </p>
+      </div>
+    );
   }
 
   return (
     <>
       <div
         style={{
-          display: "flex",
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
           gap: "16px",
           marginBottom: "22px",
-          flexWrap: "wrap",
-          alignItems: "end",
-          justifyContent: "space-between",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            gap: "16px",
-            flexWrap: "wrap",
-          }}
-        >
-          <StatCard title="New leads" value={newLeads} />
-          <StatCard title="Contacted" value={contactedLeads} />
-          <StatCard title="Closed" value={closedLeads} />
-        </div>
-
-        <div
-          style={{
-            minWidth: "220px",
-            backgroundColor: "#111111",
-            border: "1px solid #1f1f1f",
-            borderRadius: "14px",
-            padding: "14px 16px",
-            position: "relative",
-            opacity: isApproved ? 1 : 0.7,
-          }}
-        >
-          <label
-            htmlFor="city-filter"
-            style={{
-              display: "block",
-              fontSize: "13px",
-              color: "#9f9f9f",
-              marginBottom: "8px",
-            }}
-          >
-            Filter by city
-          </label>
-
-          <div style={{ position: "relative" }}>
-            <select
-              id="city-filter"
-              value={selectedCity}
-              onChange={(e) => setSelectedCity(e.target.value)}
-              disabled={!isApproved}
-              style={{
-                width: "100%",
-                padding: "12px 14px",
-                borderRadius: "10px",
-                border: "1px solid #2a2a2a",
-                backgroundColor: "#1a1a1a",
-                color: "white",
-                fontSize: "15px",
-                outline: "none",
-                appearance: "none",
-                cursor: isApproved ? "pointer" : "not-allowed",
-              }}
-            >
-              <option value="all">All cities</option>
-              {cityOptions.map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
-
-            {!isApproved && (
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: "10px",
-                  backgroundColor: "rgba(0,0,0,0.35)",
-                  color: "white",
-                  fontSize: "12px",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.5px",
-                  pointerEvents: "none",
-                  backdropFilter: "blur(2px)",
-                  WebkitBackdropFilter: "blur(2px)",
-                }}
-              >
-                Locked
-              </div>
-            )}
-          </div>
-        </div>
+        <StatCard
+          eyebrow="Pipeline"
+          title="Matched leads"
+          value={leads.length}
+        />
+        <StatCard eyebrow="Status" title="New" value={newLeads} />
+        <StatCard eyebrow="Status" title="Contacted" value={contactedLeads} />
+        <StatCard eyebrow="Status" title="Closed" value={closedLeads} />
       </div>
 
       {!isApproved && (
         <div
           style={{
             marginBottom: "20px",
-            padding: "16px 18px",
-            borderRadius: "14px",
-            backgroundColor: "#111111",
+            padding: "18px 20px",
+            borderRadius: "16px",
+            background:
+              "linear-gradient(180deg, rgba(17,17,17,0.98) 0%, rgba(12,12,12,0.98) 100%)",
             border: "1px solid #1f1f1f",
             color: "#cfcfcf",
             fontSize: "15px",
-            lineHeight: "1.6",
+            lineHeight: "1.7",
           }}
         >
           <strong style={{ color: "white" }}>Contact details locked:</strong>{" "}
-          name, email, phone, full message content and advanced filtering remain
-          locked until your agency is approved.
+          name, email, phone and full message content remain locked until your
+          agency is approved.
         </div>
       )}
 
-      {filteredLeads.length === 0 ? (
+      <div
+        style={{
+          borderRadius: "18px",
+          overflow: "hidden",
+          border: "1px solid #1f1f1f",
+          background:
+            "linear-gradient(180deg, rgba(17,17,17,0.98) 0%, rgba(12,12,12,0.98) 100%)",
+        }}
+      >
         <div
           style={{
-            padding: "28px",
-            borderRadius: "14px",
-            backgroundColor: "#111111",
-            border: "1px solid #1f1f1f",
-            color: "#cfcfcf",
-            textAlign: "center",
-            fontSize: "16px",
+            padding: "18px 22px",
+            borderBottom: "1px solid #1f1f1f",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "16px",
+            flexWrap: "wrap",
           }}
         >
-          No leads found for the selected city.
+          <div>
+            <h2
+              style={{
+                margin: 0,
+                fontSize: "24px",
+                fontWeight: 500,
+                letterSpacing: "-0.5px",
+              }}
+            >
+              Matched opportunities
+            </h2>
+            <p
+              style={{
+                margin: "6px 0 0 0",
+                color: "#9f9f9f",
+                fontSize: "14px",
+                lineHeight: "1.6",
+              }}
+            >
+              Leads shown here already match your current agency profile.
+            </p>
+          </div>
+
+          <div
+            style={{
+              padding: "10px 14px",
+              borderRadius: "999px",
+              border: "1px solid #2a2a2a",
+              backgroundColor: "#141414",
+              color: "#d7d7d7",
+              fontSize: "13px",
+              fontWeight: 700,
+              letterSpacing: "0.3px",
+              textTransform: "uppercase",
+            }}
+          >
+            {leads.length} matched
+          </div>
         </div>
-      ) : (
+
         <div style={{ overflowX: "auto" }}>
           <table
             style={{
               width: "100%",
               borderCollapse: "collapse",
-              backgroundColor: "#111111",
-              borderRadius: "14px",
-              overflow: "hidden",
-              minWidth: "1800px",
+              minWidth: "1700px",
             }}
           >
             <thead>
-              <tr style={{ backgroundColor: "#1a1a1a" }}>
+              <tr style={{ backgroundColor: "#171717" }}>
                 <th style={thStyle}>Name</th>
                 <th style={thStyle}>Email</th>
                 <th style={thStyle}>Phone</th>
@@ -268,7 +240,6 @@ export default function AgencyDashboardClient({
                 <th style={thStyle}>Timeframe</th>
                 <th style={thStyle}>Financing</th>
                 <th style={thStyle}>Seller status</th>
-                <th style={thStyle}>Rental profile</th>
                 <th style={thStyle}>Budget</th>
                 <th style={thStyle}>Type</th>
                 <th style={thStyle}>Status</th>
@@ -278,8 +249,8 @@ export default function AgencyDashboardClient({
             </thead>
 
             <tbody>
-              {filteredLeads.map((lead) => (
-                <tr key={lead.id} style={{ borderTop: "1px solid #222" }}>
+              {leads.map((lead) => (
+                <tr key={lead.id} style={{ borderTop: "1px solid #202020" }}>
                   <td style={tdStyle}>
                     <LockedCell locked={Boolean(lead.contact_locked)}>
                       {lead.name ?? "-"}
@@ -298,14 +269,13 @@ export default function AgencyDashboardClient({
                     </LockedCell>
                   </td>
 
-                  <td style={tdStyle}>{lead.city ?? "-"}</td>
+                  <td style={tdStyle}>{formatValue(lead.city)}</td>
                   <td style={tdStyle}>{lead.preferred_area ?? "-"}</td>
                   <td style={tdStyle}>{formatValue(lead.property_type)}</td>
                   <td style={tdStyle}>{formatValue(lead.timeframe)}</td>
                   <td style={tdStyle}>{formatValue(lead.financing_status)}</td>
                   <td style={tdStyle}>{formatValue(lead.seller_status)}</td>
-                  <td style={tdStyle}>{formatValue(lead.rental_profile)}</td>
-                  <td style={tdStyle}>{lead.budget ?? "-"}</td>
+                  <td style={tdStyleBudget}>{lead.budget ?? "-"}</td>
                   <td style={tdStyle}>{formatValue(lead.user_type)}</td>
 
                   <td style={tdStyle}>
@@ -321,7 +291,7 @@ export default function AgencyDashboardClient({
                     </LockedCell>
                   </td>
 
-                  <td style={tdStyle}>
+                  <td style={tdStyleDate}>
                     {lead.created_at
                       ? new Date(lead.created_at).toLocaleString()
                       : "-"}
@@ -331,7 +301,7 @@ export default function AgencyDashboardClient({
             </tbody>
           </table>
         </div>
-      )}
+      </div>
     </>
   );
 }
@@ -364,7 +334,7 @@ function LockedCell({
           filter: locked ? "blur(4px)" : "none",
           userSelect: locked ? "none" : "text",
           pointerEvents: locked ? "none" : "auto",
-          opacity: locked ? 0.85 : 1,
+          opacity: locked ? 0.82 : 1,
         }}
       >
         {children}
@@ -393,22 +363,47 @@ function LockedCell({
   );
 }
 
-function StatCard({ title, value }: { title: string; value: number }) {
+function StatCard({
+  eyebrow,
+  title,
+  value,
+}: {
+  eyebrow: string;
+  title: string;
+  value: number;
+}) {
   return (
     <div
       style={{
-        backgroundColor: "#111111",
+        background:
+          "linear-gradient(180deg, rgba(17,17,17,0.98) 0%, rgba(12,12,12,0.98) 100%)",
         border: "1px solid #1f1f1f",
-        borderRadius: "14px",
-        padding: "18px 24px",
-        minWidth: "160px",
+        borderRadius: "18px",
+        padding: "20px 22px",
+        minHeight: "112px",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
       }}
     >
       <div
         style={{
-          fontSize: "14px",
-          color: "#9f9f9f",
-          marginBottom: "6px",
+          fontSize: "12px",
+          color: "#8f8f8f",
+          marginBottom: "8px",
+          textTransform: "uppercase",
+          letterSpacing: "0.6px",
+          fontWeight: 700,
+        }}
+      >
+        {eyebrow}
+      </div>
+
+      <div
+        style={{
+          fontSize: "15px",
+          color: "#d2d2d2",
+          marginBottom: "8px",
         }}
       >
         {title}
@@ -416,8 +411,9 @@ function StatCard({ title, value }: { title: string; value: number }) {
 
       <div
         style={{
-          fontSize: "28px",
+          fontSize: "34px",
           fontWeight: 700,
+          letterSpacing: "-1px",
         }}
       >
         {value}
@@ -427,25 +423,51 @@ function StatCard({ title, value }: { title: string; value: number }) {
 }
 
 const thStyle = {
-  padding: "16px",
+  padding: "16px 18px",
   textAlign: "left" as const,
-  fontSize: "15px",
+  fontSize: "13px",
   whiteSpace: "nowrap" as const,
+  color: "#c5c5c5",
+  fontWeight: 700,
+  textTransform: "uppercase" as const,
+  letterSpacing: "0.4px",
 };
 
 const tdStyle = {
-  padding: "16px",
+  padding: "18px",
   textAlign: "left" as const,
   verticalAlign: "top" as const,
   fontSize: "14px",
+  color: "#f1f1f1",
 };
 
 const tdStyleMessage = {
-  padding: "16px",
+  padding: "18px",
   textAlign: "left" as const,
   verticalAlign: "top" as const,
   fontSize: "14px",
-  minWidth: "280px",
-  maxWidth: "380px",
+  minWidth: "300px",
+  maxWidth: "400px",
+  lineHeight: "1.7",
+  color: "#f1f1f1",
+};
+
+const tdStyleBudget = {
+  padding: "18px",
+  textAlign: "left" as const,
+  verticalAlign: "top" as const,
+  fontSize: "14px",
+  minWidth: "120px",
   lineHeight: "1.6",
+  color: "#f1f1f1",
+};
+
+const tdStyleDate = {
+  padding: "18px",
+  textAlign: "left" as const,
+  verticalAlign: "top" as const,
+  fontSize: "14px",
+  minWidth: "170px",
+  lineHeight: "1.6",
+  color: "#f1f1f1",
 };

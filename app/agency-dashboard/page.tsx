@@ -199,34 +199,56 @@ export default async function AgencyDashboardPage() {
     <main
       style={{
         minHeight: "100vh",
-        backgroundColor: "#0a0a0a",
+        background:
+          "radial-gradient(circle at top, rgba(26,26,26,0.9) 0%, #0a0a0a 45%, #050505 100%)",
         color: "white",
         fontFamily: "Arial, sans-serif",
-        padding: "50px 20px",
+        padding: "54px 20px 70px",
       }}
     >
-      <section style={{ maxWidth: "1400px", margin: "0 auto" }}>
+      <section style={{ maxWidth: "1450px", margin: "0 auto" }}>
         <div
           style={{
-            marginBottom: "30px",
+            marginBottom: "28px",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
             gap: "20px",
             flexWrap: "wrap",
-            padding: "28px",
+            padding: "34px",
             border: "1px solid #1f1f1f",
-            borderRadius: "18px",
-            backgroundColor: "#111111",
+            borderRadius: "22px",
+            background:
+              "linear-gradient(180deg, rgba(17,17,17,0.98) 0%, rgba(11,11,11,0.98) 100%)",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.28)",
           }}
         >
-          <div>
+          <div style={{ maxWidth: "820px" }}>
+            <div
+              style={{
+                display: "inline-block",
+                padding: "8px 12px",
+                borderRadius: "999px",
+                border: "1px solid #252525",
+                backgroundColor: "#121212",
+                color: "#b8b8b8",
+                fontSize: "12px",
+                fontWeight: 700,
+                letterSpacing: "0.5px",
+                textTransform: "uppercase",
+                marginBottom: "16px",
+              }}
+            >
+              Matched lead flow
+            </div>
+
             <h1
               style={{
-                fontSize: "48px",
+                fontSize: "58px",
                 marginBottom: "12px",
                 fontWeight: 400,
-                letterSpacing: "-1px",
+                letterSpacing: "-1.5px",
+                lineHeight: "0.98",
               }}
             >
               AGENCY DASHBOARD
@@ -234,10 +256,11 @@ export default async function AgencyDashboardPage() {
 
             <p
               style={{
-                fontSize: "20px",
+                fontSize: "21px",
                 color: "#d0d0d0",
-                lineHeight: "1.6",
+                lineHeight: "1.7",
                 margin: 0,
+                maxWidth: "760px",
               }}
             >
               Welcome, {application.agency_name}. You are viewing the matched lead
@@ -247,8 +270,8 @@ export default async function AgencyDashboardPage() {
             <p
               style={{
                 fontSize: "14px",
-                color: "#9f9f9f",
-                marginTop: "14px",
+                color: "#8f8f8f",
+                marginTop: "16px",
                 marginBottom: 0,
               }}
             >
@@ -264,11 +287,12 @@ export default async function AgencyDashboardPage() {
             marginBottom: "24px",
             padding: "18px 22px",
             border: "1px solid #1f1f1f",
-            borderRadius: "14px",
-            backgroundColor: "#111111",
+            borderRadius: "16px",
+            background:
+              "linear-gradient(180deg, rgba(17,17,17,0.98) 0%, rgba(12,12,12,0.98) 100%)",
             color: "#cfcfcf",
             fontSize: "16px",
-            lineHeight: "1.6",
+            lineHeight: "1.7",
           }}
         >
           {isApproved ? (
@@ -286,7 +310,7 @@ export default async function AgencyDashboardPage() {
         </div>
 
         {error && (
-          <p style={{ color: "red", textAlign: "center" }}>
+          <p style={{ color: "#ff6b6b", textAlign: "center" }}>
             Error loading leads.
           </p>
         )}

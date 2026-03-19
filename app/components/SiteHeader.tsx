@@ -13,7 +13,9 @@ export default function SiteHeader() {
           position: "sticky",
           top: 0,
           zIndex: 1000,
-          backgroundColor: "#050505",
+          backgroundColor: "rgba(5,5,5,0.92)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
           borderBottom: "1px solid rgba(255,255,255,0.08)",
         }}
       >
@@ -21,7 +23,7 @@ export default function SiteHeader() {
           style={{
             maxWidth: "1440px",
             margin: "0 auto",
-            padding: "22px 16px",
+            padding: "20px 16px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -70,19 +72,27 @@ export default function SiteHeader() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "30px",
+              gap: "26px",
             }}
           >
             <Link href="/" style={navLinkStyle}>
               Home
             </Link>
 
+            <Link href="/start" style={navLinkStyle}>
+              Start
+            </Link>
+
             <Link href="/agencies" style={navLinkStyle}>
               Agencies
             </Link>
 
-            <Link href="/agency-access" style={ctaLinkStyle}>
+            <Link href="/agency-access" style={secondaryCtaStyle}>
               Agency Access
+            </Link>
+
+            <Link href="/start" style={primaryCtaStyle}>
+              Start Your Request
             </Link>
           </nav>
 
@@ -136,7 +146,7 @@ export default function SiteHeader() {
               position: "fixed",
               top: 0,
               right: 0,
-              width: "min(82vw, 360px)",
+              width: "min(84vw, 370px)",
               height: "100vh",
               backgroundColor: "#0b0b0b",
               borderLeft: "1px solid rgba(255,255,255,0.08)",
@@ -187,6 +197,14 @@ export default function SiteHeader() {
               </Link>
 
               <Link
+                href="/start"
+                onClick={() => setMenuOpen(false)}
+                style={mobileLinkStyle}
+              >
+                Start
+              </Link>
+
+              <Link
                 href="/agencies"
                 onClick={() => setMenuOpen(false)}
                 style={mobileLinkStyle}
@@ -197,9 +215,17 @@ export default function SiteHeader() {
               <Link
                 href="/agency-access"
                 onClick={() => setMenuOpen(false)}
-                style={mobileButtonStyle}
+                style={mobileSecondaryButtonStyle}
               >
                 Agency Access
+              </Link>
+
+              <Link
+                href="/start"
+                onClick={() => setMenuOpen(false)}
+                style={mobilePrimaryButtonStyle}
+              >
+                Start Your Request
               </Link>
             </div>
           </div>
@@ -207,7 +233,7 @@ export default function SiteHeader() {
       )}
 
       <style jsx global>{`
-        @media (max-width: 900px) {
+        @media (max-width: 1080px) {
           .desktop-nav {
             display: none !important;
           }
@@ -224,39 +250,61 @@ export default function SiteHeader() {
 const navLinkStyle: React.CSSProperties = {
   color: "white",
   textDecoration: "none",
-  fontSize: "18px",
+  fontSize: "17px",
   fontWeight: 500,
 };
 
-const ctaLinkStyle: React.CSSProperties = {
+const secondaryCtaStyle: React.CSSProperties = {
+  color: "white",
+  backgroundColor: "rgba(255,255,255,0.04)",
+  border: "1px solid rgba(255,255,255,0.10)",
+  textDecoration: "none",
+  fontSize: "17px",
+  fontWeight: 700,
+  padding: "13px 18px",
+  borderRadius: "14px",
+};
+
+const primaryCtaStyle: React.CSSProperties = {
   color: "black",
   backgroundColor: "white",
   textDecoration: "none",
-  fontSize: "18px",
+  fontSize: "17px",
   fontWeight: 700,
-  padding: "14px 22px",
-  borderRadius: "16px",
+  padding: "13px 20px",
+  borderRadius: "14px",
 };
 
 const mobileLinkStyle: React.CSSProperties = {
   color: "white",
   textDecoration: "none",
   fontSize: "22px",
-  padding: "14px 10px",
+  padding: "14px 12px",
   borderRadius: "12px",
   backgroundColor: "rgba(255,255,255,0.03)",
   border: "1px solid rgba(255,255,255,0.06)",
 };
 
-const mobileButtonStyle: React.CSSProperties = {
-  color: "black",
-  backgroundColor: "white",
+const mobileSecondaryButtonStyle: React.CSSProperties = {
+  color: "white",
+  backgroundColor: "rgba(255,255,255,0.04)",
+  border: "1px solid rgba(255,255,255,0.10)",
   textDecoration: "none",
-  fontSize: "22px",
+  fontSize: "20px",
   fontWeight: 700,
   padding: "16px 18px",
   borderRadius: "14px",
   marginTop: "8px",
+};
+
+const mobilePrimaryButtonStyle: React.CSSProperties = {
+  color: "black",
+  backgroundColor: "white",
+  textDecoration: "none",
+  fontSize: "20px",
+  fontWeight: 700,
+  padding: "16px 18px",
+  borderRadius: "14px",
 };
 
 const burgerLine: React.CSSProperties = {
