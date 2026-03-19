@@ -961,53 +961,91 @@ export default function StartPage() {
 
 function StepIndicator({ currentStep }: { currentStep: number }) {
   const steps = [
-    "Intent",
-    "Identity",
-    "Criteria",
-    "Qualification",
-    "Details",
+    { number: 1, label: "Intent" },
+    { number: 2, label: "Identity" },
+    { number: 3, label: "Criteria" },
+    { number: 4, label: "Qualification" },
+    { number: 5, label: "Details" },
   ];
 
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(5, 1fr)",
-        gap: "8px",
-        marginBottom: "26px",
-      }}
-    >
-      {steps.map((label, index) => {
-        const stepNumber = index + 1;
-        const active = currentStep === stepNumber;
-        const completed = currentStep > stepNumber;
+    <div style={{ marginBottom: "28px" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(5, 1fr)",
+          gap: "12px",
+          alignItems: "start",
+        }}
+      >
+        {steps.map((step) => {
+          const isActive = currentStep === step.number;
+          const isCompleted = currentStep > step.number;
 
-        return (
-          <div
-            key={label}
-            style={{
-              padding: "10px 8px",
-              borderRadius: "12px",
-              backgroundColor: active
-                ? "#ffffff"
-                : completed
-                ? "#1b1b1b"
-                : "#111111",
-              color: active ? "#000000" : "#d0d0d0",
-              border: active
-                ? "1px solid #ffffff"
-                : "1px solid rgba(255,255,255,0.08)",
-              textAlign: "center",
-              fontSize: "12px",
-              fontWeight: 700,
-              letterSpacing: "0.3px",
-              textTransform: "uppercase",
-            }}
-          >
-            {label}
-          </div>
-        );
-      })}
+          return (
+            <div
+              key={step.label}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
+              <div
+                style={{
+                  width: "42px",
+                  height: "42px",
+                  borderRadius: "999px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "15px",
+                  fontWeight: 700,
+                  border: isActive
+                    ? "1px solid #ffffff"
+                    : isCompleted
+                    ? "1px solid #2f6f46"
+                    : "1px solid #2a2a2a",
+                  backgroundColor: isActive
+                    ? "#ffffff"
+                    : isCompleted
+                    ? "#13311e"
+                    : "#111111",
+                  color: isActive
+                    ? "#000000"
+                    : isCompleted
+                    ? "#8ef0b0"
+                    : "#bcbcbc",
+                  boxShadow: isActive
+                    ? "0 0 0 4px rgba(255,255,255,0.06)"
+                    : "none",
+                }}
+              >
+                {isCompleted ? "✓" : step.number}
+              </div>
+
+              <div
+                style={{
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  letterSpacing: "0.4px",
+                  textTransform: "uppercase",
+                  color: isActive
+                    ? "#ffffff"
+                    : isCompleted
+                    ? "#cfcfcf"
+                    : "#7f7f7f",
+                  textAlign: "center",
+                  lineHeight: "1.4",
+                }}
+              >
+                {step.label}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
