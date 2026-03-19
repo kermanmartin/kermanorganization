@@ -79,8 +79,8 @@ export default function SiteHeader() {
               Home
             </Link>
 
-            <Link href="/start" style={navLinkStyle}>
-              Start
+            <Link href="/about" style={navLinkStyle}>
+              About
             </Link>
 
             <Link href="/agencies" style={navLinkStyle}>
@@ -92,7 +92,7 @@ export default function SiteHeader() {
             </Link>
 
             <Link href="/start" style={primaryCtaStyle}>
-              Start Your Request
+              Start
             </Link>
           </nav>
 
@@ -197,11 +197,11 @@ export default function SiteHeader() {
               </Link>
 
               <Link
-                href="/start"
+                href="/about"
                 onClick={() => setMenuOpen(false)}
                 style={mobileLinkStyle}
               >
-                Start
+                About
               </Link>
 
               <Link
@@ -225,7 +225,7 @@ export default function SiteHeader() {
                 onClick={() => setMenuOpen(false)}
                 style={mobilePrimaryButtonStyle}
               >
-                Start Your Request
+                Start
               </Link>
             </div>
           </div>
@@ -271,7 +271,7 @@ const primaryCtaStyle: React.CSSProperties = {
   textDecoration: "none",
   fontSize: "17px",
   fontWeight: 700,
-  padding: "13px 20px",
+  padding: "13px 22px",
   borderRadius: "14px",
 };
 
