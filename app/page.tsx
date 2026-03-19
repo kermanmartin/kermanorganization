@@ -7,9 +7,9 @@ export default function HomePage() {
     <main
       style={{
         minHeight: "100vh",
-        backgroundColor: "#040404",
+        backgroundColor: "#050505",
         color: "white",
-        fontFamily: 'Georgia, "Times New Roman", serif',
+        fontFamily: "Arial, sans-serif",
       }}
     >
       <section
@@ -22,139 +22,116 @@ export default function HomePage() {
           backgroundRepeat: "no-repeat",
           display: "flex",
           alignItems: "center",
-          padding: "48px 16px 84px",
+          justifyContent: "center",
+          padding: "40px 16px 80px",
         }}
       >
         <div
           style={{
             width: "100%",
-            maxWidth: "1440px",
+            maxWidth: "1200px",
             margin: "0 auto",
+            textAlign: "center",
           }}
         >
+          {/* SMALL TOP LABEL */}
           <div
             style={{
-              maxWidth: "900px",
+              fontSize: "11px",
+              letterSpacing: "1.6px",
+              color: "#bdbdbd",
+              marginBottom: "22px",
             }}
           >
-            <div
-              style={{
-                marginBottom: "18px",
-                color: "rgba(255,255,255,0.82)",
-                fontSize: "14px",
-                letterSpacing: "2px",
-                textTransform: "uppercase",
-                fontFamily: "Arial, sans-serif",
-                fontWeight: 700,
-              }}
-            >
-              Real Estate Intelligence
-            </div>
-
-            <h1
-              style={{
-                fontSize: "clamp(54px, 8vw, 110px)",
-                lineHeight: "0.92",
-                fontWeight: 400,
-                letterSpacing: "-2px",
-                textTransform: "uppercase",
-                margin: "0 0 22px 0",
-                maxWidth: "980px",
-              }}
-            >
-              The Kerman Organization
-            </h1>
-
-            <div
-              style={{
-                width: "140px",
-                height: "1px",
-                backgroundColor: "rgba(255,255,255,0.35)",
-                marginBottom: "22px",
-              }}
-            />
-
-            <p
-              style={{
-                fontSize: "clamp(24px, 3vw, 40px)",
-                lineHeight: "1.2",
-                color: "#f4f4f4",
-                margin: "0 0 18px 0",
-                maxWidth: "820px",
-              }}
-            >
-              A more selective approach to structured real estate demand.
-            </p>
-
-            <p
-              style={{
-                fontSize: "clamp(16px, 1.8vw, 20px)",
-                lineHeight: "1.9",
-                color: "rgba(255,255,255,0.82)",
-                margin: "0 0 34px 0",
-                maxWidth: "760px",
-                fontFamily: "Arial, sans-serif",
-              }}
-            >
-              We qualify buyer, seller, tenant, landlord and investor demand,
-              then route each opportunity according to territory, profile and fit.
-            </p>
-
-            <div
-              style={{
-                display: "flex",
-                gap: "14px",
-                flexWrap: "wrap",
-                alignItems: "center",
-              }}
-            >
-              <Link href="/start" style={primaryCta}>
-                Begin
-              </Link>
-
-              <Link href="/about" style={secondaryCta}>
-                About The Organization
-              </Link>
-            </div>
+            REAL ESTATE INTELLIGENCE
           </div>
-        </div>
-      </section>
 
-      <section
-        style={{
-          backgroundColor: "#040404",
-          padding: "70px 16px 96px",
-          borderTop: "1px solid rgba(255,255,255,0.06)",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: "1380px",
-            margin: "0 auto",
-          }}
-        >
+          {/* MAIN TITLE */}
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-              gap: "22px",
+              fontFamily: 'Georgia, "Times New Roman", serif',
+              fontSize: "clamp(42px, 6vw, 78px)",
+              lineHeight: "0.95",
+              fontWeight: 500,
+              letterSpacing: "-1.2px",
+              textTransform: "uppercase",
+              marginBottom: "20px",
+              color: "#f5f5f5",
+              textShadow: "0 6px 18px rgba(0,0,0,0.28)",
             }}
           >
-            <FeatureCard
-              label="01"
-              title="Structured Requests"
-              text="A guided intake captures the commercial detail required for serious qualification."
-            />
-            <FeatureCard
-              label="02"
-              title="Selective Matching"
-              text="Leads are routed according to geography, property profile, intent and budget range."
-            />
-            <FeatureCard
-              label="03"
-              title="Agency Visibility"
-              text="Approved agencies access only the opportunities that align with their current market profile."
-            />
+            The Kerman
+            <br />
+            Organization
+          </div>
+
+          {/* LINE */}
+          <div
+            style={{
+              width: "80px",
+              height: "1px",
+              backgroundColor: "rgba(255,255,255,0.22)",
+              margin: "0 auto 24px",
+            }}
+          />
+
+          {/* SUBTITLE */}
+          <p
+            style={{
+              fontFamily: 'Georgia, "Times New Roman", serif',
+              fontSize: "clamp(20px, 2.4vw, 30px)",
+              lineHeight: "1.35",
+              color: "#f0f0f0",
+              margin: "0 auto 16px",
+              maxWidth: "680px",
+            }}
+          >
+            A more selective approach to structured real estate demand.
+          </p>
+
+          {/* DESCRIPTION */}
+          <p
+            style={{
+              fontSize: "clamp(14px, 1.4vw, 17px)",
+              lineHeight: "1.8",
+              color: "#cfcfcf",
+              margin: "0 auto",
+              maxWidth: "640px",
+            }}
+          >
+            We qualify buyer, seller, tenant, landlord and investor demand,
+            then route each opportunity according to territory, profile and fit.
+          </p>
+
+          {/* CTA */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "14px",
+              flexWrap: "wrap",
+              marginTop: "36px",
+            }}
+          >
+            <Link href="/start" style={primaryCta}>
+              Start
+            </Link>
+
+            <Link href="/about" style={secondaryCta}>
+              About Us
+            </Link>
+          </div>
+
+          {/* FOOT NOTE */}
+          <div
+            style={{
+              marginTop: "18px",
+              fontSize: "13px",
+              color: "#a7a7a7",
+              letterSpacing: "0.3px",
+            }}
+          >
+            Structured requests. Better matching. Higher-quality lead flow.
           </div>
         </div>
       </section>
@@ -162,93 +139,34 @@ export default function HomePage() {
   );
 }
 
-function FeatureCard({
-  label,
-  title,
-  text,
-}: {
-  label: string;
-  title: string;
-  text: string;
-}) {
-  return (
-    <div
-      style={{
-        background:
-          "linear-gradient(180deg, rgba(13,13,13,0.98) 0%, rgba(8,8,8,0.98) 100%)",
-        border: "1px solid rgba(255,255,255,0.08)",
-        borderRadius: "18px",
-        padding: "30px",
-      }}
-    >
-      <div
-        style={{
-          fontSize: "12px",
-          color: "rgba(255,255,255,0.56)",
-          letterSpacing: "1.8px",
-          textTransform: "uppercase",
-          fontFamily: "Arial, sans-serif",
-          fontWeight: 700,
-          marginBottom: "14px",
-        }}
-      >
-        {label}
-      </div>
-
-      <h3
-        style={{
-          margin: "0 0 12px 0",
-          fontSize: "32px",
-          lineHeight: "1.05",
-          fontWeight: 400,
-          letterSpacing: "-0.8px",
-        }}
-      >
-        {title}
-      </h3>
-
-      <p
-        style={{
-          margin: 0,
-          color: "rgba(255,255,255,0.78)",
-          lineHeight: "1.8",
-          fontSize: "16px",
-          fontFamily: "Arial, sans-serif",
-        }}
-      >
-        {text}
-      </p>
-    </div>
-  );
-}
-
-const primaryCta: React.CSSProperties = {
+const primaryCta = {
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
-  padding: "17px 30px",
+  minWidth: "180px",
+  padding: "15px 26px",
   borderRadius: "12px",
   backgroundColor: "white",
   color: "black",
   textDecoration: "none",
+  fontSize: "16px",
   fontWeight: 700,
-  fontSize: "17px",
-  minWidth: "170px",
-  fontFamily: "Arial, sans-serif",
+  boxShadow: "0 10px 24px rgba(0,0,0,0.22)",
 };
 
-const secondaryCta: React.CSSProperties = {
+const secondaryCta = {
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
-  padding: "17px 26px",
+  minWidth: "180px",
+  padding: "15px 24px",
   borderRadius: "12px",
-  backgroundColor: "rgba(255,255,255,0.03)",
+  backgroundColor: "rgba(10,10,10,0.36)",
   border: "1px solid rgba(255,255,255,0.12)",
   color: "white",
   textDecoration: "none",
+  fontSize: "16px",
   fontWeight: 700,
-  fontSize: "17px",
-  minWidth: "240px",
-  fontFamily: "Arial, sans-serif",
+  backdropFilter: "blur(8px)",
+  WebkitBackdropFilter: "blur(8px)",
 };
