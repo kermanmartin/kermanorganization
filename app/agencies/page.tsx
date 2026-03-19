@@ -17,7 +17,17 @@ type MultiOption =
   | "retail"
   | "building"
   | "land"
-  | "other";
+  | "other"
+  | "english"
+  | "spanish"
+  | "french"
+  | "portuguese"
+  | "arabic"
+  | "residential"
+  | "commercial"
+  | "luxury"
+  | "investment"
+  | "rentals";
 
 const COUNTRY_OPTIONS = [
   { value: "spain", label: "Spain" },
@@ -28,7 +38,10 @@ const COUNTRY_OPTIONS = [
   { value: "uae", label: "United Arab Emirates" },
 ] as const;
 
-const CITY_OPTIONS_BY_COUNTRY: Record<string, { value: string; label: string }[]> = {
+const CITY_OPTIONS_BY_COUNTRY: Record<
+  string,
+  { value: string; label: string }[]
+> = {
   spain: [
     { value: "madrid", label: "Madrid" },
     { value: "barcelona", label: "Barcelona" },
@@ -84,10 +97,18 @@ export default function AgenciesPage() {
   const [preferredAreas, setPreferredAreas] = useState("");
   const [propertyTypes, setPropertyTypes] = useState<string[]>([]);
   const [clientTypes, setClientTypes] = useState<string[]>([]);
+  const [languagesSpoken, setLanguagesSpoken] = useState<string[]>([]);
+  const [marketSegments, setMarketSegments] = useState<string[]>([]);
+
   const [currency, setCurrency] = useState("EUR");
   const [minBudget, setMinBudget] = useState("");
   const [maxBudget, setMaxBudget] = useState("");
   const [dealsPerMonth, setDealsPerMonth] = useState("");
+  const [leadCapacityPerMonth, setLeadCapacityPerMonth] = useState("");
+  const [responseSpeed, setResponseSpeed] = useState("");
+  const [internationalClients, setInternationalClients] = useState("");
+  const [leadIntent, setLeadIntent] = useState("");
+  const [exclusiveLeadsOnly, setExclusiveLeadsOnly] = useState("");
   const [coverageDetails, setCoverageDetails] = useState("");
   const [message, setMessage] = useState("");
 
@@ -179,8 +200,50 @@ export default function AgenciesPage() {
       return;
     }
 
+    if (languagesSpoken.length === 0) {
+      setStatusMessage("Please select at least one language spoken.");
+      setLoading(false);
+      return;
+    }
+
+    if (marketSegments.length === 0) {
+      setStatusMessage("Please select at least one market segment.");
+      setLoading(false);
+      return;
+    }
+
     if (!minBudget.trim() || !maxBudget.trim()) {
       setStatusMessage("Please enter both minimum and maximum budget.");
+      setLoading(false);
+      return;
+    }
+
+    if (!responseSpeed) {
+      setStatusMessage("Please select your response speed.");
+      setLoading(false);
+      return;
+    }
+
+    if (!internationalClients) {
+      setStatusMessage("Please indicate whether you work with international clients.");
+      setLoading(false);
+      return;
+    }
+
+    if (!leadIntent) {
+      setStatusMessage("Please select your preferred lead intent.");
+      setLoading(false);
+      return;
+    }
+
+    if (!exclusiveLeadsOnly) {
+      setStatusMessage("Please select whether you want exclusive leads only.");
+      setLoading(false);
+      return;
+    }
+
+    if (!leadCapacityPerMonth.trim()) {
+      setStatusMessage("Please enter your lead capacity per month.");
       setLoading(false);
       return;
     }
@@ -208,10 +271,17 @@ export default function AgenciesPage() {
           preferred_areas: preferredAreas.trim(),
           property_types: propertyTypes,
           client_types: clientTypes,
+          languages_spoken: languagesSpoken,
+          market_segments: marketSegments,
           min_budget: minBudget.trim(),
           max_budget: maxBudget.trim(),
           budget_range: budgetRange,
           deals_per_month: dealsPerMonth.trim(),
+          lead_capacity_per_month: leadCapacityPerMonth.trim(),
+          response_speed: responseSpeed,
+          international_clients: internationalClients,
+          lead_intent: leadIntent,
+          exclusive_leads_only: exclusiveLeadsOnly,
           coverage_details: coverageDetails.trim(),
           message: message.trim(),
         }),
@@ -242,10 +312,17 @@ export default function AgenciesPage() {
       setPreferredAreas("");
       setPropertyTypes([]);
       setClientTypes([]);
+      setLanguagesSpoken([]);
+      setMarketSegments([]);
       setCurrency("EUR");
       setMinBudget("");
       setMaxBudget("");
       setDealsPerMonth("");
+      setLeadCapacityPerMonth("");
+      setResponseSpeed("");
+      setInternationalClients("");
+      setLeadIntent("");
+      setExclusiveLeadsOnly("");
       setCoverageDetails("");
       setMessage("");
       setLoading(false);
@@ -292,9 +369,9 @@ export default function AgenciesPage() {
             lineHeight: "1.7",
           }}
         >
-          Apply to join The Kerman Organization agency network. Create your account
-          and submit the commercial profile of your agency so we can qualify and
-          match future opportunities more intelligently.
+          Apply to join The Kerman Organization agency network. Build a structured
+          commercial profile so future opportunities can be routed with much
+          greater precision.
         </p>
 
         <div
@@ -575,6 +652,74 @@ export default function AgenciesPage() {
             </div>
 
             <div style={{ gridColumn: "1 / -1" }}>
+              <div style={sectionLabel}>Languages spoken</div>
+              <div style={choiceGrid}>
+                {[
+                  ["english", "English"],
+                  ["spanish", "Spanish"],
+                  ["french", "French"],
+                  ["portuguese", "Portuguese"],
+                  ["arabic", "Arabic"],
+                ].map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() =>
+                      toggleMultiSelect(
+                        value as MultiOption,
+                        languagesSpoken,
+                        setLanguagesSpoken
+                      )
+                    }
+                    style={{
+                      ...choiceButton,
+                      backgroundColor: languagesSpoken.includes(value)
+                        ? "white"
+                        : "#111111",
+                      color: languagesSpoken.includes(value) ? "black" : "white",
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ gridColumn: "1 / -1" }}>
+              <div style={sectionLabel}>Market segments</div>
+              <div style={choiceGrid}>
+                {[
+                  ["residential", "Residential"],
+                  ["commercial", "Commercial"],
+                  ["luxury", "Luxury"],
+                  ["investment", "Investment"],
+                  ["rentals", "Rentals"],
+                ].map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() =>
+                      toggleMultiSelect(
+                        value as MultiOption,
+                        marketSegments,
+                        setMarketSegments
+                      )
+                    }
+                    style={{
+                      ...choiceButton,
+                      backgroundColor: marketSegments.includes(value)
+                        ? "white"
+                        : "#111111",
+                      color: marketSegments.includes(value) ? "black" : "white",
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ gridColumn: "1 / -1" }}>
               <div style={sectionLabel}>Budget range you usually work with</div>
               <div
                 style={{
@@ -625,11 +770,66 @@ export default function AgenciesPage() {
 
             <input
               type="text"
+              placeholder="Lead capacity per month"
+              value={leadCapacityPerMonth}
+              onChange={(e) => setLeadCapacityPerMonth(e.target.value)}
+              required
+              style={inputStyle}
+            />
+
+            <select
+              value={responseSpeed}
+              onChange={(e) => setResponseSpeed(e.target.value)}
+              required
+              style={inputStyle}
+            >
+              <option value="">Response speed</option>
+              <option value="under_1_hour">Under 1 hour</option>
+              <option value="under_24_hours">Under 24 hours</option>
+              <option value="one_to_three_days">1 to 3 days</option>
+              <option value="more_than_three_days">More than 3 days</option>
+            </select>
+
+            <select
+              value={internationalClients}
+              onChange={(e) => setInternationalClients(e.target.value)}
+              required
+              style={inputStyle}
+            >
+              <option value="">Do you work with international clients?</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+
+            <select
+              value={leadIntent}
+              onChange={(e) => setLeadIntent(e.target.value)}
+              required
+              style={inputStyle}
+            >
+              <option value="">Preferred lead intent</option>
+              <option value="high_intent_only">High intent only</option>
+              <option value="mixed">Mixed</option>
+            </select>
+
+            <select
+              value={exclusiveLeadsOnly}
+              onChange={(e) => setExclusiveLeadsOnly(e.target.value)}
+              required
+              style={inputStyle}
+            >
+              <option value="">Exclusive leads only?</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+
+            <input
+              type="text"
               placeholder="Coverage details (for example: central Madrid, Salamanca, Chamartín, luxury buyer focus)"
               value={coverageDetails}
               onChange={(e) => setCoverageDetails(e.target.value)}
               required
-              style={inputStyle}
+              style={{ ...inputStyle, gridColumn: "1 / -1" }}
             />
 
             <textarea

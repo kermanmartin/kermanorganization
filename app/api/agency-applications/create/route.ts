@@ -18,6 +18,17 @@ const ALLOWED_COUNTRIES = [
   "uae",
 ];
 
+const ALLOWED_RESPONSE_SPEED = [
+  "under_1_hour",
+  "under_24_hours",
+  "one_to_three_days",
+  "more_than_three_days",
+];
+
+const ALLOWED_YES_NO = ["yes", "no"];
+
+const ALLOWED_LEAD_INTENT = ["high_intent_only", "mixed"];
+
 function cleanString(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -54,10 +65,17 @@ export async function POST(req: Request) {
     const preferred_areas = cleanString(body?.preferred_areas);
     const property_types = body?.property_types;
     const client_types = body?.client_types;
+    const languages_spoken = body?.languages_spoken;
+    const market_segments = body?.market_segments;
     const min_budget = cleanString(body?.min_budget);
     const max_budget = cleanString(body?.max_budget);
     const budget_range = cleanString(body?.budget_range);
     const deals_per_month = cleanString(body?.deals_per_month);
+    const lead_capacity_per_month = cleanString(body?.lead_capacity_per_month);
+    const response_speed = cleanString(body?.response_speed);
+    const international_clients = cleanString(body?.international_clients);
+    const lead_intent = cleanString(body?.lead_intent);
+    const exclusive_leads_only = cleanString(body?.exclusive_leads_only);
     const coverage_details = cleanString(body?.coverage_details);
     const message = cleanString(body?.message);
 
@@ -75,6 +93,11 @@ export async function POST(req: Request) {
       !max_budget ||
       !budget_range ||
       !deals_per_month ||
+      !lead_capacity_per_month ||
+      !response_speed ||
+      !international_clients ||
+      !lead_intent ||
+      !exclusive_leads_only ||
       !coverage_details ||
       !message
     ) {
@@ -98,6 +121,48 @@ export async function POST(req: Request) {
     if (!isNonEmptyArray(client_types)) {
       return NextResponse.json(
         { error: "Please select at least one client type." },
+        { status: 400 }
+      );
+    }
+
+    if (!isNonEmptyArray(languages_spoken)) {
+      return NextResponse.json(
+        { error: "Please select at least one language spoken." },
+        { status: 400 }
+      );
+    }
+
+    if (!isNonEmptyArray(market_segments)) {
+      return NextResponse.json(
+        { error: "Please select at least one market segment." },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidOption(response_speed, ALLOWED_RESPONSE_SPEED)) {
+      return NextResponse.json(
+        { error: "Invalid response speed." },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidOption(international_clients, ALLOWED_YES_NO)) {
+      return NextResponse.json(
+        { error: "Invalid international clients value." },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidOption(exclusive_leads_only, ALLOWED_YES_NO)) {
+      return NextResponse.json(
+        { error: "Invalid exclusive leads only value." },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidOption(lead_intent, ALLOWED_LEAD_INTENT)) {
+      return NextResponse.json(
+        { error: "Invalid lead intent." },
         { status: 400 }
       );
     }
@@ -164,10 +229,17 @@ export async function POST(req: Request) {
           preferred_areas,
           property_types,
           client_types,
+          languages_spoken,
+          market_segments,
           min_budget,
           max_budget,
           budget_range,
           deals_per_month,
+          lead_capacity_per_month,
+          response_speed,
+          international_clients,
+          lead_intent,
+          exclusive_leads_only,
           coverage_details,
           message,
           status: "pending",
@@ -201,14 +273,19 @@ export async function POST(req: Request) {
           <p><strong>Contact name:</strong> ${contact_name}</p>
           <p><strong>Business phone:</strong> ${business_phone}</p>
           <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Additional covered cities:</strong> ${
-            preferred_cities || "-"
-          }</p>
+          <p><strong>Additional covered cities:</strong> ${preferred_cities || "-"}</p>
           <p><strong>Preferred areas:</strong> ${preferred_areas}</p>
           <p><strong>Property types:</strong> ${property_types.join(", ")}</p>
           <p><strong>Client types:</strong> ${client_types.join(", ")}</p>
+          <p><strong>Languages spoken:</strong> ${languages_spoken.join(", ")}</p>
+          <p><strong>Market segments:</strong> ${market_segments.join(", ")}</p>
           <p><strong>Budget range:</strong> ${budget_range}</p>
           <p><strong>Deals per month:</strong> ${deals_per_month}</p>
+          <p><strong>Lead capacity per month:</strong> ${lead_capacity_per_month}</p>
+          <p><strong>Response speed:</strong> ${formatOption(response_speed)}</p>
+          <p><strong>International clients:</strong> ${formatOption(international_clients)}</p>
+          <p><strong>Preferred lead intent:</strong> ${formatOption(lead_intent)}</p>
+          <p><strong>Exclusive leads only:</strong> ${formatOption(exclusive_leads_only)}</p>
           <p><strong>Coverage details:</strong> ${coverage_details}</p>
           <p><strong>Message:</strong></p>
           <p>${message}</p>

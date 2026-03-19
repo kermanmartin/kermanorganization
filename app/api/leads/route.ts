@@ -102,6 +102,37 @@ const ALLOWED_SELLER_STATUSES = [
   "already_listed",
 ];
 
+const ALLOWED_LANGUAGES = [
+  "english",
+  "spanish",
+  "french",
+  "portuguese",
+  "arabic",
+];
+
+const ALLOWED_PURPOSES = [
+  "primary_residence",
+  "second_home",
+  "investment",
+  "relocation",
+  "other",
+];
+
+const ALLOWED_URGENCY = [
+  "ready_now",
+  "actively_searching",
+  "evaluating_options",
+  "just_exploring",
+];
+
+const ALLOWED_WORKING_WITH_AGENCY = ["yes", "no"];
+
+const ALLOWED_FLEXIBILITY = [
+  "strict",
+  "moderately_flexible",
+  "very_flexible",
+];
+
 function cleanString(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -141,6 +172,7 @@ export async function POST(req: Request) {
     const name = cleanString(body?.name);
     const email = cleanString(body?.email).toLowerCase();
     const phone = cleanString(body?.phone);
+    const language = cleanString(body?.language);
     const country = cleanString(body?.country);
     const city = cleanString(body?.city);
     const preferredArea = cleanString(body?.preferred_area);
@@ -150,6 +182,10 @@ export async function POST(req: Request) {
     const sellerStatus = cleanString(body?.seller_status);
     const budget = cleanString(body?.budget);
     const userType = cleanString(body?.user_type);
+    const purpose = cleanString(body?.purpose);
+    const urgency = cleanString(body?.urgency);
+    const workingWithAgency = cleanString(body?.working_with_agency);
+    const flexibility = cleanString(body?.flexibility);
     const message = cleanString(body?.message);
     const turnstileToken = cleanString(body?.turnstileToken);
 
@@ -157,6 +193,7 @@ export async function POST(req: Request) {
       !name ||
       !email ||
       !phone ||
+      !language ||
       !country ||
       !city ||
       !preferredArea ||
@@ -182,6 +219,13 @@ export async function POST(req: Request) {
     if (!isValidOption(userType, ALLOWED_USER_TYPES)) {
       return NextResponse.json(
         { error: "Invalid user type." },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidOption(language, ALLOWED_LANGUAGES)) {
+      return NextResponse.json(
+        { error: "Invalid language." },
         { status: 400 }
       );
     }
@@ -234,6 +278,69 @@ export async function POST(req: Request) {
       );
     }
 
+    if (
+      (userType === "buyer" ||
+        userType === "investor" ||
+        userType === "tenant") &&
+      !purpose
+    ) {
+      return NextResponse.json(
+        { error: "Missing purpose." },
+        { status: 400 }
+      );
+    }
+
+    if (purpose && !isValidOption(purpose, ALLOWED_PURPOSES)) {
+      return NextResponse.json(
+        { error: "Invalid purpose." },
+        { status: 400 }
+      );
+    }
+
+    if (!urgency) {
+      return NextResponse.json(
+        { error: "Missing urgency." },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidOption(urgency, ALLOWED_URGENCY)) {
+      return NextResponse.json(
+        { error: "Invalid urgency." },
+        { status: 400 }
+      );
+    }
+
+    if (!workingWithAgency) {
+      return NextResponse.json(
+        { error: "Missing working_with_agency." },
+        { status: 400 }
+      );
+    }
+
+    if (
+      !isValidOption(workingWithAgency, ALLOWED_WORKING_WITH_AGENCY)
+    ) {
+      return NextResponse.json(
+        { error: "Invalid working_with_agency value." },
+        { status: 400 }
+      );
+    }
+
+    if (!flexibility) {
+      return NextResponse.json(
+        { error: "Missing flexibility." },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidOption(flexibility, ALLOWED_FLEXIBILITY)) {
+      return NextResponse.json(
+        { error: "Invalid flexibility." },
+        { status: 400 }
+      );
+    }
+
     const formData = new FormData();
     formData.append("secret", process.env.TURNSTILE_SECRET_KEY!);
     formData.append("response", turnstileToken);
@@ -262,6 +369,7 @@ export async function POST(req: Request) {
       name,
       email,
       phone,
+      language,
       country,
       city,
       preferred_area: preferredArea,
@@ -275,6 +383,15 @@ export async function POST(req: Request) {
       rental_profile: null,
       budget,
       user_type: userType,
+      purpose:
+        userType === "buyer" ||
+        userType === "investor" ||
+        userType === "tenant"
+          ? purpose
+          : null,
+      urgency,
+      working_with_agency: workingWithAgency,
+      flexibility,
       message,
       status: "new",
     };
@@ -308,12 +425,19 @@ export async function POST(req: Request) {
           </p>
 
           <p><strong>Profile:</strong> ${formatOption(userType)}</p>
+          <p><strong>Language:</strong> ${formatOption(language)}</p>
           <p><strong>Country:</strong> ${formatOption(country)}</p>
           <p><strong>City:</strong> ${formatOption(city)}</p>
           <p><strong>Preferred area:</strong> ${preferredArea}</p>
           <p><strong>Property type:</strong> ${formatOption(propertyType)}</p>
           <p><strong>Timeframe:</strong> ${formatOption(timeframe)}</p>
           <p><strong>Budget:</strong> ${budget}</p>
+          ${
+            purpose
+              ? `<p><strong>Purpose:</strong> ${formatOption(purpose)}</p>`
+              : ""
+          }
+          <p><strong>Urgency:</strong> ${formatOption(urgency)}</p>
 
           <p>
             The Kerman Organization

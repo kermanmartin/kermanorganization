@@ -11,6 +11,7 @@ type Lead = {
   name: string | null;
   email: string | null;
   phone: string | null;
+  language: string | null;
   country: string | null;
   city: string | null;
   preferred_area: string | null;
@@ -21,6 +22,10 @@ type Lead = {
   rental_profile: string | null;
   budget: string | null;
   user_type: string | null;
+  purpose: string | null;
+  urgency: string | null;
+  working_with_agency: string | null;
+  flexibility: string | null;
   status: string | null;
   message: string | null;
   created_at: string | null;
@@ -35,10 +40,22 @@ type AgencyApplication = {
   country: string | null;
   city: string | null;
   preferred_cities: string | null;
+  preferred_areas: string | null;
   property_types: string[] | null;
   client_types: string[] | null;
+  languages_spoken: string[] | null;
+  market_segments: string[] | null;
   min_budget: string | null;
   max_budget: string | null;
+  response_speed: string | null;
+  international_clients: string | null;
+  lead_intent: string | null;
+  exclusive_leads_only: string | null;
+};
+
+type ScoredLead = Lead & {
+  match_score: number;
+  match_reason: string;
 };
 
 function normalizeText(value: string | null | undefined) {
@@ -82,31 +99,33 @@ function parseLeadBudgetRange(budget: string | null | undefined) {
   return { min, max };
 }
 
-function matchesCountry(lead: Lead, application: AgencyApplication) {
+function isSameCountry(lead: Lead, application: AgencyApplication) {
   const agencyCountry = normalizeText(application.country);
-  if (!agencyCountry) return true;
-
   const leadCountry = normalizeText(lead.country);
+
+  if (!agencyCountry || !leadCountry) return false;
   return agencyCountry === leadCountry;
 }
 
-function matchesCity(lead: Lead, application: AgencyApplication) {
+function getCityMatchType(
+  lead: Lead,
+  application: AgencyApplication
+): "main_city" | "covered_city" | "none" {
   const leadCity = normalizeText(lead.city);
   const mainCity = normalizeText(application.city);
   const extraCities = splitCommaValues(application.preferred_cities);
 
-  if (!leadCity) return false;
-  if (leadCity === mainCity) return true;
-  if (extraCities.includes(leadCity)) return true;
-
-  return false;
+  if (!leadCity) return "none";
+  if (leadCity === mainCity) return "main_city";
+  if (extraCities.includes(leadCity)) return "covered_city";
+  return "none";
 }
 
 function matchesPropertyType(lead: Lead, application: AgencyApplication) {
   const agencyPropertyTypes =
     application.property_types?.map((item) => item.trim().toLowerCase()) ?? [];
 
-  if (agencyPropertyTypes.length === 0) return true;
+  if (agencyPropertyTypes.length === 0) return false;
 
   const leadPropertyType = normalizeText(lead.property_type);
   return agencyPropertyTypes.includes(leadPropertyType);
@@ -116,7 +135,7 @@ function matchesClientType(lead: Lead, application: AgencyApplication) {
   const agencyClientTypes =
     application.client_types?.map((item) => item.trim().toLowerCase()) ?? [];
 
-  if (agencyClientTypes.length === 0) return true;
+  if (agencyClientTypes.length === 0) return false;
 
   const leadUserType = normalizeText(lead.user_type);
   return agencyClientTypes.includes(leadUserType);
@@ -126,23 +145,148 @@ function matchesBudget(lead: Lead, application: AgencyApplication) {
   const agencyMin = parseBudgetNumber(application.min_budget);
   const agencyMax = parseBudgetNumber(application.max_budget);
 
-  if (agencyMin === null || agencyMax === null) return true;
+  if (agencyMin === null || agencyMax === null) return false;
 
   const leadBudget = parseLeadBudgetRange(lead.budget);
 
-  if (leadBudget.min === null || leadBudget.max === null) return true;
+  if (leadBudget.min === null || leadBudget.max === null) return false;
 
   return leadBudget.max >= agencyMin && leadBudget.min <= agencyMax;
 }
 
-function leadMatchesAgency(lead: Lead, application: AgencyApplication) {
-  return (
-    matchesCountry(lead, application) &&
-    matchesCity(lead, application) &&
-    matchesPropertyType(lead, application) &&
-    matchesClientType(lead, application) &&
-    matchesBudget(lead, application)
-  );
+function matchesLanguage(lead: Lead, application: AgencyApplication) {
+  const agencyLanguages =
+    application.languages_spoken?.map((item) => item.trim().toLowerCase()) ?? [];
+
+  if (agencyLanguages.length === 0) return false;
+
+  const leadLanguage = normalizeText(lead.language);
+  if (!leadLanguage) return false;
+
+  return agencyLanguages.includes(leadLanguage);
+}
+
+function matchesLeadIntent(lead: Lead, application: AgencyApplication) {
+  const leadIntent = normalizeText(application.lead_intent);
+  const urgency = normalizeText(lead.urgency);
+
+  if (!leadIntent || !urgency) return false;
+  if (leadIntent === "mixed") return true;
+
+  if (leadIntent === "high_intent_only") {
+    return urgency === "ready_now" || urgency === "actively_searching";
+  }
+
+  return false;
+}
+
+function matchesInternationalClientSupport(
+  lead: Lead,
+  application: AgencyApplication
+) {
+  const internationalClients = normalizeText(application.international_clients);
+  const leadLanguage = normalizeText(lead.language);
+
+  if (!leadLanguage) return false;
+  if (leadLanguage === "english") return true;
+  return internationalClients === "yes";
+}
+
+function getAreaMatchScore(lead: Lead, application: AgencyApplication) {
+  const leadArea = normalizeText(lead.preferred_area);
+  const agencyAreas = splitCommaValues(application.preferred_areas);
+
+  if (!leadArea || agencyAreas.length === 0) return 0;
+
+  for (const area of agencyAreas) {
+    if (leadArea.includes(area) || area.includes(leadArea)) {
+      return 20;
+    }
+  }
+
+  return 0;
+}
+
+function getResponseSpeedScore(application: AgencyApplication) {
+  const responseSpeed = normalizeText(application.response_speed);
+
+  if (responseSpeed === "under_1_hour") return 6;
+  if (responseSpeed === "under_24_hours") return 5;
+  if (responseSpeed === "one_to_three_days") return 3;
+  if (responseSpeed === "more_than_three_days") return 1;
+  return 0;
+}
+
+function scoreLeadAgainstAgency(
+  lead: Lead,
+  application: AgencyApplication
+): ScoredLead | null {
+  if (!isSameCountry(lead, application)) return null;
+
+  const cityMatchType = getCityMatchType(lead, application);
+
+  // Regla dura: si no coincide ciudad, fuera.
+  if (cityMatchType === "none") return null;
+
+  let score = 0;
+  const reasons: string[] = [];
+
+  // Peso más fuerte: ciudad
+  if (cityMatchType === "main_city") {
+    score += 40;
+    reasons.push("main city match");
+  } else if (cityMatchType === "covered_city") {
+    score += 28;
+    reasons.push("covered city match");
+  }
+
+  const areaScore = getAreaMatchScore(lead, application);
+  if (areaScore > 0) {
+    score += areaScore;
+    reasons.push("area match");
+  }
+
+  if (matchesClientType(lead, application)) {
+    score += 18;
+    reasons.push("client type match");
+  }
+
+  if (matchesPropertyType(lead, application)) {
+    score += 14;
+    reasons.push("property type match");
+  }
+
+  if (matchesBudget(lead, application)) {
+    score += 12;
+    reasons.push("budget overlap");
+  }
+
+  if (matchesLanguage(lead, application)) {
+    score += 10;
+    reasons.push("language match");
+  }
+
+  if (matchesInternationalClientSupport(lead, application)) {
+    score += 8;
+    reasons.push("international fit");
+  }
+
+  if (matchesLeadIntent(lead, application)) {
+    score += 6;
+    reasons.push("lead intent fit");
+  }
+
+  const responseSpeedScore = getResponseSpeedScore(application);
+  if (responseSpeedScore > 0) {
+    score += responseSpeedScore;
+    reasons.push("response speed");
+  }
+
+  return {
+    ...lead,
+    match_score: score,
+    match_reason: reasons.join(" • "),
+  };
 }
 
 export default async function AgencyDashboardPage() {
@@ -178,11 +322,20 @@ export default async function AgencyDashboardPage() {
 
   const typedLeads: Lead[] = (leads ?? []) as Lead[];
 
-  const matchedLeads = typedLeads.filter((lead) =>
-    leadMatchesAgency(lead, application)
-  );
+  const scoredLeads = typedLeads
+    .map((lead) => scoreLeadAgainstAgency(lead, application))
+    .filter((lead): lead is ScoredLead => Boolean(lead))
+    .sort((a, b) => {
+      if (b.match_score !== a.match_score) {
+        return b.match_score - a.match_score;
+      }
 
-  const safeLeads: Lead[] = matchedLeads.map((lead) => ({
+      const aDate = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const bDate = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return bDate - aDate;
+    });
+
+  const safeLeads: Lead[] = scoredLeads.map((lead) => ({
     ...lead,
     name: isApproved ? lead.name : lead.name ? "Contact locked" : "-",
     email: isApproved ? lead.email : lead.email ? "Contact locked" : "-",
@@ -276,6 +429,18 @@ export default async function AgencyDashboardPage() {
               }}
             >
               Signed in as: {user.email}
+            </p>
+
+            <p
+              style={{
+                fontSize: "14px",
+                color: "#8f8f8f",
+                marginTop: "10px",
+                marginBottom: 0,
+              }}
+            >
+              Matching logic prioritizes same-city opportunities above all other
+              criteria.
             </p>
           </div>
 

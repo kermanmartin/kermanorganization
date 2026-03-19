@@ -24,6 +24,8 @@ type Lead = {
   message: string | null;
   created_at: string | null;
   contact_locked?: boolean;
+  match_score?: number;
+  match_reason?: string | null;
 };
 
 export default function AgencyDashboardClient({
@@ -48,6 +50,26 @@ export default function AgencyDashboardClient({
 
   const closedLeads = useMemo(
     () => leads.filter((lead) => lead.status === "closed").length,
+    [leads]
+  );
+
+  const averageMatchScore = useMemo(() => {
+    const scoredLeads = leads.filter(
+      (lead) => typeof lead.match_score === "number"
+    );
+
+    if (scoredLeads.length === 0) return null;
+
+    const total = scoredLeads.reduce(
+      (sum, lead) => sum + (lead.match_score ?? 0),
+      0
+    );
+
+    return Math.round(total / scoredLeads.length);
+  }, [leads]);
+
+  const strongMatches = useMemo(
+    () => leads.filter((lead) => (lead.match_score ?? 0) >= 70).length,
     [leads]
   );
 
@@ -114,7 +136,7 @@ export default function AgencyDashboardClient({
             marginInline: "auto",
           }}
         >
-          When a new lead matches your territory, property profile and budget
+          When a new lead matches your city coverage, property profile and budget
           range, it will appear here automatically.
         </p>
       </div>
@@ -139,6 +161,16 @@ export default function AgencyDashboardClient({
         <StatCard eyebrow="Status" title="New" value={newLeads} />
         <StatCard eyebrow="Status" title="Contacted" value={contactedLeads} />
         <StatCard eyebrow="Status" title="Closed" value={closedLeads} />
+        <StatCard
+          eyebrow="Quality"
+          title="Strong matches"
+          value={strongMatches}
+        />
+        <StatCard
+          eyebrow="Quality"
+          title="Avg. score"
+          value={averageMatchScore ?? 0}
+        />
       </div>
 
       {!isApproved && (
@@ -200,7 +232,8 @@ export default function AgencyDashboardClient({
                 lineHeight: "1.6",
               }}
             >
-              Leads shown here already match your current agency profile.
+              Leads shown here already match your city coverage and current
+              agency profile.
             </p>
           </div>
 
@@ -226,11 +259,13 @@ export default function AgencyDashboardClient({
             style={{
               width: "100%",
               borderCollapse: "collapse",
-              minWidth: "1700px",
+              minWidth: "2050px",
             }}
           >
             <thead>
               <tr style={{ backgroundColor: "#171717" }}>
+                <th style={thStyle}>Match</th>
+                <th style={thStyle}>Why matched</th>
                 <th style={thStyle}>Name</th>
                 <th style={thStyle}>Email</th>
                 <th style={thStyle}>Phone</th>
@@ -251,6 +286,36 @@ export default function AgencyDashboardClient({
             <tbody>
               {leads.map((lead) => (
                 <tr key={lead.id} style={{ borderTop: "1px solid #202020" }}>
+                  <td style={tdStyleScore}>
+                    <MatchScoreBadge score={lead.match_score ?? 0} />
+                  </td>
+
+                  <td style={tdStyleReason}>
+                    <div
+                      style={{
+                        color: "#d9d9d9",
+                        lineHeight: "1.7",
+                        minWidth: "240px",
+                        maxWidth: "320px",
+                      }}
+                    >
+                      {lead.match_reason ? (
+                        lead.match_reason
+                          .split("•")
+                          .map((item) => item.trim())
+                          .filter(Boolean)
+                          .map((item) => (
+                            <div key={item} style={{ marginBottom: "6px" }}>
+                              <span style={{ color: "#8f8f8f" }}>• </span>
+                              {capitalizeWords(item)}
+                            </div>
+                          ))
+                      ) : (
+                        "-"
+                      )}
+                    </div>
+                  </td>
+
                   <td style={tdStyle}>
                     <LockedCell locked={Boolean(lead.contact_locked)}>
                       {lead.name ?? "-"}
@@ -313,6 +378,83 @@ function formatValue(value: string | null) {
     .split("_")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+function capitalizeWords(value: string) {
+  return value
+    .split(" ")
+    .map((part) =>
+      part.length ? part.charAt(0).toUpperCase() + part.slice(1) : part
+    )
+    .join(" ");
+}
+
+function MatchScoreBadge({ score }: { score: number }) {
+  const getStyles = () => {
+    if (score >= 75) {
+      return {
+        background: "#10311c",
+        border: "#1d5a34",
+        color: "#8ff0b1",
+        label: "Strong",
+      };
+    }
+
+    if (score >= 55) {
+      return {
+        background: "#2e2610",
+        border: "#5a4a1d",
+        color: "#f2d37d",
+        label: "Good",
+      };
+    }
+
+    return {
+      background: "#262626",
+      border: "#3a3a3a",
+      color: "#d7d7d7",
+      label: "Basic",
+    };
+  };
+
+  const styles = getStyles();
+
+  return (
+    <div
+      style={{
+        minWidth: "100px",
+      }}
+    >
+      <div
+        style={{
+          padding: "8px 10px",
+          borderRadius: "12px",
+          backgroundColor: styles.background,
+          border: `1px solid ${styles.border}`,
+          color: styles.color,
+          fontWeight: 700,
+          fontSize: "13px",
+          textAlign: "center",
+          marginBottom: "6px",
+        }}
+      >
+        {score}
+      </div>
+
+      <div
+        style={{
+          textAlign: "center",
+          fontSize: "11px",
+          color: "#9f9f9f",
+          textTransform: "uppercase",
+          letterSpacing: "0.4px",
+          fontWeight: 700,
+        }}
+      >
+        {styles.label}
+      </div>
+    </div>
+  );
 }
 
 function LockedCell({
@@ -439,6 +581,24 @@ const tdStyle = {
   verticalAlign: "top" as const,
   fontSize: "14px",
   color: "#f1f1f1",
+};
+
+const tdStyleScore = {
+  padding: "18px",
+  textAlign: "left" as const,
+  verticalAlign: "top" as const,
+  minWidth: "120px",
+  color: "#f1f1f1",
+};
+
+const tdStyleReason = {
+  padding: "18px",
+  textAlign: "left" as const,
+  verticalAlign: "top" as const,
+  fontSize: "14px",
+  color: "#f1f1f1",
+  minWidth: "260px",
+  maxWidth: "340px",
 };
 
 const tdStyleMessage = {
