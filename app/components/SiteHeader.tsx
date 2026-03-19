@@ -13,7 +13,7 @@ export default function SiteHeader() {
           position: "sticky",
           top: 0,
           zIndex: 1000,
-          backgroundColor: "rgba(5,5,5,0.92)",
+          backgroundColor: "rgba(4,4,4,0.94)",
           backdropFilter: "blur(10px)",
           WebkitBackdropFilter: "blur(10px)",
           borderBottom: "1px solid rgba(255,255,255,0.08)",
@@ -21,13 +21,13 @@ export default function SiteHeader() {
       >
         <div
           style={{
-            maxWidth: "1440px",
+            maxWidth: "1460px",
             margin: "0 auto",
-            padding: "20px 16px",
+            padding: "18px 16px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: "16px",
+            gap: "18px",
           }}
         >
           <Link
@@ -45,8 +45,8 @@ export default function SiteHeader() {
               src="/LogoKnuevo.jpeg"
               alt="The Kerman Organization"
               style={{
-                width: "40px",
-                height: "40px",
+                width: "42px",
+                height: "42px",
                 borderRadius: "999px",
                 objectFit: "cover",
                 border: "1px solid rgba(255,255,255,0.12)",
@@ -56,11 +56,12 @@ export default function SiteHeader() {
 
             <span
               style={{
-                fontSize: "clamp(18px, 3.2vw, 28px)",
+                fontSize: "clamp(18px, 3vw, 30px)",
                 fontWeight: 700,
                 letterSpacing: "-0.5px",
                 lineHeight: 1.05,
                 textTransform: "uppercase",
+                fontFamily: 'Georgia, "Times New Roman", serif',
               }}
             >
               The Kerman Organization
@@ -72,7 +73,7 @@ export default function SiteHeader() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "26px",
+              gap: "24px",
             }}
           >
             <Link href="/" style={navLinkStyle}>
@@ -92,7 +93,7 @@ export default function SiteHeader() {
             </Link>
 
             <Link href="/start" style={primaryCtaStyle}>
-              Start
+              Begin
             </Link>
           </nav>
 
@@ -225,7 +226,7 @@ export default function SiteHeader() {
                 onClick={() => setMenuOpen(false)}
                 style={mobilePrimaryButtonStyle}
               >
-                Start
+                Begin
               </Link>
             </div>
           </div>
@@ -250,19 +251,21 @@ export default function SiteHeader() {
 const navLinkStyle: React.CSSProperties = {
   color: "white",
   textDecoration: "none",
-  fontSize: "17px",
+  fontSize: "18px",
   fontWeight: 500,
+  fontFamily: 'Georgia, "Times New Roman", serif',
 };
 
 const secondaryCtaStyle: React.CSSProperties = {
   color: "white",
-  backgroundColor: "rgba(255,255,255,0.04)",
+  backgroundColor: "rgba(255,255,255,0.03)",
   border: "1px solid rgba(255,255,255,0.10)",
   textDecoration: "none",
   fontSize: "17px",
   fontWeight: 700,
-  padding: "13px 18px",
+  padding: "13px 20px",
   borderRadius: "14px",
+  fontFamily: 'Georgia, "Times New Roman", serif',
 };
 
 const primaryCtaStyle: React.CSSProperties = {
@@ -271,8 +274,9 @@ const primaryCtaStyle: React.CSSProperties = {
   textDecoration: "none",
   fontSize: "17px",
   fontWeight: 700,
-  padding: "13px 22px",
+  padding: "13px 24px",
   borderRadius: "14px",
+  fontFamily: 'Georgia, "Times New Roman", serif',
 };
 
 const mobileLinkStyle: React.CSSProperties = {
@@ -283,6 +287,7 @@ const mobileLinkStyle: React.CSSProperties = {
   borderRadius: "12px",
   backgroundColor: "rgba(255,255,255,0.03)",
   border: "1px solid rgba(255,255,255,0.06)",
+  fontFamily: 'Georgia, "Times New Roman", serif',
 };
 
 const mobileSecondaryButtonStyle: React.CSSProperties = {
@@ -295,6 +300,7 @@ const mobileSecondaryButtonStyle: React.CSSProperties = {
   padding: "16px 18px",
   borderRadius: "14px",
   marginTop: "8px",
+  fontFamily: 'Georgia, "Times New Roman", serif',
 };
 
 const mobilePrimaryButtonStyle: React.CSSProperties = {
@@ -305,6 +311,7 @@ const mobilePrimaryButtonStyle: React.CSSProperties = {
   fontWeight: 700,
   padding: "16px 18px",
   borderRadius: "14px",
+  fontFamily: 'Georgia, "Times New Roman", serif',
 };
 
 const burgerLine: React.CSSProperties = {
