@@ -38,74 +38,33 @@ type Lead = {
 export default function AgencyDashboardClient({
   initialLeads,
   isApproved,
+  agencyName,
 }: {
   initialLeads: Lead[];
   isApproved: boolean;
+  agencyName: string;
 }) {
   const supabase = createClient();
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const [buyingLeadId, setBuyingLeadId] = useState<string | null>(null);
-
-  const newLeads = useMemo(
-    () => leads.filter((lead) => (lead.status ?? "new") === "new").length,
-    [leads]
-  );
-
-  const contactedLeads = useMemo(
-    () => leads.filter((lead) => lead.status === "contacted").length,
-    [leads]
-  );
-
-  const closedLeads = useMemo(
-    () => leads.filter((lead) => lead.status === "closed").length,
-    [leads]
-  );
-
-  const averageMatchScore = useMemo(() => {
-    const scoredLeads = leads.filter(
-      (lead) => typeof lead.match_score === "number"
-    );
-
-    if (scoredLeads.length === 0) return null;
-
-    const total = scoredLeads.reduce(
-      (sum, lead) => sum + (lead.match_score ?? 0),
-      0
-    );
-
-    return Math.round(total / scoredLeads.length);
-  }, [leads]);
-
-  const strongMatches = useMemo(
-    () => leads.filter((lead) => (lead.match_score ?? 0) >= 80).length,
-    [leads]
-  );
-
-  const exclusiveLeads = useMemo(
-    () => leads.filter((lead) => lead.lead_tier === "exclusive").length,
-    [leads]
-  );
-
-  const premiumLeads = useMemo(
-    () => leads.filter((lead) => lead.lead_tier === "premium").length,
-    [leads]
-  );
-
-  const standardLeads = useMemo(
-    () => leads.filter((lead) => lead.lead_tier === "standard").length,
-    [leads]
-  );
 
   const purchasedLeads = useMemo(
     () => leads.filter((lead) => Boolean(lead.is_purchased)).length,
     [leads]
   );
 
-  const totalSpend = useMemo(
+  const lockedLeads = useMemo(
+    () => leads.filter((lead) => !lead.is_purchased).length,
+    [leads]
+  );
+
+  const readyToActLeads = useMemo(
     () =>
-      leads
-        .filter((lead) => Boolean(lead.is_purchased))
-        .reduce((sum, lead) => sum + (lead.lead_price ?? 0), 0),
+      leads.filter(
+        (lead) =>
+          (lead.match_score ?? 0) >= 80 &&
+          ((lead.status ?? "new") === "new" || !lead.status)
+      ).length,
     [leads]
   );
 
@@ -209,20 +168,20 @@ export default function AgencyDashboardClient({
     return (
       <div
         style={{
-          padding: "34px",
-          borderRadius: "18px",
+          padding: "38px",
+          borderRadius: "22px",
           background:
-            "linear-gradient(180deg, rgba(17,17,17,0.98) 0%, rgba(12,12,12,0.98) 100%)",
-          border: "1px solid #1f1f1f",
+            "linear-gradient(180deg, rgba(17,17,17,0.96) 0%, rgba(11,11,11,0.98) 100%)",
+          border: "1px solid rgba(255,255,255,0.08)",
           textAlign: "center",
         }}
       >
         <div
           style={{
-            fontSize: "28px",
+            fontSize: "30px",
             fontWeight: 500,
-            marginBottom: "10px",
-            letterSpacing: "-0.5px",
+            marginBottom: "12px",
+            letterSpacing: "-0.6px",
           }}
         >
           No matched leads yet
@@ -233,13 +192,13 @@ export default function AgencyDashboardClient({
             margin: 0,
             color: "#a9a9a9",
             fontSize: "16px",
-            lineHeight: "1.7",
+            lineHeight: "1.8",
             maxWidth: "760px",
             marginInline: "auto",
           }}
         >
-          When a new lead matches your city coverage, property profile and budget
-          range, it will appear here automatically.
+          {agencyName} will see new opportunities here as soon as incoming demand
+          aligns with your territory, property focus and client profile.
         </p>
       </div>
     );
@@ -249,23 +208,27 @@ export default function AgencyDashboardClient({
     <>
       <div
         style={{
+          marginBottom: "18px",
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
           gap: "16px",
-          marginBottom: "22px",
         }}
       >
-        <StatCard eyebrow="Pipeline" title="Matched leads" value={leads.length} />
-        <StatCard eyebrow="Status" title="New" value={newLeads} />
-        <StatCard eyebrow="Status" title="Contacted" value={contactedLeads} />
-        <StatCard eyebrow="Status" title="Closed" value={closedLeads} />
-        <StatCard eyebrow="Quality" title="Strong matches" value={strongMatches} />
-        <StatCard eyebrow="Quality" title="Avg. score" value={averageMatchScore ?? 0} />
-        <StatCard eyebrow="Tier" title="Exclusive" value={exclusiveLeads} />
-        <StatCard eyebrow="Tier" title="Premium" value={premiumLeads} />
-        <StatCard eyebrow="Tier" title="Standard" value={standardLeads} />
-        <StatCard eyebrow="Sales" title="Unlocked" value={purchasedLeads} />
-        <StatCard eyebrow="Sales" title="Spend (€)" value={totalSpend} />
+        <ActionCard
+          title="Locked opportunities"
+          value={lockedLeads}
+          helper="Still available to review and unlock individually"
+        />
+        <ActionCard
+          title="Unlocked opportunities"
+          value={purchasedLeads}
+          helper="Open leads with visible contact and message details"
+        />
+        <ActionCard
+          title="Ready now"
+          value={readyToActLeads}
+          helper="Strong high-priority matches currently sitting in new"
+        />
       </div>
 
       {!isApproved && (
@@ -273,34 +236,35 @@ export default function AgencyDashboardClient({
           style={{
             marginBottom: "20px",
             padding: "18px 20px",
-            borderRadius: "16px",
+            borderRadius: "18px",
             background:
-              "linear-gradient(180deg, rgba(17,17,17,0.98) 0%, rgba(12,12,12,0.98) 100%)",
-            border: "1px solid #1f1f1f",
+              "linear-gradient(180deg, rgba(17,17,17,0.96) 0%, rgba(11,11,11,0.98) 100%)",
+            border: "1px solid rgba(255,255,255,0.07)",
             color: "#cfcfcf",
             fontSize: "15px",
             lineHeight: "1.7",
           }}
         >
-          <strong style={{ color: "white" }}>Lead purchases disabled:</strong>{" "}
-          your agency must be approved before you can unlock contact details and
-          full message content.
+          <strong style={{ color: "white" }}>Lead unlocking unavailable:</strong>{" "}
+          your agency must be approved before contact details and full message
+          content can be revealed.
         </div>
       )}
 
       <div
         style={{
-          borderRadius: "18px",
+          borderRadius: "24px",
           overflow: "hidden",
-          border: "1px solid #1f1f1f",
+          border: "1px solid rgba(255,255,255,0.07)",
           background:
-            "linear-gradient(180deg, rgba(17,17,17,0.98) 0%, rgba(12,12,12,0.98) 100%)",
+            "linear-gradient(180deg, rgba(17,17,17,0.96) 0%, rgba(10,10,10,0.99) 100%)",
+          boxShadow: "0 20px 56px rgba(0,0,0,0.28)",
         }}
       >
         <div
           style={{
-            padding: "18px 22px",
-            borderBottom: "1px solid #1f1f1f",
+            padding: "22px 24px",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -312,23 +276,24 @@ export default function AgencyDashboardClient({
             <h2
               style={{
                 margin: 0,
-                fontSize: "24px",
+                fontSize: "26px",
                 fontWeight: 500,
-                letterSpacing: "-0.5px",
+                letterSpacing: "-0.6px",
               }}
             >
               Matched opportunities
             </h2>
             <p
               style={{
-                margin: "6px 0 0 0",
+                margin: "8px 0 0 0",
                 color: "#9f9f9f",
                 fontSize: "14px",
-                lineHeight: "1.6",
+                lineHeight: "1.7",
+                maxWidth: "760px",
               }}
             >
-              Leads shown here already match your city coverage and current
-              agency profile. Unlock individually when commercially relevant.
+              Ranked by fit quality and operational relevance. This view is built
+              to help your agency decide fast which leads deserve immediate action.
             </p>
           </div>
 
@@ -336,16 +301,16 @@ export default function AgencyDashboardClient({
             style={{
               padding: "10px 14px",
               borderRadius: "999px",
-              border: "1px solid #2a2a2a",
-              backgroundColor: "#141414",
+              border: "1px solid rgba(255,255,255,0.08)",
+              backgroundColor: "rgba(255,255,255,0.03)",
               color: "#d7d7d7",
-              fontSize: "13px",
+              fontSize: "12px",
               fontWeight: 700,
-              letterSpacing: "0.3px",
+              letterSpacing: "0.45px",
               textTransform: "uppercase",
             }}
           >
-            {leads.length} matched
+            {leads.length} active opportunities
           </div>
         </div>
 
@@ -354,30 +319,29 @@ export default function AgencyDashboardClient({
             style={{
               width: "100%",
               borderCollapse: "collapse",
-              minWidth: "2400px",
+              minWidth: "2320px",
             }}
           >
             <thead>
-              <tr style={{ backgroundColor: "#171717" }}>
+              <tr style={{ backgroundColor: "rgba(255,255,255,0.02)" }}>
                 <th style={thStyle}>Match</th>
-                <th style={thStyle}>Tier</th>
                 <th style={thStyle}>Price</th>
                 <th style={thStyle}>Action</th>
-                <th style={thStyle}>Why matched</th>
+                <th style={thStyle}>Market fit</th>
                 <th style={thStyle}>Name</th>
                 <th style={thStyle}>Email</th>
                 <th style={thStyle}>Phone</th>
                 <th style={thStyle}>City</th>
-                <th style={thStyle}>Preferred area</th>
-                <th style={thStyle}>Property type</th>
+                <th style={thStyle}>Area</th>
+                <th style={thStyle}>Property</th>
+                <th style={thStyle}>Budget</th>
+                <th style={thStyle}>Client type</th>
                 <th style={thStyle}>Timeframe</th>
                 <th style={thStyle}>Financing</th>
                 <th style={thStyle}>Seller status</th>
-                <th style={thStyle}>Budget</th>
-                <th style={thStyle}>Type</th>
-                <th style={thStyle}>Status</th>
+                <th style={thStyle}>Pipeline</th>
                 <th style={thStyle}>Message</th>
-                <th style={thStyle}>Purchased</th>
+                <th style={thStyle}>Unlocked at</th>
                 <th style={thStyle}>Created</th>
               </tr>
             </thead>
@@ -387,16 +351,17 @@ export default function AgencyDashboardClient({
                 const isBuying = buyingLeadId === lead.id;
 
                 return (
-                  <tr key={lead.id} style={{ borderTop: "1px solid #202020" }}>
+                  <tr
+                    key={lead.id}
+                    style={{
+                      borderTop: "1px solid rgba(255,255,255,0.05)",
+                    }}
+                  >
                     <td style={tdStyleScore}>
                       <MatchScoreBadge
                         score={lead.match_score ?? 0}
                         label={lead.match_label ?? null}
                       />
-                    </td>
-
-                    <td style={tdStyleTier}>
-                      <LeadTierBadge tier={lead.lead_tier} />
                     </td>
 
                     <td style={tdStylePrice}>
@@ -414,11 +379,11 @@ export default function AgencyDashboardClient({
                           onClick={() => unlockLead(lead.id)}
                           disabled={isBuying || !isApproved}
                           style={{
-                            border: "1px solid #2d5b42",
+                            border: "1px solid #3d6b52",
                             background: isApproved
-                              ? "linear-gradient(180deg, #163323 0%, #10261a 100%)"
-                              : "#1a1a1a",
-                            color: isApproved ? "#dff7e8" : "#7b7b7b",
+                              ? "linear-gradient(180deg, #193728 0%, #102219 100%)"
+                              : "#1b1b1b",
+                            color: isApproved ? "#e5f7ec" : "#7c7c7c",
                             padding: "10px 14px",
                             borderRadius: "12px",
                             fontSize: "13px",
@@ -426,6 +391,9 @@ export default function AgencyDashboardClient({
                             cursor:
                               isBuying || !isApproved ? "not-allowed" : "pointer",
                             minWidth: "128px",
+                            boxShadow: isApproved
+                              ? "0 10px 28px rgba(11, 46, 27, 0.28)"
+                              : "none",
                           }}
                         >
                           {isBuying ? "Unlocking..." : "Unlock lead"}
@@ -434,29 +402,10 @@ export default function AgencyDashboardClient({
                     </td>
 
                     <td style={tdStyleReason}>
-                      <div
-                        style={{
-                          color: "#d9d9d9",
-                          lineHeight: "1.7",
-                          minWidth: "240px",
-                          maxWidth: "320px",
-                        }}
-                      >
-                        {lead.match_reason ? (
-                          lead.match_reason
-                            .split("•")
-                            .map((item) => item.trim())
-                            .filter(Boolean)
-                            .map((item) => (
-                              <div key={item} style={{ marginBottom: "6px" }}>
-                                <span style={{ color: "#8f8f8f" }}>• </span>
-                                {capitalizeWords(item)}
-                              </div>
-                            ))
-                        ) : (
-                          "-"
-                        )}
-                      </div>
+                      <FitSummary
+                        score={lead.match_score ?? 0}
+                        reason={lead.match_reason ?? ""}
+                      />
                     </td>
 
                     <td style={tdStyle}>
@@ -480,11 +429,11 @@ export default function AgencyDashboardClient({
                     <td style={tdStyle}>{formatValue(lead.city)}</td>
                     <td style={tdStyle}>{lead.preferred_area ?? "-"}</td>
                     <td style={tdStyle}>{formatValue(lead.property_type)}</td>
+                    <td style={tdStyleBudget}>{lead.budget ?? "-"}</td>
+                    <td style={tdStyle}>{formatValue(lead.user_type)}</td>
                     <td style={tdStyle}>{formatValue(lead.timeframe)}</td>
                     <td style={tdStyle}>{formatValue(lead.financing_status)}</td>
                     <td style={tdStyle}>{formatValue(lead.seller_status)}</td>
-                    <td style={tdStyleBudget}>{lead.budget ?? "-"}</td>
-                    <td style={tdStyle}>{formatValue(lead.user_type)}</td>
 
                     <td style={tdStyle}>
                       {lead.is_purchased ? (
@@ -499,7 +448,7 @@ export default function AgencyDashboardClient({
                             padding: "8px 10px",
                             borderRadius: "10px",
                             border: "1px solid #343434",
-                            backgroundColor: "#1a1a1a",
+                            backgroundColor: "#191919",
                             color: "#8f8f8f",
                             fontSize: "12px",
                             fontWeight: 700,
@@ -547,15 +496,6 @@ function formatValue(value: string | null | undefined) {
     .join(" ");
 }
 
-function capitalizeWords(value: string) {
-  return value
-    .split(" ")
-    .map((part) =>
-      part.length ? part.charAt(0).toUpperCase() + part.slice(1) : part
-    )
-    .join(" ");
-}
-
 function MatchScoreBadge({
   score,
   label,
@@ -593,11 +533,11 @@ function MatchScoreBadge({
   const styles = getStyles();
 
   return (
-    <div style={{ minWidth: "100px" }}>
+    <div style={{ minWidth: "104px" }}>
       <div
         style={{
           padding: "8px 10px",
-          borderRadius: "12px",
+          borderRadius: "13px",
           backgroundColor: styles.background,
           border: `1px solid ${styles.border}`,
           color: styles.color,
@@ -626,49 +566,6 @@ function MatchScoreBadge({
   );
 }
 
-function LeadTierBadge({ tier }: { tier?: LeadTier }) {
-  if (!tier) return <span>-</span>;
-
-  const styles = {
-    exclusive: {
-      color: "#ffb3b3",
-      border: "#5a1f1f",
-      bg: "#2a1111",
-      label: "Exclusive",
-    },
-    premium: {
-      color: "#f2d37d",
-      border: "#5a4a1d",
-      bg: "#2e2610",
-      label: "Premium",
-    },
-    standard: {
-      color: "#d7d7d7",
-      border: "#3a3a3a",
-      bg: "#262626",
-      label: "Standard",
-    },
-  }[tier];
-
-  return (
-    <div
-      style={{
-        padding: "6px 10px",
-        borderRadius: "10px",
-        border: `1px solid ${styles.border}`,
-        backgroundColor: styles.bg,
-        color: styles.color,
-        fontSize: "12px",
-        fontWeight: 700,
-        textAlign: "center",
-        minWidth: "90px",
-      }}
-    >
-      {styles.label}
-    </div>
-  );
-}
-
 function PriceBadge({
   price,
   purchased,
@@ -677,17 +574,13 @@ function PriceBadge({
   purchased: boolean;
 }) {
   return (
-    <div
-      style={{
-        minWidth: "100px",
-      }}
-    >
+    <div style={{ minWidth: "102px" }}>
       <div
         style={{
           padding: "8px 10px",
-          borderRadius: "12px",
-          backgroundColor: purchased ? "#0f2e23" : "#161616",
-          border: purchased ? "1px solid #24533f" : "1px solid #2e2e2e",
+          borderRadius: "13px",
+          backgroundColor: purchased ? "#0f2e23" : "#151515",
+          border: purchased ? "1px solid #24533f" : "1px solid #2b2b2b",
           color: purchased ? "#9df0c5" : "#f1f1f1",
           fontWeight: 700,
           fontSize: "14px",
@@ -708,7 +601,7 @@ function PriceBadge({
           fontWeight: 700,
         }}
       >
-        {purchased ? "Purchased" : "Per unlock"}
+        {purchased ? "Unlocked" : "Per lead"}
       </div>
     </div>
   );
@@ -734,6 +627,59 @@ function UnlockedBadge() {
       Unlocked
     </div>
   );
+}
+
+function FitSummary({
+  score,
+  reason,
+}: {
+  score: number;
+  reason: string;
+}) {
+  const items = reason
+    .split("•")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 3);
+
+  return (
+    <div style={{ minWidth: "250px", maxWidth: "320px" }}>
+      <div
+        style={{
+          marginBottom: "8px",
+          fontSize: "12px",
+          color: score >= 80 ? "#8ff0b1" : score >= 60 ? "#f2d37d" : "#b3b3b3",
+          fontWeight: 700,
+          textTransform: "uppercase",
+          letterSpacing: "0.4px",
+        }}
+      >
+        {score >= 80 ? "High fit" : score >= 60 ? "Good fit" : "Basic fit"}
+      </div>
+
+      <div style={{ color: "#d8d8d8", lineHeight: "1.65", fontSize: "14px" }}>
+        {items.length > 0 ? (
+          items.map((item) => (
+            <div key={item} style={{ marginBottom: "5px" }}>
+              <span style={{ color: "#858585" }}>• </span>
+              {capitalizeWords(item)}
+            </div>
+          ))
+        ) : (
+          "-"
+        )}
+      </div>
+    </div>
+  );
+}
+
+function capitalizeWords(value: string) {
+  return value
+    .split(" ")
+    .map((part) =>
+      part.length ? part.charAt(0).toUpperCase() + part.slice(1) : part
+    )
+    .join(" ");
 }
 
 function LockedCell({
@@ -784,47 +730,44 @@ function LockedCell({
   );
 }
 
-function StatCard({
-  eyebrow,
+function ActionCard({
   title,
   value,
+  helper,
 }: {
-  eyebrow: string;
   title: string;
   value: number;
+  helper: string;
 }) {
   return (
     <div
       style={{
         background:
-          "linear-gradient(180deg, rgba(17,17,17,0.98) 0%, rgba(12,12,12,0.98) 100%)",
-        border: "1px solid #1f1f1f",
-        borderRadius: "18px",
+          "linear-gradient(180deg, rgba(18,18,18,0.95) 0%, rgba(10,10,10,0.98) 100%)",
+        border: "1px solid rgba(255,255,255,0.07)",
+        borderRadius: "20px",
         padding: "20px 22px",
-        minHeight: "112px",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
+        minHeight: "124px",
       }}
     >
       <div
         style={{
           fontSize: "12px",
           color: "#8f8f8f",
-          marginBottom: "8px",
+          marginBottom: "10px",
           textTransform: "uppercase",
           letterSpacing: "0.6px",
           fontWeight: 700,
         }}
       >
-        {eyebrow}
+        Lead desk
       </div>
 
       <div
         style={{
           fontSize: "15px",
-          color: "#d2d2d2",
-          marginBottom: "8px",
+          color: "#d7d7d7",
+          marginBottom: "10px",
         }}
       >
         {title}
@@ -835,9 +778,20 @@ function StatCard({
           fontSize: "34px",
           fontWeight: 700,
           letterSpacing: "-1px",
+          marginBottom: "8px",
         }}
       >
         {value}
+      </div>
+
+      <div
+        style={{
+          color: "#8a8a8a",
+          fontSize: "13px",
+          lineHeight: "1.65",
+        }}
+      >
+        {helper}
       </div>
     </div>
   );
@@ -846,12 +800,12 @@ function StatCard({
 const thStyle = {
   padding: "16px 18px",
   textAlign: "left" as const,
-  fontSize: "13px",
+  fontSize: "12px",
   whiteSpace: "nowrap" as const,
   color: "#c5c5c5",
   fontWeight: 700,
   textTransform: "uppercase" as const,
-  letterSpacing: "0.4px",
+  letterSpacing: "0.5px",
 };
 
 const tdStyle = {
@@ -870,19 +824,11 @@ const tdStyleScore = {
   color: "#f1f1f1",
 };
 
-const tdStyleTier = {
-  padding: "18px",
-  textAlign: "left" as const,
-  verticalAlign: "top" as const,
-  minWidth: "110px",
-  color: "#f1f1f1",
-};
-
 const tdStylePrice = {
   padding: "18px",
   textAlign: "left" as const,
   verticalAlign: "top" as const,
-  minWidth: "110px",
+  minWidth: "112px",
   color: "#f1f1f1",
 };
 
@@ -898,10 +844,9 @@ const tdStyleReason = {
   padding: "18px",
   textAlign: "left" as const,
   verticalAlign: "top" as const,
-  fontSize: "14px",
-  color: "#f1f1f1",
   minWidth: "260px",
-  maxWidth: "340px",
+  maxWidth: "330px",
+  color: "#f1f1f1",
 };
 
 const tdStyleMessage = {
@@ -909,8 +854,8 @@ const tdStyleMessage = {
   textAlign: "left" as const,
   verticalAlign: "top" as const,
   fontSize: "14px",
-  minWidth: "300px",
-  maxWidth: "400px",
+  minWidth: "320px",
+  maxWidth: "420px",
   lineHeight: "1.7",
   color: "#f1f1f1",
 };
@@ -920,7 +865,7 @@ const tdStyleBudget = {
   textAlign: "left" as const,
   verticalAlign: "top" as const,
   fontSize: "14px",
-  minWidth: "120px",
+  minWidth: "130px",
   lineHeight: "1.6",
   color: "#f1f1f1",
 };
@@ -930,7 +875,7 @@ const tdStyleDate = {
   textAlign: "left" as const,
   verticalAlign: "top" as const,
   fontSize: "14px",
-  minWidth: "170px",
+  minWidth: "175px",
   lineHeight: "1.6",
   color: "#f1f1f1",
 };

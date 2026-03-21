@@ -13,17 +13,17 @@ export default function SiteHeader() {
           position: "sticky",
           top: 0,
           zIndex: 1000,
-          backgroundColor: "rgba(4,4,4,0.94)",
-          backdropFilter: "blur(10px)",
-          WebkitBackdropFilter: "blur(10px)",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          backgroundColor: "rgba(4,4,4,0.9)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
         }}
       >
         <div
           style={{
             maxWidth: "1460px",
             margin: "0 auto",
-            padding: "18px 16px",
+            padding: "12px 16px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -35,33 +35,37 @@ export default function SiteHeader() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "14px",
+              gap: "12px",
               color: "white",
               textDecoration: "none",
               minWidth: 0,
+              flexShrink: 1,
             }}
           >
             <img
               src="/LogoKnuevo.jpeg"
               alt="The Kerman Organization"
               style={{
-                width: "42px",
-                height: "42px",
+                width: "38px",
+                height: "38px",
                 borderRadius: "999px",
                 objectFit: "cover",
-                border: "1px solid rgba(255,255,255,0.12)",
+                border: "1px solid rgba(255,255,255,0.1)",
                 flexShrink: 0,
               }}
             />
 
             <span
               style={{
-                fontSize: "clamp(18px, 3vw, 30px)",
+                fontSize: "clamp(14px, 1.5vw, 21px)",
                 fontWeight: 700,
-                letterSpacing: "-0.5px",
+                letterSpacing: "0.2px",
                 lineHeight: 1.05,
                 textTransform: "uppercase",
                 fontFamily: 'Georgia, "Times New Roman", serif',
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
               }}
             >
               The Kerman Organization
@@ -73,7 +77,8 @@ export default function SiteHeader() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "24px",
+              gap: "22px",
+              flexShrink: 0,
             }}
           >
             <Link href="/" style={navLinkStyle}>
@@ -103,10 +108,10 @@ export default function SiteHeader() {
             className="mobile-menu-button"
             style={{
               display: "none",
-              width: "52px",
-              height: "52px",
-              borderRadius: "14px",
-              border: "1px solid rgba(255,255,255,0.12)",
+              width: "48px",
+              height: "48px",
+              borderRadius: "13px",
+              border: "1px solid rgba(255,255,255,0.1)",
               backgroundColor: "rgba(255,255,255,0.04)",
               color: "white",
               cursor: "pointer",
@@ -251,7 +256,7 @@ export default function SiteHeader() {
 const navLinkStyle: React.CSSProperties = {
   color: "white",
   textDecoration: "none",
-  fontSize: "18px",
+  fontSize: "17px",
   fontWeight: 500,
   fontFamily: 'Georgia, "Times New Roman", serif',
 };
@@ -259,11 +264,11 @@ const navLinkStyle: React.CSSProperties = {
 const secondaryCtaStyle: React.CSSProperties = {
   color: "white",
   backgroundColor: "rgba(255,255,255,0.03)",
-  border: "1px solid rgba(255,255,255,0.10)",
+  border: "1px solid rgba(255,255,255,0.1)",
   textDecoration: "none",
-  fontSize: "17px",
+  fontSize: "16px",
   fontWeight: 700,
-  padding: "13px 20px",
+  padding: "11px 18px",
   borderRadius: "14px",
   fontFamily: 'Georgia, "Times New Roman", serif',
 };
@@ -272,9 +277,9 @@ const primaryCtaStyle: React.CSSProperties = {
   color: "black",
   backgroundColor: "white",
   textDecoration: "none",
-  fontSize: "17px",
+  fontSize: "16px",
   fontWeight: 700,
-  padding: "13px 24px",
+  padding: "11px 20px",
   borderRadius: "14px",
   fontFamily: 'Georgia, "Times New Roman", serif',
 };
@@ -293,7 +298,7 @@ const mobileLinkStyle: React.CSSProperties = {
 const mobileSecondaryButtonStyle: React.CSSProperties = {
   color: "white",
   backgroundColor: "rgba(255,255,255,0.04)",
-  border: "1px solid rgba(255,255,255,0.10)",
+  border: "1px solid rgba(255,255,255,0.1)",
   textDecoration: "none",
   fontSize: "20px",
   fontWeight: 700,
