@@ -208,8 +208,8 @@ export default function AgencyDashboardClient({
     return (
       <div
         style={{
-          padding: "32px 20px",
-          borderRadius: "22px",
+          padding: "42px",
+          borderRadius: "24px",
           background:
             "linear-gradient(180deg, rgba(16,16,16,0.96) 0%, rgba(10,10,10,0.99) 100%)",
           border: "1px solid rgba(255,255,255,0.08)",
@@ -218,7 +218,7 @@ export default function AgencyDashboardClient({
       >
         <div
           style={{
-            fontSize: "28px",
+            fontSize: "30px",
             fontWeight: 500,
             marginBottom: "12px",
             letterSpacing: "-0.7px",
@@ -232,7 +232,7 @@ export default function AgencyDashboardClient({
           style={{
             margin: 0,
             color: "#a9a9a9",
-            fontSize: "15px",
+            fontSize: "16px",
             lineHeight: "1.8",
             maxWidth: "760px",
             marginInline: "auto",
@@ -325,23 +325,80 @@ export default function AgencyDashboardClient({
         </div>
       )}
 
-      <div className="lead-desk-shell">
-        <div className="lead-desk-header">
+      <div
+        style={{
+          borderRadius: "28px",
+          overflow: "hidden",
+          border: "1px solid rgba(255,255,255,0.07)",
+          background:
+            "linear-gradient(180deg, rgba(14,14,14,0.96) 0%, rgba(8,8,8,0.995) 100%)",
+          boxShadow: "0 24px 70px rgba(0,0,0,0.34)",
+        }}
+      >
+        <div
+          style={{
+            padding: "22px 24px",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "16px",
+            flexWrap: "wrap",
+          }}
+        >
           <div>
-            <h2 className="lead-desk-title">Lead desk</h2>
-            <p className="lead-desk-copy">
+            <h2
+              style={{
+                margin: 0,
+                fontSize: "28px",
+                fontWeight: 500,
+                letterSpacing: "-0.7px",
+                fontFamily: 'Georgia, "Times New Roman", serif',
+              }}
+            >
+              Lead desk
+            </h2>
+            <p
+              style={{
+                margin: "8px 0 0 0",
+                color: "#9f9f9f",
+                fontSize: "14px",
+                lineHeight: "1.75",
+                maxWidth: "760px",
+              }}
+            >
               Review fit, unlock serious opportunities, and move purchased leads
               into your active pipeline.
             </p>
           </div>
 
-          <div className="lead-desk-chip">{leads.length} opportunities</div>
+          <div
+            style={{
+              padding: "10px 14px",
+              borderRadius: "999px",
+              border: "1px solid rgba(255,255,255,0.08)",
+              backgroundColor: "rgba(255,255,255,0.03)",
+              color: "#d7d7d7",
+              fontSize: "12px",
+              fontWeight: 700,
+              letterSpacing: "0.45px",
+              textTransform: "uppercase",
+            }}
+          >
+            {leads.length} opportunities
+          </div>
         </div>
 
-        <div className="lead-table-wrap">
-          <table className="lead-table">
+        <div style={{ overflowX: "auto" }}>
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              minWidth: "1960px",
+            }}
+          >
             <thead>
-              <tr>
+              <tr style={{ backgroundColor: "rgba(255,255,255,0.018)" }}>
                 <th style={thStyle}>Match</th>
                 <th style={thStyle}>Price</th>
                 <th style={thStyle}>Action</th>
@@ -368,7 +425,12 @@ export default function AgencyDashboardClient({
                 const isBuying = buyingLeadId === lead.id;
 
                 return (
-                  <tr key={lead.id} style={{ borderTop: "1px solid rgba(255,255,255,0.045)" }}>
+                  <tr
+                    key={lead.id}
+                    style={{
+                      borderTop: "1px solid rgba(255,255,255,0.045)",
+                    }}
+                  >
                     <td style={tdStyleScore}>
                       <MatchScoreBadge
                         score={lead.match_score ?? 0}
@@ -502,286 +564,9 @@ export default function AgencyDashboardClient({
             </tbody>
           </table>
         </div>
-
-        <div className="lead-cards-mobile">
-          {leads.map((lead) => {
-            const isBuying = buyingLeadId === lead.id;
-
-            return (
-              <div key={lead.id} className="lead-card">
-                <div className="lead-card-top">
-                  <MatchScoreBadge
-                    score={lead.match_score ?? 0}
-                    label={lead.match_label ?? null}
-                  />
-
-                  <div style={{ minWidth: "112px" }}>
-                    <PriceCell
-                      price={lead.lead_price ?? 0}
-                      purchased={Boolean(lead.is_purchased)}
-                    />
-                  </div>
-                </div>
-
-                <div style={{ marginTop: "16px" }}>
-                  {lead.is_purchased ? (
-                    <UnlockedBadge />
-                  ) : (
-                    <button
-                      onClick={() => unlockLead(lead.id)}
-                      disabled={isBuying || !isApproved}
-                      style={{
-                        width: "100%",
-                        border: "1px solid #3d6b52",
-                        background: isApproved
-                          ? "linear-gradient(180deg, #193728 0%, #102219 100%)"
-                          : "#1b1b1b",
-                        color: isApproved ? "#e5f7ec" : "#7c7c7c",
-                        padding: "13px 14px",
-                        borderRadius: "12px",
-                        fontSize: "14px",
-                        fontWeight: 700,
-                        cursor:
-                          isBuying || !isApproved ? "not-allowed" : "pointer",
-                        lineHeight: "1.35",
-                        boxShadow: isApproved
-                          ? "0 10px 28px rgba(11, 46, 27, 0.22)"
-                          : "none",
-                      }}
-                    >
-                      {isBuying
-                        ? "Redirecting..."
-                        : `Unlock lead for €${lead.lead_price ?? 0}`}
-                    </button>
-                  )}
-                </div>
-
-                <div className="lead-card-grid">
-                  <MobileRow
-                    label="Access"
-                    value={
-                      <AccessCell
-                        purchased={Boolean(lead.is_purchased)}
-                        approved={isApproved}
-                      />
-                    }
-                  />
-
-                  <MobileRow
-                    label="Why it fits"
-                    value={
-                      <FitSummary
-                        score={lead.match_score ?? 0}
-                        reason={lead.match_reason ?? ""}
-                      />
-                    }
-                  />
-
-                  <MobileRow
-                    label="Name"
-                    value={
-                      <LockedCell locked={Boolean(lead.contact_locked)}>
-                        {lead.name ?? "-"}
-                      </LockedCell>
-                    }
-                  />
-
-                  <MobileRow
-                    label="Email"
-                    value={
-                      <LockedCell locked={Boolean(lead.contact_locked)}>
-                        {lead.email ?? "-"}
-                      </LockedCell>
-                    }
-                  />
-
-                  <MobileRow
-                    label="Phone"
-                    value={
-                      <LockedCell locked={Boolean(lead.contact_locked)}>
-                        {lead.phone ?? "-"}
-                      </LockedCell>
-                    }
-                  />
-
-                  <MobileRow label="City" value={formatValue(lead.city)} />
-                  <MobileRow label="Area" value={lead.preferred_area ?? "-"} />
-                  <MobileRow
-                    label="Property"
-                    value={formatValue(lead.property_type)}
-                  />
-                  <MobileRow label="Budget" value={lead.budget ?? "-"} />
-                  <MobileRow
-                    label="Client"
-                    value={formatValue(lead.user_type)}
-                  />
-                  <MobileRow
-                    label="Timeframe"
-                    value={formatValue(lead.timeframe)}
-                  />
-
-                  <MobileRow
-                    label="Pipeline"
-                    value={
-                      lead.is_purchased ? (
-                        <StatusButton
-                          status={(lead.status as LeadStatus) ?? "new"}
-                          onChange={() => updateLeadStatus(lead.id, lead.status)}
-                        />
-                      ) : (
-                        <span
-                          style={{
-                            display: "inline-block",
-                            padding: "8px 10px",
-                            borderRadius: "10px",
-                            border: "1px solid #343434",
-                            backgroundColor: "#191919",
-                            color: "#8f8f8f",
-                            fontSize: "12px",
-                            fontWeight: 700,
-                          }}
-                        >
-                          Unlock first
-                        </span>
-                      )
-                    }
-                  />
-
-                  <MobileRow
-                    label="Message"
-                    value={
-                      <LockedCell locked={Boolean(lead.contact_locked)}>
-                        {lead.message ?? "-"}
-                      </LockedCell>
-                    }
-                  />
-
-                  <MobileRow
-                    label="Unlocked at"
-                    value={
-                      lead.purchased_at
-                        ? new Date(lead.purchased_at).toLocaleString()
-                        : "-"
-                    }
-                  />
-
-                  <MobileRow
-                    label="Created"
-                    value={
-                      lead.created_at
-                        ? new Date(lead.created_at).toLocaleString()
-                        : "-"
-                    }
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
       </div>
 
       <style jsx>{`
-        .lead-desk-shell {
-          border-radius: 24px;
-          overflow: hidden;
-          border: 1px solid rgba(255, 255, 255, 0.07);
-          background: linear-gradient(
-            180deg,
-            rgba(14, 14, 14, 0.96) 0%,
-            rgba(8, 8, 8, 0.995) 100%
-          );
-          box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
-        }
-
-        .lead-desk-header {
-          padding: 22px 24px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 16px;
-          flex-wrap: wrap;
-        }
-
-        .lead-desk-title {
-          margin: 0;
-          font-size: 28px;
-          font-weight: 500;
-          letter-spacing: -0.7px;
-          font-family: Georgia, "Times New Roman", serif;
-        }
-
-        .lead-desk-copy {
-          margin: 8px 0 0 0;
-          color: #9f9f9f;
-          font-size: 14px;
-          line-height: 1.75;
-          max-width: 760px;
-        }
-
-        .lead-desk-chip {
-          padding: 10px 14px;
-          border-radius: 999px;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          background-color: rgba(255, 255, 255, 0.03);
-          color: #d7d7d7;
-          font-size: 12px;
-          font-weight: 700;
-          letter-spacing: 0.45px;
-          text-transform: uppercase;
-        }
-
-        .lead-table-wrap {
-          display: block;
-          overflow-x: auto;
-        }
-
-        .lead-table {
-          width: 100%;
-          border-collapse: collapse;
-          min-width: 1960px;
-        }
-
-        .lead-cards-mobile {
-          display: none;
-        }
-
-        .lead-card {
-          border-top: 1px solid rgba(255, 255, 255, 0.06);
-          padding: 18px 16px;
-        }
-
-        .lead-card-top {
-          display: flex;
-          align-items: flex-start;
-          justify-content: space-between;
-          gap: 12px;
-        }
-
-        .lead-card-grid {
-          display: grid;
-          gap: 14px;
-          margin-top: 18px;
-        }
-
-        @media (max-width: 860px) {
-          .lead-desk-header {
-            padding: 18px 16px;
-          }
-
-          .lead-desk-title {
-            font-size: 24px;
-          }
-
-          .lead-table-wrap {
-            display: none;
-          }
-
-          .lead-cards-mobile {
-            display: block;
-          }
-        }
-
         @keyframes checkoutProgress {
           from {
             transform: translateX(-100%);
@@ -792,47 +577,6 @@ export default function AgencyDashboardClient({
         }
       `}</style>
     </>
-  );
-}
-
-function MobileRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: React.ReactNode;
-}) {
-  return (
-    <div
-      style={{
-        paddingTop: "12px",
-        borderTop: "1px solid rgba(255,255,255,0.06)",
-      }}
-    >
-      <div
-        style={{
-          fontSize: "11px",
-          color: "#8f8f8f",
-          textTransform: "uppercase",
-          letterSpacing: "0.55px",
-          fontWeight: 700,
-          marginBottom: "8px",
-        }}
-      >
-        {label}
-      </div>
-
-      <div
-        style={{
-          fontSize: "14px",
-          color: "#f1f1f1",
-          lineHeight: "1.65",
-          minHeight: "20px",
-        }}
-      >
-        {value}
-      </div>
-    </div>
   );
 }
 
@@ -1080,7 +824,7 @@ function FitSummary({
     .slice(0, 3);
 
   return (
-    <div style={{ minWidth: "0", maxWidth: "330px" }}>
+    <div style={{ minWidth: "250px", maxWidth: "330px" }}>
       <div
         style={{
           marginBottom: "8px",
@@ -1139,7 +883,6 @@ function LockedCell({
           userSelect: locked ? "none" : "text",
           pointerEvents: locked ? "none" : "auto",
           opacity: locked ? 0.82 : 1,
-          wordBreak: "break-word",
         }}
       >
         {children}

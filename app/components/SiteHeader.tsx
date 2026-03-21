@@ -1,24 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const originalOverflow = document.body.style.overflow;
-
-    if (menuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = originalOverflow || "";
-    }
-
-    return () => {
-      document.body.style.overflow = originalOverflow || "";
-    };
-  }, [menuOpen]);
 
   return (
     <>
@@ -27,23 +13,33 @@ export default function SiteHeader() {
           position: "sticky",
           top: 0,
           zIndex: 1000,
-          backgroundColor: "rgba(4,4,4,0.92)",
+          backgroundColor: "rgba(4,4,4,0.9)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
           borderBottom: "1px solid rgba(255,255,255,0.06)",
         }}
       >
-        <div className="site-header-shell">
+        <div
+          style={{
+            maxWidth: "1460px",
+            margin: "0 auto",
+            padding: "12px 16px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "18px",
+          }}
+        >
           <Link
             href="/"
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "11px",
+              gap: "12px",
               color: "white",
               textDecoration: "none",
               minWidth: 0,
-              flex: 1,
+              flexShrink: 1,
             }}
           >
             <img
@@ -59,12 +55,32 @@ export default function SiteHeader() {
               }}
             />
 
-            <span className="site-header-brand">
+            <span
+              style={{
+                fontSize: "clamp(14px, 1.5vw, 21px)",
+                fontWeight: 700,
+                letterSpacing: "0.2px",
+                lineHeight: 1.05,
+                textTransform: "uppercase",
+                fontFamily: 'Georgia, "Times New Roman", serif',
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
               The Kerman Organization
             </span>
           </Link>
 
-          <nav className="desktop-nav" style={{ alignItems: "center", gap: "20px" }}>
+          <nav
+            className="desktop-nav"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "22px",
+              flexShrink: 0,
+            }}
+          >
             <Link href="/" style={navLinkStyle}>
               Home
             </Link>
@@ -92,8 +108,8 @@ export default function SiteHeader() {
             className="mobile-menu-button"
             style={{
               display: "none",
-              width: "46px",
-              height: "46px",
+              width: "48px",
+              height: "48px",
               borderRadius: "13px",
               border: "1px solid rgba(255,255,255,0.1)",
               backgroundColor: "rgba(255,255,255,0.04)",
@@ -126,39 +142,39 @@ export default function SiteHeader() {
             style={{
               position: "fixed",
               inset: 0,
-              backgroundColor: "rgba(0,0,0,0.58)",
+              backgroundColor: "rgba(0,0,0,0.55)",
               zIndex: 1001,
             }}
           />
 
-          <div className="mobile-drawer">
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              right: 0,
+              width: "min(84vw, 370px)",
+              height: "100vh",
+              backgroundColor: "#0b0b0b",
+              borderLeft: "1px solid rgba(255,255,255,0.08)",
+              zIndex: 1002,
+              padding: "24px 18px",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             <div
               style={{
                 display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: "12px",
+                justifyContent: "flex-end",
                 marginBottom: "24px",
               }}
             >
-              <div
-                style={{
-                  color: "#f2f2f2",
-                  fontSize: "14px",
-                  letterSpacing: "0.5px",
-                  textTransform: "uppercase",
-                  fontWeight: 700,
-                }}
-              >
-                Menu
-              </div>
-
               <button
                 aria-label="Close menu"
                 onClick={() => setMenuOpen(false)}
                 style={{
-                  width: "46px",
-                  height: "46px",
+                  width: "48px",
+                  height: "48px",
                   borderRadius: "12px",
                   border: "1px solid rgba(255,255,255,0.12)",
                   backgroundColor: "rgba(255,255,255,0.04)",
@@ -175,7 +191,7 @@ export default function SiteHeader() {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "12px",
+                gap: "14px",
               }}
             >
               <Link
@@ -223,47 +239,6 @@ export default function SiteHeader() {
       )}
 
       <style jsx global>{`
-        .site-header-shell {
-          max-width: 1460px;
-          margin: 0 auto;
-          padding: 12px 16px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-        }
-
-        .site-header-brand {
-          font-size: clamp(13px, 1.45vw, 21px);
-          font-weight: 700;
-          letter-spacing: 0.2px;
-          line-height: 1.05;
-          text-transform: uppercase;
-          font-family: Georgia, "Times New Roman", serif;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .mobile-drawer {
-          position: fixed;
-          top: 0;
-          right: 0;
-          width: min(88vw, 380px);
-          height: 100vh;
-          background: linear-gradient(
-            180deg,
-            rgba(13, 13, 13, 0.98) 0%,
-            rgba(7, 7, 7, 0.995) 100%
-          );
-          border-left: 1px solid rgba(255, 255, 255, 0.08);
-          z-index: 1002;
-          padding: 22px 16px 24px;
-          display: flex;
-          flex-direction: column;
-          box-shadow: -18px 0 50px rgba(0, 0, 0, 0.35);
-        }
-
         @media (max-width: 1080px) {
           .desktop-nav {
             display: none !important;
@@ -271,25 +246,6 @@ export default function SiteHeader() {
 
           .mobile-menu-button {
             display: flex !important;
-          }
-        }
-
-        @media (max-width: 640px) {
-          .site-header-shell {
-            padding: 10px 12px;
-            gap: 10px;
-          }
-
-          .site-header-brand {
-            font-size: 12px;
-            letter-spacing: 0.15px;
-            max-width: 170px;
-          }
-        }
-
-        @media (max-width: 420px) {
-          .site-header-brand {
-            max-width: 145px;
           }
         }
       `}</style>
@@ -331,9 +287,9 @@ const primaryCtaStyle: React.CSSProperties = {
 const mobileLinkStyle: React.CSSProperties = {
   color: "white",
   textDecoration: "none",
-  fontSize: "20px",
-  padding: "14px 14px",
-  borderRadius: "14px",
+  fontSize: "22px",
+  padding: "14px 12px",
+  borderRadius: "12px",
   backgroundColor: "rgba(255,255,255,0.03)",
   border: "1px solid rgba(255,255,255,0.06)",
   fontFamily: 'Georgia, "Times New Roman", serif',
@@ -344,11 +300,11 @@ const mobileSecondaryButtonStyle: React.CSSProperties = {
   backgroundColor: "rgba(255,255,255,0.04)",
   border: "1px solid rgba(255,255,255,0.1)",
   textDecoration: "none",
-  fontSize: "18px",
+  fontSize: "20px",
   fontWeight: 700,
-  padding: "15px 16px",
+  padding: "16px 18px",
   borderRadius: "14px",
-  marginTop: "6px",
+  marginTop: "8px",
   fontFamily: 'Georgia, "Times New Roman", serif',
 };
 
@@ -356,15 +312,15 @@ const mobilePrimaryButtonStyle: React.CSSProperties = {
   color: "black",
   backgroundColor: "white",
   textDecoration: "none",
-  fontSize: "18px",
+  fontSize: "20px",
   fontWeight: 700,
-  padding: "15px 16px",
+  padding: "16px 18px",
   borderRadius: "14px",
   fontFamily: 'Georgia, "Times New Roman", serif',
 };
 
 const burgerLine: React.CSSProperties = {
-  width: "20px",
+  width: "22px",
   height: "2px",
   backgroundColor: "white",
   borderRadius: "999px",

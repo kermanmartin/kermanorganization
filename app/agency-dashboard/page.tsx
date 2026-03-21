@@ -73,12 +73,8 @@ function buildPricingContext(
   const now = Date.now();
   const seventyTwoHoursMs = 72 * 60 * 60 * 1000;
 
-  const leadSpecificEvents = leadEvents.filter(
-    (event) => event.lead_id === leadId
-  );
-  const leadSpecificPurchases = purchases.filter(
-    (purchase) => purchase.lead_id === leadId
-  );
+  const leadSpecificEvents = leadEvents.filter((event) => event.lead_id === leadId);
+  const leadSpecificPurchases = purchases.filter((purchase) => purchase.lead_id === leadId);
 
   const checkoutStartedCount = leadSpecificEvents.filter(
     (event) => event.event_type === "checkout_started"
@@ -236,7 +232,7 @@ export default async function AgencyDashboardPage() {
         `,
         color: "white",
         fontFamily: 'Inter, Arial, sans-serif',
-        padding: "18px 14px 48px",
+        padding: "24px 18px 56px",
       }}
     >
       <section style={{ maxWidth: "1420px", margin: "0 auto" }}>
@@ -320,8 +316,8 @@ export default async function AgencyDashboardPage() {
                   lineHeight: "1.85",
                 }}
               >
-                A private workspace for reviewing high-fit demand aligned with
-                your territory, commercial profile and market focus.
+                A private workspace for reviewing high-fit demand aligned with your
+                territory, commercial profile and market focus.
               </p>
             </div>
 

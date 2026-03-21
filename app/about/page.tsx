@@ -7,7 +7,7 @@ export default function AboutPage() {
           "radial-gradient(circle at top, rgba(24,24,24,0.9) 0%, #0a0a0a 42%, #050505 100%)",
         color: "white",
         fontFamily: "Arial, sans-serif",
-        padding: "40px 14px 72px",
+        padding: "56px 16px 84px",
       }}
     >
       <section
@@ -19,7 +19,7 @@ export default function AboutPage() {
         <div
           style={{
             maxWidth: "860px",
-            marginBottom: "34px",
+            marginBottom: "42px",
           }}
         >
           <div
@@ -42,10 +42,10 @@ export default function AboutPage() {
 
           <h1
             style={{
-              fontSize: "clamp(34px, 6vw, 72px)",
-              lineHeight: "1.02",
+              fontSize: "clamp(36px, 6vw, 72px)",
+              lineHeight: "0.98",
               fontWeight: 400,
-              letterSpacing: "-1.2px",
+              letterSpacing: "-1.4px",
               margin: "0 0 18px 0",
             }}
           >
@@ -57,7 +57,7 @@ export default function AboutPage() {
               margin: 0,
               color: "#cfcfcf",
               fontSize: "clamp(16px, 2vw, 19px)",
-              lineHeight: "1.85",
+              lineHeight: "1.9",
               maxWidth: "820px",
             }}
           >
@@ -70,9 +70,9 @@ export default function AboutPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-            gap: "18px",
-            marginBottom: "22px",
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+            gap: "22px",
+            marginBottom: "26px",
           }}
         >
           <SectionCard
@@ -92,8 +92,8 @@ export default function AboutPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-            gap: "18px",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: "22px",
           }}
         >
           <div style={largeCard}>
@@ -101,7 +101,7 @@ export default function AboutPage() {
 
             <div style={flowBlock}>
               <div style={flowStep}>01</div>
-              <div style={{ minWidth: 0 }}>
+              <div>
                 <div style={flowTitle}>A user starts a request</div>
                 <div style={flowText}>
                   Buyers, sellers, tenants, landlords and investors submit a
@@ -112,7 +112,7 @@ export default function AboutPage() {
 
             <div style={flowBlock}>
               <div style={flowStep}>02</div>
-              <div style={{ minWidth: 0 }}>
+              <div>
                 <div style={flowTitle}>The request is normalized</div>
                 <div style={flowText}>
                   The platform organizes the submission into a usable lead
@@ -123,7 +123,7 @@ export default function AboutPage() {
 
             <div style={flowBlock}>
               <div style={flowStep}>03</div>
-              <div style={{ minWidth: 0 }}>
+              <div>
                 <div style={flowTitle}>Relevant agencies receive visibility</div>
                 <div style={flowText}>
                   Agencies only access leads that match their market profile,
@@ -164,14 +164,13 @@ function SectionCard({
           "linear-gradient(180deg, rgba(15,15,15,1) 0%, rgba(10,10,10,1) 100%)",
         border: "1px solid #1d1d1d",
         borderRadius: "20px",
-        padding: "24px",
-        minWidth: 0,
+        padding: "28px",
       }}
     >
       <h3
         style={{
           margin: "0 0 12px 0",
-          fontSize: "clamp(22px, 3vw, 28px)",
+          fontSize: "clamp(24px, 3vw, 28px)",
           lineHeight: "1.12",
           fontWeight: 400,
           letterSpacing: "-0.5px",
@@ -185,8 +184,8 @@ function SectionCard({
         style={{
           margin: 0,
           color: "#cfcfcf",
-          lineHeight: "1.8",
-          fontSize: "15px",
+          lineHeight: "1.85",
+          fontSize: "16px",
         }}
       >
         {text}
@@ -218,7 +217,7 @@ function ReasonItem({ text }: { text: string }) {
       <div
         style={{
           color: "#d0d0d0",
-          fontSize: "16px",
+          fontSize: "17px",
           lineHeight: "1.8",
         }}
       >
@@ -233,7 +232,7 @@ const largeCard: React.CSSProperties = {
     "linear-gradient(180deg, rgba(15,15,15,1) 0%, rgba(10,10,10,1) 100%)",
   border: "1px solid #1d1d1d",
   borderRadius: "22px",
-  padding: "24px",
+  padding: "30px",
   minWidth: 0,
 };
 
@@ -242,13 +241,13 @@ const sideCard: React.CSSProperties = {
     "linear-gradient(180deg, rgba(15,15,15,1) 0%, rgba(10,10,10,1) 100%)",
   border: "1px solid #1d1d1d",
   borderRadius: "22px",
-  padding: "24px",
+  padding: "30px",
   minWidth: 0,
 };
 
 const sectionTitle: React.CSSProperties = {
   margin: "0 0 18px 0",
-  fontSize: "clamp(26px, 4vw, 32px)",
+  fontSize: "clamp(28px, 4vw, 32px)",
   fontWeight: 400,
   letterSpacing: "-0.8px",
   lineHeight: "1.1",
@@ -278,7 +277,7 @@ const flowStep: React.CSSProperties = {
 };
 
 const flowTitle: React.CSSProperties = {
-  fontSize: "clamp(20px, 3vw, 24px)",
+  fontSize: "clamp(22px, 3vw, 24px)",
   fontWeight: 500,
   marginBottom: "8px",
   color: "white",
@@ -286,8 +285,8 @@ const flowTitle: React.CSSProperties = {
 };
 
 const flowText: React.CSSProperties = {
-  fontSize: "15px",
-  lineHeight: "1.8",
+  fontSize: "16px",
+  lineHeight: "1.85",
   color: "#cfcfcf",
 };
 

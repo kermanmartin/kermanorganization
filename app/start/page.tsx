@@ -285,13 +285,11 @@ export default function StartPage() {
 
     setStatusMessage("");
     setStep((prev) => Math.min(prev + 1, 5));
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const goBack = () => {
     setStatusMessage("");
     setStep((prev) => Math.max(prev - 1, 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -367,7 +365,6 @@ export default function StartPage() {
       setStep(1);
       resetTurnstile();
       setLoading(false);
-      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
       setStatusMessage("Something went wrong. Please try again.");
       resetTurnstile();
@@ -385,7 +382,7 @@ export default function StartPage() {
           "radial-gradient(circle at top, rgba(24,24,24,0.9) 0%, #0a0a0a 42%, #050505 100%)",
         color: "white",
         fontFamily: "Arial, sans-serif",
-        padding: "40px 14px 60px",
+        padding: "54px 16px 70px",
       }}
     >
       <section
@@ -397,7 +394,7 @@ export default function StartPage() {
         <div
           style={{
             maxWidth: "760px",
-            margin: "0 auto 24px",
+            margin: "0 auto 26px",
             textAlign: "center",
           }}
         >
@@ -421,7 +418,7 @@ export default function StartPage() {
 
           <h1
             style={{
-              fontSize: "clamp(34px, 7vw, 64px)",
+              fontSize: "clamp(40px, 6vw, 64px)",
               lineHeight: "0.98",
               fontWeight: 400,
               letterSpacing: "-1.5px",
@@ -435,7 +432,7 @@ export default function StartPage() {
             style={{
               margin: 0,
               color: "#cfcfcf",
-              fontSize: "clamp(15px, 2.3vw, 18px)",
+              fontSize: "18px",
               lineHeight: "1.8",
             }}
           >
@@ -444,7 +441,16 @@ export default function StartPage() {
           </p>
         </div>
 
-        <div className="start-panel">
+        <div
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(17,17,17,0.98) 0%, rgba(10,10,10,0.98) 100%)",
+            border: "1px solid #1f1f1f",
+            borderRadius: "24px",
+            padding: "clamp(22px, 4vw, 34px)",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.28)",
+          }}
+        >
           <div style={{ marginBottom: "28px" }}>
             <div
               style={{
@@ -487,7 +493,7 @@ export default function StartPage() {
                 backgroundColor: "#181818",
                 border: "1px solid #242424",
                 overflow: "hidden",
-                marginBottom: "18px",
+                marginBottom: "22px",
               }}
             >
               <div
@@ -502,7 +508,13 @@ export default function StartPage() {
               />
             </div>
 
-            <div className="start-step-grid">
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+                gap: "10px",
+              }}
+            >
               {STEP_CONFIG.map((item) => {
                 const isCurrent = step === item.number;
                 const isCompleted = step > item.number;
@@ -604,7 +616,13 @@ export default function StartPage() {
                   description="Select the path that best describes your request."
                 />
 
-                <div className="choice-grid-5">
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+                    gap: "10px",
+                  }}
+                >
                   <ChoiceButton
                     label="Sell"
                     active={form.userType === "seller"}
@@ -662,7 +680,13 @@ export default function StartPage() {
                   description="We need your contact details and target location."
                 />
 
-                <div className="two-col-grid">
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "10px",
+                  }}
+                >
                   <input
                     type="text"
                     placeholder="Your name"
@@ -682,7 +706,13 @@ export default function StartPage() {
                   />
                 </div>
 
-                <div className="phone-grid">
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "120px 1fr",
+                    gap: "10px",
+                  }}
+                >
                   <input
                     type="text"
                     placeholder="+34"
@@ -714,7 +744,13 @@ export default function StartPage() {
                   <option value="arabic">Arabic</option>
                 </select>
 
-                <div className="two-col-grid">
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "10px",
+                  }}
+                >
                   <select
                     value={form.country}
                     onChange={(e) => {
@@ -785,7 +821,13 @@ export default function StartPage() {
                   style={inputStyle}
                 />
 
-                <div className="two-col-grid">
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "10px",
+                  }}
+                >
                   <select
                     value={form.propertyType}
                     onChange={(e) => updateField("propertyType", e.target.value)}
@@ -832,7 +874,13 @@ export default function StartPage() {
                   {budgetLabel}
                 </div>
 
-                <div className="budget-grid">
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr 130px",
+                    gap: "10px",
+                  }}
+                >
                   <input
                     type="text"
                     placeholder="Min"
@@ -994,29 +1042,35 @@ export default function StartPage() {
                     minHeight: "70px",
                   }}
                 >
-                  <div className="turnstile-wrap">
-                    <Turnstile
-                      key={turnstileKey}
-                      siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
-                      options={{
-                        theme: "dark",
-                        size: "normal",
-                      }}
-                      onSuccess={(token: string) => setTurnstileToken(token)}
-                      onExpire={() => setTurnstileToken("")}
-                      onError={() => {
-                        setTurnstileToken("");
-                        setStatusMessage(
-                          "Security verification could not be loaded. Please refresh the page."
-                        );
-                      }}
-                    />
-                  </div>
+                  <Turnstile
+                    key={turnstileKey}
+                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                    options={{
+                      theme: "dark",
+                      size: "normal",
+                    }}
+                    onSuccess={(token: string) => setTurnstileToken(token)}
+                    onExpire={() => setTurnstileToken("")}
+                    onError={() => {
+                      setTurnstileToken("");
+                      setStatusMessage(
+                        "Security verification could not be loaded. Please refresh the page."
+                      );
+                    }}
+                  />
                 </div>
               </>
             )}
 
-            <div className="start-actions">
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: "12px",
+                marginTop: "8px",
+                flexWrap: "wrap",
+              }}
+            >
               <button
                 type="button"
                 onClick={goBack}
@@ -1077,94 +1131,6 @@ export default function StartPage() {
           )}
         </div>
       </section>
-
-      <style jsx>{`
-        .start-panel {
-          background: linear-gradient(
-            180deg,
-            rgba(17, 17, 17, 0.98) 0%,
-            rgba(10, 10, 10, 0.98) 100%
-          );
-          border: 1px solid #1f1f1f;
-          border-radius: 24px;
-          padding: clamp(18px, 4vw, 34px);
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
-        }
-
-        .start-step-grid {
-          display: grid;
-          grid-template-columns: repeat(5, minmax(0, 1fr));
-          gap: 10px;
-        }
-
-        .choice-grid-5 {
-          display: grid;
-          grid-template-columns: repeat(5, minmax(0, 1fr));
-          gap: 10px;
-        }
-
-        .two-col-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 10px;
-        }
-
-        .phone-grid {
-          display: grid;
-          grid-template-columns: 120px 1fr;
-          gap: 10px;
-        }
-
-        .budget-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr 130px;
-          gap: 10px;
-        }
-
-        .start-actions {
-          display: flex;
-          justify-content: space-between;
-          gap: 12px;
-          margin-top: 8px;
-          flex-wrap: wrap;
-        }
-
-        .turnstile-wrap {
-          max-width: 100%;
-          overflow-x: auto;
-        }
-
-        @media (max-width: 900px) {
-          .start-step-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-
-          .choice-grid-5 {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-        }
-
-        @media (max-width: 640px) {
-          .start-step-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .choice-grid-5,
-          .two-col-grid,
-          .phone-grid,
-          .budget-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .start-actions {
-            flex-direction: column-reverse;
-          }
-
-          .start-actions button {
-            width: 100%;
-          }
-        }
-      `}</style>
     </main>
   );
 }
@@ -1181,7 +1147,7 @@ function SectionTitle({
       <h2
         style={{
           margin: "0 0 8px 0",
-          fontSize: "clamp(24px, 4vw, 28px)",
+          fontSize: "28px",
           fontWeight: 400,
           letterSpacing: "-0.7px",
         }}
@@ -1233,7 +1199,7 @@ function ChoiceButton({
   );
 }
 
-const inputStyle: React.CSSProperties = {
+const inputStyle = {
   padding: "14px",
   borderRadius: "10px",
   border: "1px solid #333",
@@ -1243,7 +1209,7 @@ const inputStyle: React.CSSProperties = {
   width: "100%",
 };
 
-const primaryButtonStyle: React.CSSProperties = {
+const primaryButtonStyle = {
   padding: "16px 22px",
   borderRadius: "12px",
   border: "none",
@@ -1254,7 +1220,7 @@ const primaryButtonStyle: React.CSSProperties = {
   minWidth: "160px",
 };
 
-const secondaryButtonStyle: React.CSSProperties = {
+const secondaryButtonStyle = {
   padding: "16px 22px",
   borderRadius: "12px",
   border: "1px solid rgba(255,255,255,0.12)",
