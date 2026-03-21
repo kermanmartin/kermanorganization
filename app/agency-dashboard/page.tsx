@@ -5,6 +5,7 @@ import AgencyDashboardClient from "./AgencyDashboardClient";
 import {
   AgencyApplication,
   Lead,
+  LeadPricingContext,
   scoreLeadAgainstAgency,
   ScoredLead,
 } from "@/lib/leadMatching";
@@ -15,6 +16,20 @@ export const revalidate = 0;
 type LeadWithCommercialState = ScoredLead & {
   contact_locked: boolean;
   is_purchased: boolean;
+  purchased_at: string | null;
+};
+
+type LeadEventRow = {
+  lead_id: string;
+  agency_id: string | null;
+  event_type: string;
+  created_at: string | null;
+};
+
+type PurchaseRow = {
+  lead_id: string;
+  agency_id: string;
+  price_eur: number | null;
   purchased_at: string | null;
 };
 
@@ -50,6 +65,43 @@ function formatArray(values: string[] | null | undefined) {
     .join(" · ");
 }
 
+function buildPricingContext(
+  leadId: string,
+  leadEvents: LeadEventRow[],
+  purchases: PurchaseRow[]
+): LeadPricingContext {
+  const now = Date.now();
+  const seventyTwoHoursMs = 72 * 60 * 60 * 1000;
+
+  const leadSpecificEvents = leadEvents.filter((event) => event.lead_id === leadId);
+  const leadSpecificPurchases = purchases.filter((purchase) => purchase.lead_id === leadId);
+
+  const checkoutStartedCount = leadSpecificEvents.filter(
+    (event) => event.event_type === "checkout_started"
+  ).length;
+
+  const purchaseCount = leadSpecificPurchases.length;
+
+  const recentInterestCount = leadSpecificEvents.filter((event) => {
+    if (!event.created_at) return false;
+    const createdAt = new Date(event.created_at).getTime();
+    if (!Number.isFinite(createdAt)) return false;
+    if (now - createdAt > seventyTwoHoursMs) return false;
+
+    return (
+      event.event_type === "click_unlock" ||
+      event.event_type === "checkout_started" ||
+      event.event_type === "purchase"
+    );
+  }).length;
+
+  return {
+    checkoutStartedCount,
+    purchaseCount,
+    recentInterestCount,
+  };
+}
+
 export default async function AgencyDashboardPage() {
   const supabase = await createClient();
 
@@ -81,17 +133,26 @@ export default async function AgencyDashboardPage() {
     .select("*")
     .order("created_at", { ascending: false });
 
-  const { data: purchases } = await supabase
+  const { data: purchasesData } = await supabase
     .from("lead_purchases")
-    .select("lead_id, price_eur, purchased_at")
-    .eq("agency_id", application.id);
+    .select("lead_id, agency_id, price_eur, purchased_at");
+
+  const { data: leadEventsData } = await supabase
+    .from("lead_events")
+    .select("lead_id, agency_id, event_type, created_at")
+    .in("event_type", ["click_unlock", "checkout_started", "purchase"]);
+
+  const purchases = (purchasesData ?? []) as PurchaseRow[];
+  const leadEvents = (leadEventsData ?? []) as LeadEventRow[];
 
   const purchaseMap = new Map<
     string,
     { price_eur: number | null; purchased_at: string | null }
   >();
 
-  for (const purchase of purchases ?? []) {
+  for (const purchase of purchases.filter(
+    (item) => item.agency_id === application.id
+  )) {
     purchaseMap.set(String(purchase.lead_id), {
       price_eur:
         typeof purchase.price_eur === "number" ? purchase.price_eur : null,
@@ -103,7 +164,13 @@ export default async function AgencyDashboardPage() {
   const typedLeads: Lead[] = (leads ?? []) as Lead[];
 
   const scoredLeads = typedLeads
-    .map((lead) => scoreLeadAgainstAgency(lead, application))
+    .map((lead) =>
+      scoreLeadAgainstAgency(
+        lead,
+        application,
+        buildPricingContext(lead.id, leadEvents, purchases)
+      )
+    )
     .filter((lead): lead is ScoredLead => Boolean(lead))
     .sort((a, b) => {
       if (b.match_score !== a.match_score) {
@@ -142,7 +209,9 @@ export default async function AgencyDashboardPage() {
 
   const matchedCount = safeLeads.length;
   const unlockedCount = safeLeads.filter((lead) => lead.is_purchased).length;
-  const strongCount = safeLeads.filter((lead) => (lead.match_score ?? 0) >= 80).length;
+  const strongCount = safeLeads.filter(
+    (lead) => (lead.match_score ?? 0) >= 80
+  ).length;
 
   const averageMatchScore =
     safeLeads.length > 0
@@ -382,8 +451,9 @@ export default async function AgencyDashboardPage() {
           {isApproved ? (
             <>
               <strong style={{ color: "white" }}>Live access enabled:</strong>{" "}
-              you can unlock matched leads individually. The dashboard prioritizes
-              operational clarity, fit quality and commercial relevance.
+              you can unlock matched leads individually. Initial launch pricing is
+              intentionally conservative to maximize agency adoption and repeat
+              purchases.
             </>
           ) : (
             <>

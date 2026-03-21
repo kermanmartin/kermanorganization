@@ -112,7 +112,40 @@ export async function POST(req: Request) {
     }
 
     const lead = leadData as Lead;
-    const scoredLead = scoreLeadAgainstAgency(lead, application);
+
+    const { data: purchasesData } = await adminSupabase
+      .from("lead_purchases")
+      .select("lead_id, agency_id, purchased_at");
+
+    const { data: leadEventsData } = await adminSupabase
+      .from("lead_events")
+      .select("lead_id, agency_id, event_type, created_at")
+      .in("event_type", ["click_unlock", "checkout_started", "purchase"]);
+
+    const pricingContext = {
+      checkoutStartedCount: (leadEventsData ?? []).filter(
+        (event) =>
+          event.lead_id === leadId && event.event_type === "checkout_started"
+      ).length,
+      purchaseCount: (purchasesData ?? []).filter(
+        (purchase) => purchase.lead_id === leadId
+      ).length,
+      recentInterestCount: (leadEventsData ?? []).filter((event) => {
+        if (event.lead_id !== leadId) return false;
+        if (!event.created_at) return false;
+
+        const ageMs = Date.now() - new Date(event.created_at).getTime();
+        if (ageMs > 72 * 60 * 60 * 1000) return false;
+
+        return (
+          event.event_type === "click_unlock" ||
+          event.event_type === "checkout_started" ||
+          event.event_type === "purchase"
+        );
+      }).length,
+    };
+
+    const scoredLead = scoreLeadAgainstAgency(lead, application, pricingContext);
 
     if (!scoredLead) {
       return NextResponse.json(
@@ -179,6 +212,8 @@ export async function POST(req: Request) {
       )}`,
       metadata: {
         leadId: scoredLead.id,
+        agencyId: application.id,
+        expectedPriceEur: String(scoredLead.lead_price),
       },
     });
 
@@ -188,6 +223,33 @@ export async function POST(req: Request) {
         { status: 500 }
       );
     }
+
+    await adminSupabase.from("lead_events").insert([
+      {
+        lead_id: leadId,
+        agency_id: application.id,
+        event_type: "checkout_started",
+        metadata: {
+          stripe_checkout_session_id: session.id,
+          price_eur: scoredLead.lead_price,
+        },
+      },
+    ]);
+
+    await adminSupabase.from("payments").insert([
+      {
+        stripe_checkout_session_id: session.id,
+        agency_id: application.id,
+        lead_id: leadId,
+        amount_eur: scoredLead.lead_price,
+        currency: "eur",
+        status: "pending",
+        provider: "stripe",
+        metadata: {
+          source: "lead_unlock",
+        },
+      },
+    ]);
 
     return NextResponse.json({ url: session.url });
   } catch (error) {

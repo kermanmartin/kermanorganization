@@ -46,6 +46,12 @@ export type AgencyApplication = {
   exclusive_leads_only: string | null;
 };
 
+export type LeadPricingContext = {
+  checkoutStartedCount?: number;
+  purchaseCount?: number;
+  recentInterestCount?: number;
+};
+
 export type ScoredLead = Lead & {
   match_score: number;
   match_reason: string;
@@ -264,14 +270,25 @@ export function getLeadTier(score: number): LeadTier {
   return "standard";
 }
 
-export function calculateLeadPrice(lead: Lead, score: number) {
-  let price = 12;
+function getInitialTierBasePrice(tier: LeadTier) {
+  if (tier === "exclusive") return 35;
+  if (tier === "premium") return 20;
+  return 12;
+}
 
-  if (score >= 80) {
-    price = 45;
-  } else if (score >= 60) {
-    price = 25;
-  }
+function getInitialTierPriceCap(tier: LeadTier) {
+  if (tier === "exclusive") return 45;
+  if (tier === "premium") return 30;
+  return 18;
+}
+
+export function calculateLeadPrice(
+  lead: Lead,
+  score: number,
+  pricingContext?: LeadPricingContext
+) {
+  const tier = getLeadTier(score);
+  let price = getInitialTierBasePrice(tier);
 
   const userType = normalizeText(lead.user_type);
   const urgency = normalizeText(lead.urgency);
@@ -279,27 +296,45 @@ export function calculateLeadPrice(lead: Lead, score: number) {
   const budgetRange = parseLeadBudgetRange(lead.budget);
   const budgetMax = budgetRange.max ?? budgetRange.min ?? 0;
 
-  if (userType === "investor") price *= 1.2;
-  if (userType === "seller") price *= 1.15;
-  if (userType === "landlord") price *= 1.08;
-  if (userType === "tenant") price *= 0.9;
+  if (userType === "investor") price *= 1.08;
+  if (userType === "seller") price *= 1.06;
+  if (userType === "landlord") price *= 1.03;
+  if (userType === "tenant") price *= 0.95;
 
-  if (urgency === "ready_now") price *= 1.2;
-  else if (urgency === "actively_searching") price *= 1.1;
+  if (urgency === "ready_now") price *= 1.08;
+  else if (urgency === "actively_searching") price *= 1.04;
 
-  if (timeframe === "asap") price *= 1.15;
-  else if (timeframe === "within_30_days") price *= 1.08;
+  if (timeframe === "asap") price *= 1.06;
+  else if (timeframe === "within_30_days") price *= 1.03;
 
-  if (budgetMax >= 1_000_000) price *= 1.25;
-  else if (budgetMax >= 500_000) price *= 1.1;
+  if (budgetMax >= 1_000_000) price *= 1.12;
+  else if (budgetMax >= 500_000) price *= 1.06;
 
-  const finalPrice = Math.max(9, Math.min(79, Math.round(price)));
+  const checkoutStartedCount = pricingContext?.checkoutStartedCount ?? 0;
+  const purchaseCount = pricingContext?.purchaseCount ?? 0;
+  const recentInterestCount = pricingContext?.recentInterestCount ?? 0;
+
+  let demandExtra = 0;
+
+  if (checkoutStartedCount >= 2) demandExtra += 1;
+  if (checkoutStartedCount >= 4) demandExtra += 1;
+  if (checkoutStartedCount >= 7) demandExtra += 1;
+
+  if (purchaseCount >= 1) demandExtra += 2;
+
+  if (recentInterestCount >= 3) demandExtra += 1;
+  if (recentInterestCount >= 6) demandExtra += 1;
+
+  const tierCap = getInitialTierPriceCap(tier);
+  const finalPrice = Math.min(tierCap, Math.max(getInitialTierBasePrice(tier), Math.round(price) + demandExtra));
+
   return finalPrice;
 }
 
 export function scoreLeadAgainstAgency(
   lead: Lead,
-  application: AgencyApplication
+  application: AgencyApplication,
+  pricingContext?: LeadPricingContext
 ): ScoredLead | null {
   if (!isSameCountry(lead, application)) return null;
 
@@ -381,6 +416,6 @@ export function scoreLeadAgainstAgency(
     match_reason: reasons.join(" • "),
     match_label: getScoreLabel(score),
     lead_tier: getLeadTier(score),
-    lead_price: calculateLeadPrice(lead, score),
+    lead_price: calculateLeadPrice(lead, score, pricingContext),
   };
 }
