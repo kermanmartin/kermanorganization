@@ -98,26 +98,6 @@ export default function AgencyDashboardClient({
     };
   }, [checkoutStatus, pathname, router, searchParams]);
 
-  const purchasedLeads = useMemo(
-    () => leads.filter((lead) => Boolean(lead.is_purchased)).length,
-    [leads]
-  );
-
-  const lockedLeads = useMemo(
-    () => leads.filter((lead) => !lead.is_purchased).length,
-    [leads]
-  );
-
-  const readyToActLeads = useMemo(
-    () =>
-      leads.filter(
-        (lead) =>
-          (lead.match_score ?? 0) >= 80 &&
-          ((lead.status ?? "new") === "new" || !lead.status)
-      ).length,
-    [leads]
-  );
-
   const getNextStatus = (currentStatus: string | null): LeadStatus => {
     if (currentStatus === "new" || !currentStatus) return "contacted";
     if (currentStatus === "contacted") return "closed";
@@ -212,8 +192,8 @@ export default function AgencyDashboardClient({
       ? {
           title: "Payment received.",
           text: checkoutLeadId
-            ? "We are finalizing lead access. The dashboard will refresh automatically in a few seconds."
-            : "We are finalizing your lead access. The dashboard will refresh automatically in a few seconds.",
+            ? "We are finalizing lead access. The desk will refresh automatically in a few seconds."
+            : "We are finalizing your lead access. The desk will refresh automatically in a few seconds.",
           tone: "success" as const,
         }
       : checkoutStatus === "cancelled"
@@ -228,10 +208,10 @@ export default function AgencyDashboardClient({
     return (
       <div
         style={{
-          padding: "38px",
-          borderRadius: "22px",
+          padding: "42px",
+          borderRadius: "24px",
           background:
-            "linear-gradient(180deg, rgba(17,17,17,0.96) 0%, rgba(11,11,11,0.98) 100%)",
+            "linear-gradient(180deg, rgba(16,16,16,0.96) 0%, rgba(10,10,10,0.99) 100%)",
           border: "1px solid rgba(255,255,255,0.08)",
           textAlign: "center",
         }}
@@ -241,7 +221,7 @@ export default function AgencyDashboardClient({
             fontSize: "30px",
             fontWeight: 500,
             marginBottom: "12px",
-            letterSpacing: "-0.6px",
+            letterSpacing: "-0.7px",
           }}
         >
           No matched leads yet
@@ -325,39 +305,14 @@ export default function AgencyDashboardClient({
         </div>
       )}
 
-      <div
-        style={{
-          marginBottom: "18px",
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: "16px",
-        }}
-      >
-        <ActionCard
-          title="Locked opportunities"
-          value={lockedLeads}
-          helper="Still available to review and unlock individually"
-        />
-        <ActionCard
-          title="Unlocked opportunities"
-          value={purchasedLeads}
-          helper="Open leads with visible contact and message details"
-        />
-        <ActionCard
-          title="Ready now"
-          value={readyToActLeads}
-          helper="Strong high-priority matches currently sitting in new"
-        />
-      </div>
-
       {!isApproved && (
         <div
           style={{
-            marginBottom: "20px",
-            padding: "18px 20px",
+            marginBottom: "18px",
+            padding: "16px 18px",
             borderRadius: "18px",
             background:
-              "linear-gradient(180deg, rgba(17,17,17,0.96) 0%, rgba(11,11,11,0.98) 100%)",
+              "linear-gradient(180deg, rgba(16,16,16,0.95) 0%, rgba(10,10,10,0.99) 100%)",
             border: "1px solid rgba(255,255,255,0.07)",
             color: "#cfcfcf",
             fontSize: "15px",
@@ -371,12 +326,12 @@ export default function AgencyDashboardClient({
 
       <div
         style={{
-          borderRadius: "24px",
+          borderRadius: "26px",
           overflow: "hidden",
           border: "1px solid rgba(255,255,255,0.07)",
           background:
-            "linear-gradient(180deg, rgba(17,17,17,0.96) 0%, rgba(10,10,10,0.99) 100%)",
-          boxShadow: "0 20px 56px rgba(0,0,0,0.28)",
+            "linear-gradient(180deg, rgba(16,16,16,0.96) 0%, rgba(9,9,9,0.99) 100%)",
+          boxShadow: "0 22px 60px rgba(0,0,0,0.32)",
         }}
       >
         <div
@@ -394,12 +349,12 @@ export default function AgencyDashboardClient({
             <h2
               style={{
                 margin: 0,
-                fontSize: "26px",
+                fontSize: "25px",
                 fontWeight: 500,
                 letterSpacing: "-0.6px",
               }}
             >
-              Matched opportunities
+              Lead desk
             </h2>
             <p
               style={{
@@ -410,8 +365,8 @@ export default function AgencyDashboardClient({
                 maxWidth: "760px",
               }}
             >
-              Ranked by fit quality and operational relevance. This view is built
-              to help your agency decide fast which leads deserve immediate action.
+              Review fit, unlock serious opportunities, and move purchased leads
+              into your pipeline.
             </p>
           </div>
 
@@ -428,7 +383,7 @@ export default function AgencyDashboardClient({
               textTransform: "uppercase",
             }}
           >
-            {leads.length} active opportunities
+            {leads.length} opportunities
           </div>
         </div>
 
@@ -437,17 +392,16 @@ export default function AgencyDashboardClient({
             style={{
               width: "100%",
               borderCollapse: "collapse",
-              minWidth: "2500px",
+              minWidth: "2140px",
             }}
           >
             <thead>
               <tr style={{ backgroundColor: "rgba(255,255,255,0.02)" }}>
                 <th style={thStyle}>Match</th>
-                <th style={thStyle}>Pricing</th>
+                <th style={thStyle}>Price</th>
                 <th style={thStyle}>Action</th>
-                <th style={thStyle}>Demand</th>
                 <th style={thStyle}>Access</th>
-                <th style={thStyle}>Market fit</th>
+                <th style={thStyle}>Why it fits</th>
                 <th style={thStyle}>Name</th>
                 <th style={thStyle}>Email</th>
                 <th style={thStyle}>Phone</th>
@@ -455,7 +409,7 @@ export default function AgencyDashboardClient({
                 <th style={thStyle}>Area</th>
                 <th style={thStyle}>Property</th>
                 <th style={thStyle}>Budget</th>
-                <th style={thStyle}>Client type</th>
+                <th style={thStyle}>Client</th>
                 <th style={thStyle}>Timeframe</th>
                 <th style={thStyle}>Financing</th>
                 <th style={thStyle}>Seller status</th>
@@ -485,9 +439,8 @@ export default function AgencyDashboardClient({
                     </td>
 
                     <td style={tdStylePrice}>
-                      <PricingPanel
+                      <PriceCell
                         price={lead.lead_price ?? 0}
-                        tier={lead.lead_tier}
                         purchased={Boolean(lead.is_purchased)}
                       />
                     </td>
@@ -511,10 +464,10 @@ export default function AgencyDashboardClient({
                             fontWeight: 700,
                             cursor:
                               isBuying || !isApproved ? "not-allowed" : "pointer",
-                            minWidth: "180px",
+                            minWidth: "178px",
                             lineHeight: "1.35",
                             boxShadow: isApproved
-                              ? "0 10px 28px rgba(11, 46, 27, 0.28)"
+                              ? "0 10px 28px rgba(11, 46, 27, 0.24)"
                               : "none",
                           }}
                         >
@@ -525,12 +478,8 @@ export default function AgencyDashboardClient({
                       )}
                     </td>
 
-                    <td style={tdStyleDemand}>
-                      <DemandPanel lead={lead} />
-                    </td>
-
                     <td style={tdStyleAccess}>
-                      <AccessPanel
+                      <AccessCell
                         purchased={Boolean(lead.is_purchased)}
                         approved={isApproved}
                       />
@@ -712,24 +661,15 @@ function MatchScoreBadge({
   );
 }
 
-function PricingPanel({
+function PriceCell({
   price,
-  tier,
   purchased,
 }: {
   price: number;
-  tier?: LeadTier;
   purchased: boolean;
 }) {
-  const tierLabel =
-    tier === "exclusive"
-      ? "Exclusive tier"
-      : tier === "premium"
-      ? "Premium tier"
-      : "Standard tier";
-
   return (
-    <div style={{ minWidth: "132px" }}>
+    <div style={{ minWidth: "122px" }}>
       <div
         style={{
           padding: "8px 10px",
@@ -751,71 +691,16 @@ function PricingPanel({
           textAlign: "center",
           fontSize: "11px",
           color: "#9f9f9f",
-          letterSpacing: "0.2px",
           lineHeight: "1.4",
         }}
       >
-        {purchased ? "Purchased access" : tierLabel}
+        {purchased ? "Purchased access" : "Launch price"}
       </div>
     </div>
   );
 }
 
-function DemandPanel({ lead }: { lead: Lead }) {
-  const score = lead.match_score ?? 0;
-  const timeframe = lead.timeframe ?? "";
-  const urgency = lead.urgency ?? "";
-
-  const demandLabel =
-    score >= 85 || urgency === "ready_now" || timeframe === "asap"
-      ? "High demand"
-      : score >= 65
-      ? "Healthy demand"
-      : "Early demand";
-
-  const demandColor =
-    demandLabel === "High demand"
-      ? "#8ff0b1"
-      : demandLabel === "Healthy demand"
-      ? "#f2d37d"
-      : "#bdbdbd";
-
-  const helper =
-    demandLabel === "High demand"
-      ? "Fast-action fit"
-      : demandLabel === "Healthy demand"
-      ? "Commercially active"
-      : "Launch pricing";
-
-  return (
-    <div style={{ minWidth: "145px", maxWidth: "165px" }}>
-      <div
-        style={{
-          fontSize: "12px",
-          fontWeight: 700,
-          color: demandColor,
-          textTransform: "uppercase",
-          letterSpacing: "0.4px",
-          marginBottom: "6px",
-        }}
-      >
-        {demandLabel}
-      </div>
-
-      <div
-        style={{
-          fontSize: "12px",
-          color: "#9f9f9f",
-          lineHeight: "1.5",
-        }}
-      >
-        {helper}
-      </div>
-    </div>
-  );
-}
-
-function AccessPanel({
+function AccessCell({
   purchased,
   approved,
 }: {
@@ -844,7 +729,7 @@ function AccessPanel({
             lineHeight: "1.5",
           }}
         >
-          Contact and message unlocked
+          Contact and message visible
         </div>
       </div>
     );
@@ -872,7 +757,7 @@ function AccessPanel({
             lineHeight: "1.5",
           }}
         >
-          Payment disabled until approved
+          Payment disabled
         </div>
       </div>
     );
@@ -899,7 +784,7 @@ function AccessPanel({
           lineHeight: "1.5",
         }}
       >
-        Unlock to reveal full contact
+        Unlock to reveal details
       </div>
     </div>
   );
@@ -919,7 +804,7 @@ function UnlockedBadge() {
         color: "#c8f7da",
         fontSize: "12px",
         fontWeight: 700,
-        minWidth: "180px",
+        minWidth: "178px",
       }}
     >
       Lead unlocked
@@ -1028,73 +913,6 @@ function LockedCell({
   );
 }
 
-function ActionCard({
-  title,
-  value,
-  helper,
-}: {
-  title: string;
-  value: number;
-  helper: string;
-}) {
-  return (
-    <div
-      style={{
-        background:
-          "linear-gradient(180deg, rgba(18,18,18,0.95) 0%, rgba(10,10,10,0.98) 100%)",
-        border: "1px solid rgba(255,255,255,0.07)",
-        borderRadius: "20px",
-        padding: "20px 22px",
-        minHeight: "124px",
-      }}
-    >
-      <div
-        style={{
-          fontSize: "12px",
-          color: "#8f8f8f",
-          marginBottom: "10px",
-          textTransform: "uppercase",
-          letterSpacing: "0.6px",
-          fontWeight: 700,
-        }}
-      >
-        Lead desk
-      </div>
-
-      <div
-        style={{
-          fontSize: "15px",
-          color: "#d7d7d7",
-          marginBottom: "10px",
-        }}
-      >
-        {title}
-      </div>
-
-      <div
-        style={{
-          fontSize: "34px",
-          fontWeight: 700,
-          letterSpacing: "-1px",
-          marginBottom: "8px",
-        }}
-      >
-        {value}
-      </div>
-
-      <div
-        style={{
-          color: "#8a8a8a",
-          fontSize: "13px",
-          lineHeight: "1.65",
-        }}
-      >
-        {helper}
-      </div>
-    </div>
-  );
-}
-
 const thStyle = {
   padding: "16px 18px",
   textAlign: "left" as const,
@@ -1126,7 +944,7 @@ const tdStylePrice = {
   padding: "18px",
   textAlign: "left" as const,
   verticalAlign: "top" as const,
-  minWidth: "140px",
+  minWidth: "125px",
   color: "#f1f1f1",
 };
 
@@ -1134,15 +952,7 @@ const tdStyleAction = {
   padding: "18px",
   textAlign: "left" as const,
   verticalAlign: "top" as const,
-  minWidth: "200px",
-  color: "#f1f1f1",
-};
-
-const tdStyleDemand = {
-  padding: "18px",
-  textAlign: "left" as const,
-  verticalAlign: "top" as const,
-  minWidth: "150px",
+  minWidth: "190px",
   color: "#f1f1f1",
 };
 
@@ -1150,7 +960,7 @@ const tdStyleAccess = {
   padding: "18px",
   textAlign: "left" as const,
   verticalAlign: "top" as const,
-  minWidth: "155px",
+  minWidth: "160px",
   color: "#f1f1f1",
 };
 
@@ -1159,7 +969,7 @@ const tdStyleReason = {
   textAlign: "left" as const,
   verticalAlign: "top" as const,
   minWidth: "260px",
-  maxWidth: "330px",
+  maxWidth: "340px",
   color: "#f1f1f1",
 };
 

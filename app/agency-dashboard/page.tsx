@@ -226,26 +226,25 @@ export default async function AgencyDashboardPage() {
       style={{
         minHeight: "100vh",
         background: `
-          radial-gradient(circle at top left, rgba(146, 118, 61, 0.16) 0%, rgba(146, 118, 61, 0) 26%),
-          radial-gradient(circle at top right, rgba(255, 255, 255, 0.06) 0%, rgba(255,255,255,0) 20%),
-          linear-gradient(180deg, #060606 0%, #0a0a0a 32%, #0d0d0d 100%)
+          radial-gradient(circle at top left, rgba(146, 118, 61, 0.14) 0%, rgba(146, 118, 61, 0) 24%),
+          linear-gradient(180deg, #050505 0%, #090909 45%, #0d0d0d 100%)
         `,
         color: "white",
         fontFamily: "Arial, sans-serif",
-        padding: "34px 18px 64px",
+        padding: "28px 18px 60px",
       }}
     >
-      <section style={{ maxWidth: "1480px", margin: "0 auto" }}>
+      <section style={{ maxWidth: "1440px", margin: "0 auto" }}>
         <div
           style={{
-            marginBottom: "20px",
-            padding: "30px",
+            marginBottom: "18px",
+            padding: "34px",
             border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: "26px",
+            borderRadius: "28px",
             background:
-              "linear-gradient(180deg, rgba(19,19,19,0.92) 0%, rgba(10,10,10,0.96) 100%)",
+              "linear-gradient(180deg, rgba(17,17,17,0.92) 0%, rgba(9,9,9,0.98) 100%)",
             boxShadow:
-              "0 24px 80px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.03)",
+              "0 28px 90px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.03)",
             position: "relative",
             overflow: "hidden",
           }}
@@ -253,13 +252,13 @@ export default async function AgencyDashboardPage() {
           <div
             style={{
               position: "absolute",
-              top: "-60px",
-              right: "-60px",
-              width: "220px",
-              height: "220px",
+              top: "-80px",
+              right: "-80px",
+              width: "260px",
+              height: "260px",
               borderRadius: "999px",
               background:
-                "radial-gradient(circle, rgba(166,133,66,0.18) 0%, rgba(166,133,66,0) 68%)",
+                "radial-gradient(circle, rgba(166,133,66,0.14) 0%, rgba(166,133,66,0) 72%)",
               pointerEvents: "none",
             }}
           />
@@ -268,8 +267,8 @@ export default async function AgencyDashboardPage() {
             style={{
               display: "flex",
               justifyContent: "space-between",
+              gap: "24px",
               alignItems: "flex-start",
-              gap: "22px",
               flexWrap: "wrap",
               position: "relative",
               zIndex: 1,
@@ -280,57 +279,25 @@ export default async function AgencyDashboardPage() {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: "12px",
+                  gap: "10px",
                   flexWrap: "wrap",
-                  marginBottom: "16px",
+                  marginBottom: "18px",
                 }}
               >
-                <div
-                  style={{
-                    display: "inline-flex",
-                    padding: "8px 12px",
-                    borderRadius: "999px",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    background: "rgba(255,255,255,0.03)",
-                    color: "#bdbdbd",
-                    fontSize: "11px",
-                    fontWeight: 700,
-                    letterSpacing: "0.55px",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Agency workspace
-                </div>
-
-                <div
-                  style={{
-                    display: "inline-flex",
-                    padding: "8px 12px",
-                    borderRadius: "999px",
-                    border: `1px solid ${
-                      isApproved ? "rgba(53,116,79,0.9)" : "rgba(104,104,104,0.7)"
-                    }`,
-                    background: isApproved
-                      ? "rgba(18,49,31,0.9)"
-                      : "rgba(28,28,28,0.95)",
-                    color: isApproved ? "#a7e4b9" : "#b9b9b9",
-                    fontSize: "11px",
-                    fontWeight: 700,
-                    letterSpacing: "0.55px",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {isApproved ? "Approved" : "Pending approval"}
-                </div>
+                <TopTag label="Agency desk" />
+                <TopTag
+                  label={isApproved ? "Approved" : "Pending approval"}
+                  tone={isApproved ? "green" : "neutral"}
+                />
               </div>
 
               <h1
                 style={{
                   margin: 0,
-                  fontSize: "48px",
+                  fontSize: "52px",
                   fontWeight: 500,
-                  letterSpacing: "-1.4px",
-                  lineHeight: 1,
+                  letterSpacing: "-1.6px",
+                  lineHeight: 0.95,
                 }}
               >
                 {application.agency_name}
@@ -338,48 +305,43 @@ export default async function AgencyDashboardPage() {
 
               <p
                 style={{
-                  marginTop: "16px",
-                  marginBottom: 0,
-                  maxWidth: "840px",
+                  marginTop: "18px",
+                  marginBottom: "22px",
+                  maxWidth: "860px",
                   color: "#cfcfcf",
                   fontSize: "18px",
                   lineHeight: "1.8",
                 }}
               >
-                Your private lead desk for high-fit opportunities matched to your
-                territory, client profile and commercial positioning.
+                Private access to matched demand aligned with your city coverage,
+                client focus and commercial positioning.
               </p>
 
               <div
                 style={{
-                  marginTop: "22px",
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                  gap: "14px",
-                  maxWidth: "1080px",
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "10px 12px",
+                  marginBottom: "18px",
                 }}
               >
-                <ProfileTile
+                <InlineInfo
                   label="Primary city"
                   value={formatValue(application.city)}
                 />
-                <ProfileTile
+                <InlineInfo
                   label="Covered cities"
                   value={formatCommaList(application.preferred_cities)}
                 />
-                <ProfileTile
+                <InlineInfo
                   label="Client focus"
                   value={formatArray(application.client_types)}
                 />
-                <ProfileTile
+                <InlineInfo
                   label="Property focus"
                   value={formatArray(application.property_types)}
                 />
-                <ProfileTile
-                  label="Languages"
-                  value={formatArray(application.languages_spoken)}
-                />
-                <ProfileTile
+                <InlineInfo
                   label="Budget range"
                   value={
                     application.min_budget || application.max_budget
@@ -391,7 +353,6 @@ export default async function AgencyDashboardPage() {
 
               <div
                 style={{
-                  marginTop: "18px",
                   fontSize: "13px",
                   color: "#8f8f8f",
                   lineHeight: "1.7",
@@ -410,56 +371,50 @@ export default async function AgencyDashboardPage() {
             marginBottom: "18px",
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: "16px",
+            gap: "14px",
           }}
         >
-          <MetricCard
-            title="Matched leads"
+          <MetricStrip
+            title="Matched"
             value={matchedCount}
-            helper="Qualified opportunities in your current queue"
+            helper="Current queue"
           />
-          <MetricCard
+          <MetricStrip
             title="Unlocked"
             value={unlockedCount}
-            helper="Leads already opened by your agency"
+            helper="Open access"
           />
-          <MetricCard
-            title="Strong matches"
-            value={strongCount}
-            helper="Highest-fit opportunities ready for review"
-          />
-          <MetricCard
+          <MetricStrip
             title="Avg. score"
             value={averageMatchScore}
-            helper="Average fit quality across your matched pipeline"
+            helper={`${strongCount} strong matches`}
           />
         </div>
 
         <div
           style={{
-            marginBottom: "22px",
-            padding: "16px 18px",
+            marginBottom: "20px",
+            padding: "15px 18px",
             borderRadius: "18px",
             border: "1px solid rgba(255,255,255,0.07)",
             background:
-              "linear-gradient(180deg, rgba(17,17,17,0.95) 0%, rgba(11,11,11,0.97) 100%)",
+              "linear-gradient(180deg, rgba(15,15,15,0.94) 0%, rgba(10,10,10,0.98) 100%)",
             color: "#cfcfcf",
             fontSize: "14px",
-            lineHeight: "1.7",
+            lineHeight: "1.75",
           }}
         >
           {isApproved ? (
             <>
               <strong style={{ color: "white" }}>Live access enabled:</strong>{" "}
-              you can unlock matched leads individually. Initial launch pricing is
-              intentionally conservative to maximize agency adoption and repeat
-              purchases.
+              launch pricing remains intentionally conservative to encourage
+              adoption and repeat buying.
             </>
           ) : (
             <>
               <strong style={{ color: "white" }}>Approval pending:</strong>{" "}
-              matched leads are visible, but contact details remain locked until
-              your agency is approved.
+              matched opportunities remain visible, but payment and full contact
+              access are disabled until approval.
             </>
           )}
         </div>
@@ -480,7 +435,40 @@ export default async function AgencyDashboardPage() {
   );
 }
 
-function ProfileTile({
+function TopTag({
+  label,
+  tone = "neutral",
+}: {
+  label: string;
+  tone?: "neutral" | "green";
+}) {
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        padding: "8px 12px",
+        borderRadius: "999px",
+        border:
+          tone === "green"
+            ? "1px solid rgba(53,116,79,0.85)"
+            : "1px solid rgba(255,255,255,0.08)",
+        background:
+          tone === "green"
+            ? "rgba(18,49,31,0.9)"
+            : "rgba(255,255,255,0.03)",
+        color: tone === "green" ? "#a7e4b9" : "#bdbdbd",
+        fontSize: "11px",
+        fontWeight: 700,
+        letterSpacing: "0.55px",
+        textTransform: "uppercase",
+      }}
+    >
+      {label}
+    </div>
+  );
+}
+
+function InlineInfo({
   label,
   value,
 }: {
@@ -490,20 +478,23 @@ function ProfileTile({
   return (
     <div
       style={{
-        padding: "14px 15px",
-        borderRadius: "16px",
+        display: "inline-flex",
+        flexDirection: "column",
+        gap: "4px",
+        padding: "11px 14px",
+        borderRadius: "14px",
         border: "1px solid rgba(255,255,255,0.07)",
-        background: "rgba(255,255,255,0.025)",
+        background: "rgba(255,255,255,0.02)",
+        minWidth: "180px",
       }}
     >
       <div
         style={{
-          fontSize: "11px",
+          fontSize: "10px",
           color: "#8f8f8f",
           textTransform: "uppercase",
-          letterSpacing: "0.6px",
+          letterSpacing: "0.55px",
           fontWeight: 700,
-          marginBottom: "8px",
         }}
       >
         {label}
@@ -513,7 +504,7 @@ function ProfileTile({
         style={{
           fontSize: "15px",
           color: "#f1f1f1",
-          lineHeight: "1.55",
+          lineHeight: "1.4",
         }}
       >
         {value}
@@ -522,7 +513,7 @@ function ProfileTile({
   );
 }
 
-function MetricCard({
+function MetricStrip({
   title,
   value,
   helper,
@@ -534,18 +525,16 @@ function MetricCard({
   return (
     <div
       style={{
-        background:
-          "linear-gradient(180deg, rgba(18,18,18,0.95) 0%, rgba(10,10,10,0.98) 100%)",
+        borderRadius: "18px",
         border: "1px solid rgba(255,255,255,0.07)",
-        borderRadius: "20px",
-        padding: "22px",
-        minHeight: "132px",
-        boxShadow: "0 14px 38px rgba(0,0,0,0.18)",
+        background:
+          "linear-gradient(180deg, rgba(16,16,16,0.96) 0%, rgba(10,10,10,0.99) 100%)",
+        padding: "20px 22px",
       }}
     >
       <div
         style={{
-          fontSize: "12px",
+          fontSize: "11px",
           color: "#8f8f8f",
           marginBottom: "10px",
           textTransform: "uppercase",
@@ -553,25 +542,16 @@ function MetricCard({
           fontWeight: 700,
         }}
       >
-        Performance
-      </div>
-
-      <div
-        style={{
-          fontSize: "16px",
-          color: "#d8d8d8",
-          marginBottom: "10px",
-        }}
-      >
         {title}
       </div>
 
       <div
         style={{
-          fontSize: "38px",
+          fontSize: "34px",
           fontWeight: 700,
-          letterSpacing: "-1.2px",
-          marginBottom: "10px",
+          letterSpacing: "-1px",
+          marginBottom: "8px",
+          color: "#f5f5f5",
         }}
       >
         {value}
@@ -581,7 +561,7 @@ function MetricCard({
         style={{
           color: "#8a8a8a",
           fontSize: "13px",
-          lineHeight: "1.65",
+          lineHeight: "1.55",
         }}
       >
         {helper}
