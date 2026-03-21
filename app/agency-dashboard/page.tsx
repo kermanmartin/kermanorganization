@@ -73,8 +73,12 @@ function buildPricingContext(
   const now = Date.now();
   const seventyTwoHoursMs = 72 * 60 * 60 * 1000;
 
-  const leadSpecificEvents = leadEvents.filter((event) => event.lead_id === leadId);
-  const leadSpecificPurchases = purchases.filter((purchase) => purchase.lead_id === leadId);
+  const leadSpecificEvents = leadEvents.filter(
+    (event) => event.lead_id === leadId
+  );
+  const leadSpecificPurchases = purchases.filter(
+    (purchase) => purchase.lead_id === leadId
+  );
 
   const checkoutStartedCount = leadSpecificEvents.filter(
     (event) => event.event_type === "checkout_started"
@@ -236,7 +240,19 @@ export default async function AgencyDashboardPage() {
       }}
     >
       <section style={{ maxWidth: "1420px", margin: "0 auto" }}>
-        <div className="agency-hero-shell">
+        <div
+          style={{
+            marginBottom: "18px",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: "30px",
+            background:
+              "linear-gradient(180deg, rgba(15,15,15,0.92) 0%, rgba(8,8,8,0.98) 100%)",
+            boxShadow:
+              "0 28px 90px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.03)",
+            overflow: "hidden",
+            position: "relative",
+          }}
+        >
           <div
             style={{
               position: "absolute",
@@ -251,9 +267,29 @@ export default async function AgencyDashboardPage() {
             }}
           />
 
-          <div className="agency-hero-top">
+          <div
+            style={{
+              padding: "34px 34px 28px",
+              borderBottom: "1px solid rgba(255,255,255,0.06)",
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "24px",
+              alignItems: "flex-start",
+              flexWrap: "wrap",
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
             <div style={{ maxWidth: "960px" }}>
-              <div className="agency-top-tags">
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  flexWrap: "wrap",
+                  marginBottom: "18px",
+                }}
+              >
                 <TopTag label="Private deal desk" />
                 <TopTag
                   label={isApproved ? "Approved" : "Pending approval"}
@@ -261,9 +297,29 @@ export default async function AgencyDashboardPage() {
                 />
               </div>
 
-              <h1 className="agency-hero-title">{application.agency_name}</h1>
+              <h1
+                style={{
+                  margin: 0,
+                  fontSize: "56px",
+                  fontWeight: 500,
+                  letterSpacing: "-2px",
+                  lineHeight: 0.94,
+                  fontFamily: 'Georgia, "Times New Roman", serif',
+                }}
+              >
+                {application.agency_name}
+              </h1>
 
-              <p className="agency-hero-copy">
+              <p
+                style={{
+                  marginTop: "18px",
+                  marginBottom: 0,
+                  maxWidth: "860px",
+                  color: "#cdcdcd",
+                  fontSize: "18px",
+                  lineHeight: "1.85",
+                }}
+              >
                 A private workspace for reviewing high-fit demand aligned with
                 your territory, commercial profile and market focus.
               </p>
@@ -272,11 +328,35 @@ export default async function AgencyDashboardPage() {
             <LogoutButton />
           </div>
 
-          <div className="agency-hero-bottom">
+          <div
+            style={{
+              padding: "18px 34px 26px",
+              display: "grid",
+              gridTemplateColumns: "1.15fr 0.95fr",
+              gap: "24px",
+            }}
+          >
             <div>
-              <div className="agency-section-label">Agency profile</div>
+              <div
+                style={{
+                  fontSize: "11px",
+                  color: "#8d8d8d",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.65px",
+                  fontWeight: 700,
+                  marginBottom: "12px",
+                }}
+              >
+                Agency profile
+              </div>
 
-              <div className="agency-inline-grid">
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "10px 12px",
+                }}
+              >
                 <InlineInfo
                   label="Primary city"
                   value={formatValue(application.city)}
@@ -305,9 +385,26 @@ export default async function AgencyDashboardPage() {
             </div>
 
             <div>
-              <div className="agency-section-label">Live desk snapshot</div>
+              <div
+                style={{
+                  fontSize: "11px",
+                  color: "#8d8d8d",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.65px",
+                  fontWeight: 700,
+                  marginBottom: "12px",
+                }}
+              >
+                Live desk snapshot
+              </div>
 
-              <div className="agency-metric-grid">
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, minmax(120px, 1fr))",
+                  gap: "12px",
+                }}
+              >
                 <MetricStrip
                   title="Matched"
                   value={matchedCount}
@@ -379,154 +476,6 @@ export default async function AgencyDashboardPage() {
           agencyName={application.agency_name}
         />
       </section>
-
-      <style jsx>{`
-        .agency-hero-shell {
-          margin-bottom: 18px;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 30px;
-          background: linear-gradient(
-            180deg,
-            rgba(15, 15, 15, 0.92) 0%,
-            rgba(8, 8, 8, 0.98) 100%
-          );
-          box-shadow: 0 28px 90px rgba(0, 0, 0, 0.4),
-            inset 0 1px 0 rgba(255, 255, 255, 0.03);
-          overflow: hidden;
-          position: relative;
-        }
-
-        .agency-hero-top {
-          padding: 34px 34px 28px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-          display: flex;
-          justify-content: space-between;
-          gap: 24px;
-          align-items: flex-start;
-          flex-wrap: wrap;
-          position: relative;
-          z-index: 1;
-        }
-
-        .agency-top-tags {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          flex-wrap: wrap;
-          margin-bottom: 18px;
-        }
-
-        .agency-hero-title {
-          margin: 0;
-          font-size: 56px;
-          font-weight: 500;
-          letter-spacing: -2px;
-          line-height: 0.94;
-          font-family: Georgia, "Times New Roman", serif;
-        }
-
-        .agency-hero-copy {
-          margin-top: 18px;
-          margin-bottom: 0;
-          max-width: 860px;
-          color: #cdcdcd;
-          font-size: 18px;
-          line-height: 1.85;
-        }
-
-        .agency-hero-bottom {
-          padding: 18px 34px 26px;
-          display: grid;
-          grid-template-columns: 1.15fr 0.95fr;
-          gap: 24px;
-        }
-
-        .agency-section-label {
-          font-size: 11px;
-          color: #8d8d8d;
-          text-transform: uppercase;
-          letter-spacing: 0.65px;
-          font-weight: 700;
-          margin-bottom: 12px;
-        }
-
-        .agency-inline-grid {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px 12px;
-        }
-
-        .agency-metric-grid {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(120px, 1fr));
-          gap: 12px;
-        }
-
-        @media (max-width: 980px) {
-          .agency-hero-top {
-            padding: 26px 20px 22px;
-          }
-
-          .agency-hero-title {
-            font-size: 44px;
-            line-height: 0.98;
-          }
-
-          .agency-hero-copy {
-            font-size: 16px;
-            line-height: 1.75;
-          }
-
-          .agency-hero-bottom {
-            padding: 16px 20px 20px;
-            grid-template-columns: 1fr;
-            gap: 20px;
-          }
-        }
-
-        @media (max-width: 640px) {
-          .agency-hero-shell {
-            border-radius: 22px;
-          }
-
-          .agency-hero-top {
-            padding: 20px 16px 18px;
-            gap: 16px;
-          }
-
-          .agency-top-tags {
-            margin-bottom: 14px;
-          }
-
-          .agency-hero-title {
-            font-size: 34px;
-            letter-spacing: -1px;
-            line-height: 1;
-          }
-
-          .agency-hero-copy {
-            margin-top: 14px;
-            font-size: 15px;
-            line-height: 1.75;
-          }
-
-          .agency-hero-bottom {
-            padding: 14px 16px 18px;
-            gap: 18px;
-          }
-
-          .agency-inline-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-          }
-
-          .agency-metric-grid {
-            grid-template-columns: 1fr;
-            gap: 10px;
-          }
-        }
-      `}</style>
     </main>
   );
 }
