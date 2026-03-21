@@ -20,17 +20,22 @@ function getStripeClient() {
   return new Stripe(secretKey);
 }
 
+function normalizeBaseUrl(raw: string) {
+  const url = new URL(raw);
+  return url.origin;
+}
+
 function getBaseUrl(req: Request) {
   const envUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
 
   if (envUrl) {
-    return envUrl.replace(/\/$/, "");
+    return normalizeBaseUrl(envUrl);
   }
 
   const origin = req.headers.get("origin")?.trim();
 
   if (origin) {
-    return origin.replace(/\/$/, "");
+    return normalizeBaseUrl(origin);
   }
 
   throw new Error("Missing NEXT_PUBLIC_SITE_URL environment variable.");
