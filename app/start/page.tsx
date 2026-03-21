@@ -375,763 +375,898 @@ export default function StartPage() {
   const progressPercentage = (step / 5) * 100;
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background:
-          "radial-gradient(circle at top, rgba(24,24,24,0.9) 0%, #0a0a0a 42%, #050505 100%)",
-        color: "white",
-        fontFamily: "Arial, sans-serif",
-        padding: "54px 16px 70px",
-      }}
-    >
-      <section
-        style={{
-          maxWidth: "980px",
-          margin: "0 auto",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: "760px",
-            margin: "0 auto 26px",
-            textAlign: "center",
-          }}
-        >
-          <div
-            style={{
-              display: "inline-block",
-              padding: "8px 12px",
-              borderRadius: "999px",
-              border: "1px solid #252525",
-              backgroundColor: "#121212",
-              color: "#b8b8b8",
-              fontSize: "12px",
-              fontWeight: 700,
-              letterSpacing: "0.5px",
-              textTransform: "uppercase",
-              marginBottom: "16px",
-            }}
-          >
-            Structured intake
+    <>
+      <main className="start-page">
+        <section className="start-shell">
+          <div className="hero">
+            <div className="eyebrow">Structured intake</div>
+
+            <h1 className="hero-title">Start your request</h1>
+
+            <p className="hero-copy">
+              Submit your request in a structured format so it can be matched to
+              the right agency profile.
+            </p>
           </div>
 
-          <h1
-            style={{
-              fontSize: "clamp(40px, 6vw, 64px)",
-              lineHeight: "0.98",
-              fontWeight: 400,
-              letterSpacing: "-1.5px",
-              margin: "0 0 14px 0",
-            }}
-          >
-            Start your request
-          </h1>
-
-          <p
-            style={{
-              margin: 0,
-              color: "#cfcfcf",
-              fontSize: "18px",
-              lineHeight: "1.8",
-            }}
-          >
-            Submit your request in a structured format so it can be matched to
-            the right agency profile.
-          </p>
-        </div>
-
-        <div
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(17,17,17,0.98) 0%, rgba(10,10,10,0.98) 100%)",
-            border: "1px solid #1f1f1f",
-            borderRadius: "24px",
-            padding: "clamp(22px, 4vw, 34px)",
-            boxShadow: "0 20px 60px rgba(0,0,0,0.28)",
-          }}
-        >
-          <div style={{ marginBottom: "28px" }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: "14px",
-                marginBottom: "14px",
-                flexWrap: "wrap",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "13px",
-                  color: "#9f9f9f",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.6px",
-                  fontWeight: 700,
-                }}
-              >
-                Step {step} of 5
+          <div className="card">
+            <div className="steps-header">
+              <div className="steps-topline">
+                <div className="steps-count">Step {step} of 5</div>
+                <div className="steps-label">{STEP_CONFIG[step - 1].label}</div>
               </div>
 
-              <div
-                style={{
-                  fontSize: "14px",
-                  color: "#d7d7d7",
-                  fontWeight: 600,
-                }}
-              >
-                {STEP_CONFIG[step - 1].label}
+              <div className="progress-track">
+                <div
+                  className="progress-fill"
+                  style={{ width: `${progressPercentage}%` }}
+                />
+              </div>
+
+              <div className="steps-scroll">
+                <div className="steps-grid">
+                  {STEP_CONFIG.map((item) => {
+                    const isCurrent = step === item.number;
+                    const isCompleted = step > item.number;
+
+                    return (
+                      <div
+                        key={item.number}
+                        className={`step-card ${
+                          isCurrent ? "current" : ""
+                        } ${isCompleted ? "completed" : ""}`}
+                      >
+                        <div className="step-card-top">
+                          <div className="step-badge">
+                            {isCompleted ? "✓" : item.number}
+                          </div>
+
+                          <div className="step-name">{item.label}</div>
+                        </div>
+
+                        <div className="step-helper">{item.helper}</div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
-            <div
-              style={{
-                width: "100%",
-                height: "8px",
-                borderRadius: "999px",
-                backgroundColor: "#181818",
-                border: "1px solid #242424",
-                overflow: "hidden",
-                marginBottom: "22px",
-              }}
-            >
-              <div
-                style={{
-                  width: `${progressPercentage}%`,
-                  height: "100%",
-                  background:
-                    "linear-gradient(90deg, #f3f3f3 0%, #bfbfbf 100%)",
-                  borderRadius: "999px",
-                  transition: "width 0.25s ease",
-                }}
-              />
-            </div>
+            <form onSubmit={handleSubmit} className="form-stack">
+              {step === 1 && (
+                <>
+                  <SectionTitle
+                    title="What are you looking to do?"
+                    description="Select the path that best describes your request."
+                  />
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
-                gap: "10px",
-              }}
-            >
-              {STEP_CONFIG.map((item) => {
-                const isCurrent = step === item.number;
-                const isCompleted = step > item.number;
-
-                return (
-                  <div
-                    key={item.number}
-                    style={{
-                      padding: "12px 12px 14px",
-                      borderRadius: "16px",
-                      border: isCurrent
-                        ? "1px solid rgba(255,255,255,0.18)"
-                        : "1px solid #1f1f1f",
-                      backgroundColor: isCurrent
-                        ? "rgba(255,255,255,0.04)"
-                        : "rgba(255,255,255,0.01)",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "10px",
-                        marginBottom: "8px",
+                  <div className="choice-grid">
+                    <ChoiceButton
+                      label="Sell"
+                      active={form.userType === "seller"}
+                      onClick={() => {
+                        updateField("userType", "seller");
+                        updateField("financingStatus", "");
                       }}
-                    >
-                      <div
-                        style={{
-                          width: "28px",
-                          height: "28px",
-                          borderRadius: "999px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: "12px",
-                          fontWeight: 700,
-                          backgroundColor: isCurrent
-                            ? "#ffffff"
-                            : isCompleted
-                            ? "#173021"
-                            : "#111111",
-                          color: isCurrent
-                            ? "#000000"
-                            : isCompleted
-                            ? "#8ef0b0"
-                            : "#a8a8a8",
-                          border: isCurrent
-                            ? "1px solid #ffffff"
-                            : isCompleted
-                            ? "1px solid #2e5b3f"
-                            : "1px solid #2a2a2a",
-                          flexShrink: 0,
-                        }}
-                      >
-                        {isCompleted ? "✓" : item.number}
-                      </div>
+                    />
 
-                      <div
-                        style={{
-                          fontSize: "12px",
-                          color: isCurrent ? "#ffffff" : "#b1b1b1",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.5px",
-                          fontWeight: 700,
-                          lineHeight: "1.3",
-                        }}
-                      >
-                        {item.label}
-                      </div>
-                    </div>
-
-                    <div
-                      style={{
-                        fontSize: "12px",
-                        color: isCurrent ? "#cfcfcf" : "#7d7d7d",
-                        lineHeight: "1.5",
+                    <ChoiceButton
+                      label="Buy"
+                      active={form.userType === "buyer"}
+                      onClick={() => {
+                        updateField("userType", "buyer");
+                        updateField("sellerStatus", "");
                       }}
-                    >
-                      {item.helper}
-                    </div>
+                    />
+
+                    <ChoiceButton
+                      label="Rent"
+                      active={form.userType === "tenant"}
+                      onClick={() => {
+                        updateField("userType", "tenant");
+                        updateField("financingStatus", "");
+                        updateField("sellerStatus", "");
+                      }}
+                    />
+
+                    <ChoiceButton
+                      label="Rent out"
+                      active={form.userType === "landlord"}
+                      onClick={() => {
+                        updateField("userType", "landlord");
+                        updateField("financingStatus", "");
+                        updateField("sellerStatus", "");
+                      }}
+                    />
+
+                    <ChoiceButton
+                      label="Invest"
+                      active={form.userType === "investor"}
+                      onClick={() => {
+                        updateField("userType", "investor");
+                        updateField("sellerStatus", "");
+                      }}
+                    />
                   </div>
-                );
-              })}
-            </div>
-          </div>
+                </>
+              )}
 
-          <form
-            onSubmit={handleSubmit}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "14px",
-            }}
-          >
-            {step === 1 && (
-              <>
-                <SectionTitle
-                  title="What are you looking to do?"
-                  description="Select the path that best describes your request."
-                />
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-                    gap: "10px",
-                  }}
-                >
-                  <ChoiceButton
-                    label="Sell"
-                    active={form.userType === "seller"}
-                    onClick={() => {
-                      updateField("userType", "seller");
-                      updateField("financingStatus", "");
-                    }}
+              {step === 2 && (
+                <>
+                  <SectionTitle
+                    title="Basic information"
+                    description="We need your contact details and target location."
                   />
 
-                  <ChoiceButton
-                    label="Buy"
-                    active={form.userType === "buyer"}
-                    onClick={() => {
-                      updateField("userType", "buyer");
-                      updateField("sellerStatus", "");
-                    }}
-                  />
+                  <div className="two-col-grid">
+                    <input
+                      type="text"
+                      placeholder="Your name"
+                      value={form.name}
+                      onChange={(e) => updateField("name", e.target.value)}
+                      required
+                      style={inputStyle}
+                    />
 
-                  <ChoiceButton
-                    label="Rent"
-                    active={form.userType === "tenant"}
-                    onClick={() => {
-                      updateField("userType", "tenant");
-                      updateField("financingStatus", "");
-                      updateField("sellerStatus", "");
-                    }}
-                  />
+                    <input
+                      type="email"
+                      placeholder="Your email"
+                      value={form.email}
+                      onChange={(e) => updateField("email", e.target.value)}
+                      required
+                      style={inputStyle}
+                    />
+                  </div>
 
-                  <ChoiceButton
-                    label="Rent out"
-                    active={form.userType === "landlord"}
-                    onClick={() => {
-                      updateField("userType", "landlord");
-                      updateField("financingStatus", "");
-                      updateField("sellerStatus", "");
-                    }}
-                  />
+                  <div className="phone-grid">
+                    <input
+                      type="text"
+                      placeholder="+34"
+                      value={form.phonePrefix}
+                      onChange={(e) => updateField("phonePrefix", e.target.value)}
+                      required
+                      style={inputStyle}
+                    />
 
-                  <ChoiceButton
-                    label="Invest"
-                    active={form.userType === "investor"}
-                    onClick={() => {
-                      updateField("userType", "investor");
-                      updateField("sellerStatus", "");
-                    }}
-                  />
-                </div>
-              </>
-            )}
+                    <input
+                      type="tel"
+                      placeholder="Phone number"
+                      value={form.phoneNumber}
+                      onChange={(e) => updateField("phoneNumber", e.target.value)}
+                      required
+                      style={inputStyle}
+                    />
+                  </div>
 
-            {step === 2 && (
-              <>
-                <SectionTitle
-                  title="Basic information"
-                  description="We need your contact details and target location."
-                />
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: "10px",
-                  }}
-                >
-                  <input
-                    type="text"
-                    placeholder="Your name"
-                    value={form.name}
-                    onChange={(e) => updateField("name", e.target.value)}
-                    required
-                    style={inputStyle}
-                  />
-
-                  <input
-                    type="email"
-                    placeholder="Your email"
-                    value={form.email}
-                    onChange={(e) => updateField("email", e.target.value)}
-                    required
-                    style={inputStyle}
-                  />
-                </div>
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "120px 1fr",
-                    gap: "10px",
-                  }}
-                >
-                  <input
-                    type="text"
-                    placeholder="+34"
-                    value={form.phonePrefix}
-                    onChange={(e) => updateField("phonePrefix", e.target.value)}
-                    required
-                    style={inputStyle}
-                  />
-
-                  <input
-                    type="tel"
-                    placeholder="Phone number"
-                    value={form.phoneNumber}
-                    onChange={(e) => updateField("phoneNumber", e.target.value)}
-                    required
-                    style={inputStyle}
-                  />
-                </div>
-
-                <select
-                  value={form.language}
-                  onChange={(e) => updateField("language", e.target.value)}
-                  style={inputStyle}
-                >
-                  <option value="english">English</option>
-                  <option value="spanish">Spanish</option>
-                  <option value="french">French</option>
-                  <option value="portuguese">Portuguese</option>
-                  <option value="arabic">Arabic</option>
-                </select>
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: "10px",
-                  }}
-                >
                   <select
-                    value={form.country}
-                    onChange={(e) => {
-                      updateField("country", e.target.value);
-                      updateField("city", "");
-                      updateField("cityFreeText", "");
-                    }}
-                    required
+                    value={form.language}
+                    onChange={(e) => updateField("language", e.target.value)}
                     style={inputStyle}
                   >
-                    <option value="">Country</option>
-                    {COUNTRY_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
+                    <option value="english">English</option>
+                    <option value="spanish">Spanish</option>
+                    <option value="french">French</option>
+                    <option value="portuguese">Portuguese</option>
+                    <option value="arabic">Arabic</option>
+                  </select>
+
+                  <div className="two-col-grid">
+                    <select
+                      value={form.country}
+                      onChange={(e) => {
+                        updateField("country", e.target.value);
+                        updateField("city", "");
+                        updateField("cityFreeText", "");
+                      }}
+                      required
+                      style={inputStyle}
+                    >
+                      <option value="">Country</option>
+                      {COUNTRY_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+
+                    <select
+                      value={form.city}
+                      onChange={(e) => updateField("city", e.target.value)}
+                      required
+                      disabled={!form.country}
+                      style={{
+                        ...inputStyle,
+                        opacity: form.country ? 1 : 0.7,
+                        cursor: form.country ? "pointer" : "not-allowed",
+                      }}
+                    >
+                      <option value="">
+                        {form.country ? "City" : "Select country first"}
                       </option>
-                    ))}
+                      {cityOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                      {form.country && <option value="other">Other city</option>}
+                    </select>
+                  </div>
+
+                  {form.city === "other" && (
+                    <input
+                      type="text"
+                      placeholder="Enter your city"
+                      value={form.cityFreeText}
+                      onChange={(e) => updateField("cityFreeText", e.target.value)}
+                      required
+                      style={inputStyle}
+                    />
+                  )}
+                </>
+              )}
+
+              {step === 3 && (
+                <>
+                  <SectionTitle
+                    title="Property and criteria"
+                    description="Tell us what you are looking for and in what range."
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Preferred area / district / zone"
+                    value={form.preferredArea}
+                    onChange={(e) => updateField("preferredArea", e.target.value)}
+                    required
+                    style={inputStyle}
+                  />
+
+                  <div className="two-col-grid">
+                    <select
+                      value={form.propertyType}
+                      onChange={(e) => updateField("propertyType", e.target.value)}
+                      required
+                      style={inputStyle}
+                    >
+                      <option value="">Property type</option>
+                      <option value="apartment">Apartment</option>
+                      <option value="house">House</option>
+                      <option value="villa">Villa</option>
+                      <option value="penthouse">Penthouse</option>
+                      <option value="studio">Studio</option>
+                      <option value="office">Office</option>
+                      <option value="retail">Retail</option>
+                      <option value="building">Building</option>
+                      <option value="land">Land</option>
+                      <option value="other">Other</option>
+                    </select>
+
+                    <select
+                      value={form.timeframe}
+                      onChange={(e) => updateField("timeframe", e.target.value)}
+                      required
+                      style={inputStyle}
+                    >
+                      <option value="">Timeframe</option>
+                      <option value="asap">ASAP</option>
+                      <option value="within_30_days">Within 30 days</option>
+                      <option value="1_3_months">1 to 3 months</option>
+                      <option value="3_6_months">3 to 6 months</option>
+                      <option value="6_plus_months">6+ months</option>
+                      <option value="just_exploring">Just exploring</option>
+                    </select>
+                  </div>
+
+                  <div className="budget-label">{budgetLabel}</div>
+
+                  <div className="budget-grid">
+                    <input
+                      type="text"
+                      placeholder="Min"
+                      value={form.budgetMin}
+                      onChange={(e) => updateField("budgetMin", e.target.value)}
+                      required
+                      style={inputStyle}
+                    />
+
+                    <input
+                      type="text"
+                      placeholder="Max"
+                      value={form.budgetMax}
+                      onChange={(e) => updateField("budgetMax", e.target.value)}
+                      required
+                      style={inputStyle}
+                    />
+
+                    <select
+                      value={form.currency}
+                      onChange={(e) => updateField("currency", e.target.value)}
+                      style={inputStyle}
+                    >
+                      <option value="EUR">EUR (€)</option>
+                      <option value="USD">USD ($)</option>
+                      <option value="GBP">GBP (£)</option>
+                      <option value="AED">AED</option>
+                    </select>
+                  </div>
+                </>
+              )}
+
+              {step === 4 && (
+                <>
+                  <SectionTitle
+                    title="Qualification"
+                    description="This information helps us route your request more accurately."
+                  />
+
+                  {showFinancingStatus && (
+                    <select
+                      value={form.financingStatus}
+                      onChange={(e) =>
+                        updateField("financingStatus", e.target.value)
+                      }
+                      required={showFinancingStatus}
+                      style={inputStyle}
+                    >
+                      <option value="">Financing status</option>
+                      <option value="cash_ready">Cash ready</option>
+                      <option value="mortgage_preapproved">
+                        Mortgage pre-approved
+                      </option>
+                      <option value="needs_financing">Needs financing</option>
+                      <option value="evaluating_options">
+                        Evaluating options
+                      </option>
+                    </select>
+                  )}
+
+                  {showSellerStatus && (
+                    <select
+                      value={form.sellerStatus}
+                      onChange={(e) => updateField("sellerStatus", e.target.value)}
+                      required={showSellerStatus}
+                      style={inputStyle}
+                    >
+                      <option value="">Seller status</option>
+                      <option value="ready_to_list">Ready to list now</option>
+                      <option value="comparing_agencies">
+                        Comparing agencies
+                      </option>
+                      <option value="just_exploring">Just exploring</option>
+                      <option value="already_listed">
+                        Already listed elsewhere
+                      </option>
+                    </select>
+                  )}
+
+                  {showPurpose && (
+                    <select
+                      value={form.purpose}
+                      onChange={(e) => updateField("purpose", e.target.value)}
+                      style={inputStyle}
+                    >
+                      <option value="">Purpose of request</option>
+                      <option value="primary_residence">Primary residence</option>
+                      <option value="second_home">Second home</option>
+                      <option value="investment">Investment</option>
+                      <option value="relocation">Relocation</option>
+                      <option value="other">Other</option>
+                    </select>
+                  )}
+
+                  <select
+                    value={form.urgency}
+                    onChange={(e) => updateField("urgency", e.target.value)}
+                    style={inputStyle}
+                  >
+                    <option value="">How serious are you right now?</option>
+                    <option value="ready_now">Ready now</option>
+                    <option value="actively_searching">Actively searching</option>
+                    <option value="evaluating_options">Evaluating options</option>
+                    <option value="just_exploring">Just exploring</option>
                   </select>
 
                   <select
-                    value={form.city}
-                    onChange={(e) => updateField("city", e.target.value)}
+                    value={form.workingWithAgency}
+                    onChange={(e) =>
+                      updateField("workingWithAgency", e.target.value)
+                    }
+                    style={inputStyle}
+                  >
+                    <option value="">Are you already working with an agency?</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                  </select>
+
+                  <select
+                    value={form.flexibility}
+                    onChange={(e) => updateField("flexibility", e.target.value)}
+                    style={inputStyle}
+                  >
+                    <option value="">Location flexibility</option>
+                    <option value="strict">Strict</option>
+                    <option value="moderately_flexible">
+                      Moderately flexible
+                    </option>
+                    <option value="very_flexible">Very flexible</option>
+                  </select>
+                </>
+              )}
+
+              {step === 5 && (
+                <>
+                  <SectionTitle
+                    title="Final details"
+                    description="Add anything relevant that would help an agency understand your case."
+                  />
+
+                  <textarea
+                    placeholder="Tell us exactly what you are looking for or what you want to achieve"
+                    value={form.message}
+                    onChange={(e) => updateField("message", e.target.value)}
                     required
-                    disabled={!form.country}
+                    rows={7}
                     style={{
                       ...inputStyle,
-                      opacity: form.country ? 1 : 0.7,
-                      cursor: form.country ? "pointer" : "not-allowed",
-                    }}
-                  >
-                    <option value="">
-                      {form.country ? "City" : "Select country first"}
-                    </option>
-                    {cityOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                    {form.country && <option value="other">Other city</option>}
-                  </select>
-                </div>
-
-                {form.city === "other" && (
-                  <input
-                    type="text"
-                    placeholder="Enter your city"
-                    value={form.cityFreeText}
-                    onChange={(e) => updateField("cityFreeText", e.target.value)}
-                    required
-                    style={inputStyle}
-                  />
-                )}
-              </>
-            )}
-
-            {step === 3 && (
-              <>
-                <SectionTitle
-                  title="Property and criteria"
-                  description="Tell us what you are looking for and in what range."
-                />
-
-                <input
-                  type="text"
-                  placeholder="Preferred area / district / zone"
-                  value={form.preferredArea}
-                  onChange={(e) => updateField("preferredArea", e.target.value)}
-                  required
-                  style={inputStyle}
-                />
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: "10px",
-                  }}
-                >
-                  <select
-                    value={form.propertyType}
-                    onChange={(e) => updateField("propertyType", e.target.value)}
-                    required
-                    style={inputStyle}
-                  >
-                    <option value="">Property type</option>
-                    <option value="apartment">Apartment</option>
-                    <option value="house">House</option>
-                    <option value="villa">Villa</option>
-                    <option value="penthouse">Penthouse</option>
-                    <option value="studio">Studio</option>
-                    <option value="office">Office</option>
-                    <option value="retail">Retail</option>
-                    <option value="building">Building</option>
-                    <option value="land">Land</option>
-                    <option value="other">Other</option>
-                  </select>
-
-                  <select
-                    value={form.timeframe}
-                    onChange={(e) => updateField("timeframe", e.target.value)}
-                    required
-                    style={inputStyle}
-                  >
-                    <option value="">Timeframe</option>
-                    <option value="asap">ASAP</option>
-                    <option value="within_30_days">Within 30 days</option>
-                    <option value="1_3_months">1 to 3 months</option>
-                    <option value="3_6_months">3 to 6 months</option>
-                    <option value="6_plus_months">6+ months</option>
-                    <option value="just_exploring">Just exploring</option>
-                  </select>
-                </div>
-
-                <div
-                  style={{
-                    color: "#cfcfcf",
-                    fontSize: "14px",
-                    marginTop: "2px",
-                    marginBottom: "-4px",
-                  }}
-                >
-                  {budgetLabel}
-                </div>
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr 130px",
-                    gap: "10px",
-                  }}
-                >
-                  <input
-                    type="text"
-                    placeholder="Min"
-                    value={form.budgetMin}
-                    onChange={(e) => updateField("budgetMin", e.target.value)}
-                    required
-                    style={inputStyle}
-                  />
-
-                  <input
-                    type="text"
-                    placeholder="Max"
-                    value={form.budgetMax}
-                    onChange={(e) => updateField("budgetMax", e.target.value)}
-                    required
-                    style={inputStyle}
-                  />
-
-                  <select
-                    value={form.currency}
-                    onChange={(e) => updateField("currency", e.target.value)}
-                    style={inputStyle}
-                  >
-                    <option value="EUR">EUR (€)</option>
-                    <option value="USD">USD ($)</option>
-                    <option value="GBP">GBP (£)</option>
-                    <option value="AED">AED</option>
-                  </select>
-                </div>
-              </>
-            )}
-
-            {step === 4 && (
-              <>
-                <SectionTitle
-                  title="Qualification"
-                  description="This information helps us route your request more accurately."
-                />
-
-                {showFinancingStatus && (
-                  <select
-                    value={form.financingStatus}
-                    onChange={(e) =>
-                      updateField("financingStatus", e.target.value)
-                    }
-                    required={showFinancingStatus}
-                    style={inputStyle}
-                  >
-                    <option value="">Financing status</option>
-                    <option value="cash_ready">Cash ready</option>
-                    <option value="mortgage_preapproved">
-                      Mortgage pre-approved
-                    </option>
-                    <option value="needs_financing">Needs financing</option>
-                    <option value="evaluating_options">
-                      Evaluating options
-                    </option>
-                  </select>
-                )}
-
-                {showSellerStatus && (
-                  <select
-                    value={form.sellerStatus}
-                    onChange={(e) => updateField("sellerStatus", e.target.value)}
-                    required={showSellerStatus}
-                    style={inputStyle}
-                  >
-                    <option value="">Seller status</option>
-                    <option value="ready_to_list">Ready to list now</option>
-                    <option value="comparing_agencies">
-                      Comparing agencies
-                    </option>
-                    <option value="just_exploring">Just exploring</option>
-                    <option value="already_listed">
-                      Already listed elsewhere
-                    </option>
-                  </select>
-                )}
-
-                {showPurpose && (
-                  <select
-                    value={form.purpose}
-                    onChange={(e) => updateField("purpose", e.target.value)}
-                    style={inputStyle}
-                  >
-                    <option value="">Purpose of request</option>
-                    <option value="primary_residence">Primary residence</option>
-                    <option value="second_home">Second home</option>
-                    <option value="investment">Investment</option>
-                    <option value="relocation">Relocation</option>
-                    <option value="other">Other</option>
-                  </select>
-                )}
-
-                <select
-                  value={form.urgency}
-                  onChange={(e) => updateField("urgency", e.target.value)}
-                  style={inputStyle}
-                >
-                  <option value="">How serious are you right now?</option>
-                  <option value="ready_now">Ready now</option>
-                  <option value="actively_searching">Actively searching</option>
-                  <option value="evaluating_options">Evaluating options</option>
-                  <option value="just_exploring">Just exploring</option>
-                </select>
-
-                <select
-                  value={form.workingWithAgency}
-                  onChange={(e) =>
-                    updateField("workingWithAgency", e.target.value)
-                  }
-                  style={inputStyle}
-                >
-                  <option value="">Are you already working with an agency?</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                </select>
-
-                <select
-                  value={form.flexibility}
-                  onChange={(e) => updateField("flexibility", e.target.value)}
-                  style={inputStyle}
-                >
-                  <option value="">Location flexibility</option>
-                  <option value="strict">Strict</option>
-                  <option value="moderately_flexible">
-                    Moderately flexible
-                  </option>
-                  <option value="very_flexible">Very flexible</option>
-                </select>
-              </>
-            )}
-
-            {step === 5 && (
-              <>
-                <SectionTitle
-                  title="Final details"
-                  description="Add anything relevant that would help an agency understand your case."
-                />
-
-                <textarea
-                  placeholder="Tell us exactly what you are looking for or what you want to achieve"
-                  value={form.message}
-                  onChange={(e) => updateField("message", e.target.value)}
-                  required
-                  rows={7}
-                  style={{
-                    ...inputStyle,
-                    resize: "vertical",
-                    minHeight: "160px",
-                  }}
-                />
-
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    marginTop: "4px",
-                    minHeight: "70px",
-                  }}
-                >
-                  <Turnstile
-                    key={turnstileKey}
-                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
-                    options={{
-                      theme: "dark",
-                      size: "normal",
-                    }}
-                    onSuccess={(token: string) => setTurnstileToken(token)}
-                    onExpire={() => setTurnstileToken("")}
-                    onError={() => {
-                      setTurnstileToken("");
-                      setStatusMessage(
-                        "Security verification could not be loaded. Please refresh the page."
-                      );
+                      resize: "vertical",
+                      minHeight: "160px",
                     }}
                   />
-                </div>
-              </>
-            )}
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                gap: "12px",
-                marginTop: "8px",
-                flexWrap: "wrap",
-              }}
-            >
-              <button
-                type="button"
-                onClick={goBack}
-                disabled={step === 1 || loading}
-                style={{
-                  ...secondaryButtonStyle,
-                  opacity: step === 1 || loading ? 0.5 : 1,
-                  cursor: step === 1 || loading ? "not-allowed" : "pointer",
-                }}
-              >
-                Back
-              </button>
+                  <div className="turnstile-wrap">
+                    <Turnstile
+                      key={turnstileKey}
+                      siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                      options={{
+                        theme: "dark",
+                        size: "normal",
+                      }}
+                      onSuccess={(token: string) => setTurnstileToken(token)}
+                      onExpire={() => setTurnstileToken("")}
+                      onError={() => {
+                        setTurnstileToken("");
+                        setStatusMessage(
+                          "Security verification could not be loaded. Please refresh the page."
+                        );
+                      }}
+                    />
+                  </div>
+                </>
+              )}
 
-              {step < 5 ? (
+              <div className="actions">
                 <button
                   type="button"
-                  onClick={goNext}
-                  disabled={loading}
+                  onClick={goBack}
+                  disabled={step === 1 || loading}
                   style={{
-                    ...primaryButtonStyle,
-                    opacity: loading ? 0.75 : 1,
-                    cursor: loading ? "not-allowed" : "pointer",
+                    ...secondaryButtonStyle,
+                    opacity: step === 1 || loading ? 0.5 : 1,
+                    cursor: step === 1 || loading ? "not-allowed" : "pointer",
                   }}
                 >
-                  Continue
+                  Back
                 </button>
-              ) : (
-                <button
-                  type="submit"
-                  disabled={loading}
-                  style={{
-                    ...primaryButtonStyle,
-                    opacity: loading ? 0.75 : 1,
-                    cursor: loading ? "not-allowed" : "pointer",
-                  }}
-                >
-                  {loading ? "Submitting..." : "Submit request"}
-                </button>
-              )}
-            </div>
-          </form>
 
-          {statusMessage && (
-            <div
-              style={{
-                marginTop: "16px",
-                padding: "14px 16px",
-                borderRadius: "12px",
-                backgroundColor: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                color: "#e6e6e6",
-                lineHeight: "1.6",
-                fontSize: "15px",
-              }}
-            >
-              {statusMessage}
-            </div>
-          )}
-        </div>
-      </section>
-    </main>
+                {step < 5 ? (
+                  <button
+                    type="button"
+                    onClick={goNext}
+                    disabled={loading}
+                    style={{
+                      ...primaryButtonStyle,
+                      opacity: loading ? 0.75 : 1,
+                      cursor: loading ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    Continue
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    style={{
+                      ...primaryButtonStyle,
+                      opacity: loading ? 0.75 : 1,
+                      cursor: loading ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    {loading ? "Submitting..." : "Submit request"}
+                  </button>
+                )}
+              </div>
+            </form>
+
+            {statusMessage && (
+              <div className="status-box">{statusMessage}</div>
+            )}
+          </div>
+        </section>
+      </main>
+
+      <style jsx>{`
+        .start-page {
+          min-height: 100vh;
+          background: radial-gradient(
+            circle at top,
+            rgba(24, 24, 24, 0.9) 0%,
+            #0a0a0a 42%,
+            #050505 100%
+          );
+          color: white;
+          font-family: Arial, sans-serif;
+          padding: 54px 16px 70px;
+        }
+
+        .start-shell {
+          max-width: 980px;
+          margin: 0 auto;
+        }
+
+        .hero {
+          max-width: 760px;
+          margin: 0 auto 26px;
+          text-align: center;
+        }
+
+        .eyebrow {
+          display: inline-block;
+          padding: 8px 12px;
+          border-radius: 999px;
+          border: 1px solid #252525;
+          background-color: #121212;
+          color: #b8b8b8;
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+          margin-bottom: 16px;
+        }
+
+        .hero-title {
+          font-size: clamp(40px, 6vw, 64px);
+          line-height: 0.98;
+          font-weight: 400;
+          letter-spacing: -1.5px;
+          margin: 0 0 14px 0;
+        }
+
+        .hero-copy {
+          margin: 0;
+          color: #cfcfcf;
+          font-size: 18px;
+          line-height: 1.8;
+        }
+
+        .card {
+          background: linear-gradient(
+            180deg,
+            rgba(17, 17, 17, 0.98) 0%,
+            rgba(10, 10, 10, 0.98) 100%
+          );
+          border: 1px solid #1f1f1f;
+          border-radius: 24px;
+          padding: 34px;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+        }
+
+        .steps-header {
+          margin-bottom: 28px;
+        }
+
+        .steps-topline {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 14px;
+          margin-bottom: 14px;
+          flex-wrap: wrap;
+        }
+
+        .steps-count {
+          font-size: 13px;
+          color: #9f9f9f;
+          text-transform: uppercase;
+          letter-spacing: 0.6px;
+          font-weight: 700;
+        }
+
+        .steps-label {
+          font-size: 14px;
+          color: #d7d7d7;
+          font-weight: 600;
+        }
+
+        .progress-track {
+          width: 100%;
+          height: 8px;
+          border-radius: 999px;
+          background-color: #181818;
+          border: 1px solid #242424;
+          overflow: hidden;
+          margin-bottom: 22px;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #f3f3f3 0%, #bfbfbf 100%);
+          border-radius: 999px;
+          transition: width 0.25s ease;
+        }
+
+        .steps-scroll {
+          overflow-x: auto;
+          overflow-y: hidden;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+        }
+
+        .steps-scroll::-webkit-scrollbar {
+          display: none;
+        }
+
+        .steps-grid {
+          display: grid;
+          grid-template-columns: repeat(5, minmax(160px, 1fr));
+          gap: 10px;
+          min-width: 860px;
+        }
+
+        .step-card {
+          padding: 12px 12px 14px;
+          border-radius: 16px;
+          border: 1px solid #1f1f1f;
+          background-color: rgba(255, 255, 255, 0.01);
+          min-width: 0;
+        }
+
+        .step-card.current {
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          background-color: rgba(255, 255, 255, 0.04);
+        }
+
+        .step-card-top {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 8px;
+        }
+
+        .step-badge {
+          width: 28px;
+          height: 28px;
+          border-radius: 999px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          font-weight: 700;
+          background-color: #111111;
+          color: #a8a8a8;
+          border: 1px solid #2a2a2a;
+          flex-shrink: 0;
+        }
+
+        .step-card.current .step-badge {
+          background-color: #ffffff;
+          color: #000000;
+          border: 1px solid #ffffff;
+        }
+
+        .step-card.completed .step-badge {
+          background-color: #173021;
+          color: #8ef0b0;
+          border: 1px solid #2e5b3f;
+        }
+
+        .step-name {
+          font-size: 12px;
+          color: #b1b1b1;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          font-weight: 700;
+          line-height: 1.3;
+          word-break: break-word;
+        }
+
+        .step-card.current .step-name {
+          color: #ffffff;
+        }
+
+        .step-helper {
+          font-size: 12px;
+          color: #7d7d7d;
+          line-height: 1.5;
+          word-break: break-word;
+        }
+
+        .step-card.current .step-helper {
+          color: #cfcfcf;
+        }
+
+        .form-stack {
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+        }
+
+        .choice-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 10px;
+        }
+
+        .two-col-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+        }
+
+        .phone-grid {
+          display: grid;
+          grid-template-columns: 120px 1fr;
+          gap: 10px;
+        }
+
+        .budget-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr 130px;
+          gap: 10px;
+        }
+
+        .budget-label {
+          color: #cfcfcf;
+          font-size: 14px;
+          margin-top: 2px;
+          margin-bottom: -4px;
+        }
+
+        .turnstile-wrap {
+          display: flex;
+          justify-content: center;
+          margin-top: 4px;
+          min-height: 70px;
+          overflow-x: auto;
+        }
+
+        .actions {
+          display: flex;
+          justify-content: space-between;
+          gap: 12px;
+          margin-top: 8px;
+          flex-wrap: wrap;
+        }
+
+        .status-box {
+          margin-top: 16px;
+          padding: 14px 16px;
+          border-radius: 12px;
+          background-color: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          color: #e6e6e6;
+          line-height: 1.6;
+          font-size: 15px;
+        }
+
+        @media (max-width: 900px) {
+          .card {
+            padding: 24px;
+          }
+
+          .choice-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
+          .budget-grid {
+            grid-template-columns: 1fr 1fr;
+          }
+
+          .budget-grid :global(select) {
+            grid-column: 1 / -1;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .start-page {
+            padding: 32px 12px 52px;
+          }
+
+          .hero {
+            text-align: left;
+            margin-bottom: 20px;
+          }
+
+          .eyebrow {
+            font-size: 11px;
+            margin-bottom: 12px;
+          }
+
+          .hero-title {
+            font-size: 52px;
+            line-height: 0.98;
+            letter-spacing: -1.2px;
+            margin-bottom: 12px;
+          }
+
+          .hero-copy {
+            font-size: 16px;
+            line-height: 1.7;
+          }
+
+          .card {
+            border-radius: 20px;
+            padding: 18px;
+          }
+
+          .steps-topline {
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 12px;
+          }
+
+          .progress-track {
+            margin-bottom: 16px;
+          }
+
+          .steps-grid {
+            min-width: 720px;
+            grid-template-columns: repeat(5, minmax(132px, 1fr));
+          }
+
+          .step-card {
+            padding: 10px 10px 12px;
+            border-radius: 14px;
+          }
+
+          .step-card-top {
+            align-items: flex-start;
+          }
+
+          .step-name {
+            font-size: 11px;
+          }
+
+          .step-helper {
+            font-size: 11px;
+            line-height: 1.4;
+          }
+
+          .two-col-grid,
+          .phone-grid,
+          .budget-grid,
+          .choice-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .actions {
+            flex-direction: column-reverse;
+          }
+
+          .actions :global(button) {
+            width: 100%;
+            min-width: 0 !important;
+          }
+        }
+
+        @media (max-width: 420px) {
+          .hero-title {
+            font-size: 44px;
+          }
+
+          .hero-copy {
+            font-size: 15px;
+          }
+
+          .card {
+            padding: 16px;
+          }
+
+          .steps-grid {
+            min-width: 680px;
+          }
+        }
+      `}</style>
+    </>
   );
 }
 
@@ -1147,9 +1282,10 @@ function SectionTitle({
       <h2
         style={{
           margin: "0 0 8px 0",
-          fontSize: "28px",
+          fontSize: "clamp(24px, 4vw, 28px)",
           fontWeight: 400,
           letterSpacing: "-0.7px",
+          lineHeight: 1.08,
         }}
       >
         {title}
@@ -1184,7 +1320,8 @@ function ChoiceButton({
       onClick={onClick}
       style={{
         width: "100%",
-        padding: "16px 10px",
+        minHeight: "60px",
+        padding: "16px 12px",
         borderRadius: "12px",
         border: "1px solid #333",
         cursor: "pointer",
@@ -1192,6 +1329,7 @@ function ChoiceButton({
         fontWeight: 700,
         backgroundColor: active ? "white" : "#111",
         color: active ? "black" : "white",
+        textAlign: "center",
       }}
     >
       {label}
@@ -1199,7 +1337,7 @@ function ChoiceButton({
   );
 }
 
-const inputStyle = {
+const inputStyle: React.CSSProperties = {
   padding: "14px",
   borderRadius: "10px",
   border: "1px solid #333",
@@ -1207,9 +1345,11 @@ const inputStyle = {
   color: "white",
   fontSize: "16px",
   width: "100%",
+  minWidth: 0,
+  appearance: "none",
 };
 
-const primaryButtonStyle = {
+const primaryButtonStyle: React.CSSProperties = {
   padding: "16px 22px",
   borderRadius: "12px",
   border: "none",
@@ -1220,7 +1360,7 @@ const primaryButtonStyle = {
   minWidth: "160px",
 };
 
-const secondaryButtonStyle = {
+const secondaryButtonStyle: React.CSSProperties = {
   padding: "16px 22px",
   borderRadius: "12px",
   border: "1px solid rgba(255,255,255,0.12)",
