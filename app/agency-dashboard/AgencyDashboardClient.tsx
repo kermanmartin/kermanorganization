@@ -111,54 +111,47 @@ export default function AgencyDashboardClient({
       return;
     }
 
+    const lead = leads.find((item) => item.id === leadId);
+
+    if (!lead) {
+      alert("Lead not found.");
+      return;
+    }
+
+    if (!lead.lead_price || lead.lead_price <= 0) {
+      alert("This lead does not have a valid price.");
+      return;
+    }
+
     setBuyingLeadId(leadId);
 
     try {
-      const response = await fetch("/api/leads/purchase", {
+      const response = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ leadId }),
+        body: JSON.stringify({
+          leadId,
+          price: lead.lead_price,
+        }),
       });
 
       const payload = await response.json();
 
       if (!response.ok) {
-        alert(payload?.error ?? "Could not unlock this lead.");
+        alert(payload?.error ?? "Could not start payment.");
         return;
       }
 
-      const purchasedLead = payload?.lead;
-
-      if (!purchasedLead) {
-        alert("Lead unlocked, but no lead data was returned.");
+      if (!payload?.url) {
+        alert("Stripe checkout URL was not returned.");
         return;
       }
 
-      setLeads((prev) =>
-        prev.map((lead) =>
-          lead.id === leadId
-            ? {
-                ...lead,
-                name: purchasedLead.name ?? lead.name,
-                email: purchasedLead.email ?? lead.email,
-                phone: purchasedLead.phone ?? lead.phone,
-                message: purchasedLead.message ?? lead.message,
-                contact_locked: false,
-                is_purchased: true,
-                purchased_at:
-                  purchasedLead.purchased_at ?? new Date().toISOString(),
-                lead_price:
-                  typeof purchasedLead.lead_price === "number"
-                    ? purchasedLead.lead_price
-                    : lead.lead_price,
-              }
-            : lead
-        )
-      );
+      window.location.href = payload.url;
     } catch {
-      alert("Could not unlock this lead.");
+      alert("Could not start payment.");
     } finally {
       setBuyingLeadId(null);
     }
@@ -246,8 +239,7 @@ export default function AgencyDashboardClient({
           }}
         >
           <strong style={{ color: "white" }}>Lead unlocking unavailable:</strong>{" "}
-          your agency must be approved before contact details and full message
-          content can be revealed.
+          your agency must be approved before payment and lead access are enabled.
         </div>
       )}
 
@@ -390,13 +382,13 @@ export default function AgencyDashboardClient({
                             fontWeight: 700,
                             cursor:
                               isBuying || !isApproved ? "not-allowed" : "pointer",
-                            minWidth: "128px",
+                            minWidth: "148px",
                             boxShadow: isApproved
                               ? "0 10px 28px rgba(11, 46, 27, 0.28)"
                               : "none",
                           }}
                         >
-                          {isBuying ? "Unlocking..." : "Unlock lead"}
+                          {isBuying ? "Redirecting..." : "Pay & unlock"}
                         </button>
                       )}
                     </td>

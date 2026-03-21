@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import Stripe from "stripe";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import {
@@ -7,10 +8,25 @@ import {
   scoreLeadAgainstAgency,
 } from "@/lib/leadMatching";
 
+export const runtime = "nodejs";
+
 const adminSupabase = createAdminClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
+function getBaseUrl(req: Request) {
+  const origin = req.headers.get("origin");
+  if (origin) return origin;
+
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
+  }
+
+  return "http://localhost:3000";
+}
 
 export async function POST(req: Request) {
   try {
@@ -58,7 +74,7 @@ export async function POST(req: Request) {
 
     if (application.status !== "approved") {
       return NextResponse.json(
-        { error: "Your agency must be approved before unlocking leads." },
+        { error: "Your agency must be approved before purchasing leads." },
         { status: 403 }
       );
     }
@@ -118,40 +134,49 @@ export async function POST(req: Request) {
       });
     }
 
-    const now = new Date().toISOString();
+    const baseUrl = getBaseUrl(req);
 
-    const { error: insertError } = await adminSupabase
-      .from("lead_purchases")
-      .insert([
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      customer_email: application.email,
+      success_url: `${baseUrl}/agency-dashboard?checkout=success`,
+      cancel_url: `${baseUrl}/agency-dashboard?checkout=cancelled`,
+      metadata: {
+        agency_id: application.id,
+        agency_email: application.email,
+        lead_id: scoredLead.id,
+        expected_price_eur: String(scoredLead.lead_price),
+      },
+      line_items: [
         {
-          lead_id: leadId,
-          agency_id: application.id,
-          price_eur: scoredLead.lead_price,
-          match_score: scoredLead.match_score,
-          purchased_at: now,
+          quantity: 1,
+          price_data: {
+            currency: "eur",
+            unit_amount: scoredLead.lead_price * 100,
+            product_data: {
+              name: `Lead unlock · ${lead.city ?? "Matched market"}`,
+              description: `Access to matched lead contact details and full message for ${application.agency_name}.`,
+            },
+          },
         },
-      ]);
+      ],
+    });
 
-    if (insertError) {
-      return NextResponse.json({ error: insertError.message }, { status: 500 });
+    if (!session.url) {
+      return NextResponse.json(
+        { error: "Could not create Stripe Checkout session." },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({
       success: true,
-      lead: {
-        id: scoredLead.id,
-        name: scoredLead.name,
-        email: scoredLead.email,
-        phone: scoredLead.phone,
-        message: scoredLead.message,
-        lead_price: scoredLead.lead_price,
-        purchased_at: now,
-      },
+      url: session.url,
     });
-  } catch {
-    return NextResponse.json(
-      { error: "Invalid purchase request." },
-      { status: 400 }
-    );
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Invalid purchase request.";
+
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }
