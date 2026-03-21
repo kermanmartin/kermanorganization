@@ -7,7 +7,7 @@ export default function AboutPage() {
           "radial-gradient(circle at top, rgba(24,24,24,0.9) 0%, #0a0a0a 42%, #050505 100%)",
         color: "white",
         fontFamily: "Arial, sans-serif",
-        padding: "42px 14px 64px",
+        padding: "40px 14px 72px",
       }}
     >
       <section
@@ -42,10 +42,10 @@ export default function AboutPage() {
 
           <h1
             style={{
-              fontSize: "clamp(32px, 7vw, 72px)",
-              lineHeight: "0.98",
+              fontSize: "clamp(34px, 6vw, 72px)",
+              lineHeight: "1.02",
               fontWeight: 400,
-              letterSpacing: "-1.4px",
+              letterSpacing: "-1.2px",
               margin: "0 0 18px 0",
             }}
           >
@@ -56,8 +56,8 @@ export default function AboutPage() {
             style={{
               margin: 0,
               color: "#cfcfcf",
-              fontSize: "clamp(15px, 2.2vw, 19px)",
-              lineHeight: "1.9",
+              fontSize: "clamp(16px, 2vw, 19px)",
+              lineHeight: "1.85",
               maxWidth: "820px",
             }}
           >
@@ -67,7 +67,14 @@ export default function AboutPage() {
           </p>
         </div>
 
-        <div className="about-card-grid">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+            gap: "18px",
+            marginBottom: "22px",
+          }}
+        >
           <SectionCard
             title="Structured intake"
             text="Instead of relying on vague contact forms, the platform captures location, property profile, timing, financial position and user intent in a structured way."
@@ -82,13 +89,19 @@ export default function AboutPage() {
           />
         </div>
 
-        <div className="about-bottom-grid">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gap: "18px",
+          }}
+        >
           <div style={largeCard}>
             <h2 style={sectionTitle}>How the platform works</h2>
 
             <div style={flowBlock}>
               <div style={flowStep}>01</div>
-              <div>
+              <div style={{ minWidth: 0 }}>
                 <div style={flowTitle}>A user starts a request</div>
                 <div style={flowText}>
                   Buyers, sellers, tenants, landlords and investors submit a
@@ -99,7 +112,7 @@ export default function AboutPage() {
 
             <div style={flowBlock}>
               <div style={flowStep}>02</div>
-              <div>
+              <div style={{ minWidth: 0 }}>
                 <div style={flowTitle}>The request is normalized</div>
                 <div style={flowText}>
                   The platform organizes the submission into a usable lead
@@ -110,7 +123,7 @@ export default function AboutPage() {
 
             <div style={flowBlock}>
               <div style={flowStep}>03</div>
-              <div>
+              <div style={{ minWidth: 0 }}>
                 <div style={flowTitle}>Relevant agencies receive visibility</div>
                 <div style={flowText}>
                   Agencies only access leads that match their market profile,
@@ -133,28 +146,6 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-
-      <style jsx>{`
-        .about-card-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-          gap: 22px;
-          margin-bottom: 24px;
-        }
-
-        .about-bottom-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-          gap: 22px;
-        }
-
-        @media (max-width: 640px) {
-          .about-card-grid,
-          .about-bottom-grid {
-            gap: 16px;
-          }
-        }
-      `}</style>
     </main>
   );
 }
@@ -174,6 +165,7 @@ function SectionCard({
         border: "1px solid #1d1d1d",
         borderRadius: "20px",
         padding: "24px",
+        minWidth: 0,
       }}
     >
       <h3
@@ -193,8 +185,8 @@ function SectionCard({
         style={{
           margin: 0,
           color: "#cfcfcf",
-          lineHeight: "1.85",
-          fontSize: "16px",
+          lineHeight: "1.8",
+          fontSize: "15px",
         }}
       >
         {text}
@@ -226,7 +218,7 @@ function ReasonItem({ text }: { text: string }) {
       <div
         style={{
           color: "#d0d0d0",
-          fontSize: "17px",
+          fontSize: "16px",
           lineHeight: "1.8",
         }}
       >
@@ -294,8 +286,8 @@ const flowTitle: React.CSSProperties = {
 };
 
 const flowText: React.CSSProperties = {
-  fontSize: "16px",
-  lineHeight: "1.85",
+  fontSize: "15px",
+  lineHeight: "1.8",
   color: "#cfcfcf",
 };
 
