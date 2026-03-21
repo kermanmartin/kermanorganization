@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import StatusButton from "./StatusButton";
 
@@ -45,8 +46,57 @@ export default function AgencyDashboardClient({
   agencyName: string;
 }) {
   const supabase = createClient();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const [buyingLeadId, setBuyingLeadId] = useState<string | null>(null);
+  const [isCheckingCheckout, setIsCheckingCheckout] = useState(false);
+
+  const checkoutStatus = searchParams.get("checkout");
+  const checkoutLeadId = searchParams.get("lead");
+
+  useEffect(() => {
+    setLeads(initialLeads);
+  }, [initialLeads]);
+
+  useEffect(() => {
+    if (checkoutStatus !== "success") {
+      setIsCheckingCheckout(false);
+      return;
+    }
+
+    setIsCheckingCheckout(true);
+
+    const firstRefresh = window.setTimeout(() => {
+      router.refresh();
+    }, 1200);
+
+    const secondRefresh = window.setTimeout(() => {
+      router.refresh();
+    }, 3000);
+
+    const finalCleanup = window.setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("checkout");
+      params.delete("lead");
+
+      const nextUrl = params.toString()
+        ? `${pathname}?${params.toString()}`
+        : pathname;
+
+      router.replace(nextUrl);
+      router.refresh();
+      setIsCheckingCheckout(false);
+    }, 5200);
+
+    return () => {
+      window.clearTimeout(firstRefresh);
+      window.clearTimeout(secondRefresh);
+      window.clearTimeout(finalCleanup);
+    };
+  }, [checkoutStatus, pathname, router, searchParams]);
 
   const purchasedLeads = useMemo(
     () => leads.filter((lead) => Boolean(lead.is_purchased)).length,
@@ -157,6 +207,23 @@ export default function AgencyDashboardClient({
     }
   };
 
+  const checkoutBanner =
+    checkoutStatus === "success"
+      ? {
+          title: "Payment received.",
+          text: checkoutLeadId
+            ? "We are finalizing lead access. The dashboard will refresh automatically in a few seconds."
+            : "We are finalizing your lead access. The dashboard will refresh automatically in a few seconds.",
+          tone: "success" as const,
+        }
+      : checkoutStatus === "cancelled"
+      ? {
+          title: "Payment cancelled.",
+          text: "No charge was completed. You can unlock the lead again whenever you want.",
+          tone: "neutral" as const,
+        }
+      : null;
+
   if (!leads || leads.length === 0) {
     return (
       <div
@@ -199,6 +266,65 @@ export default function AgencyDashboardClient({
 
   return (
     <>
+      {checkoutBanner && (
+        <div
+          style={{
+            marginBottom: "18px",
+            padding: "16px 18px",
+            borderRadius: "18px",
+            border:
+              checkoutBanner.tone === "success"
+                ? "1px solid rgba(43, 104, 67, 0.9)"
+                : "1px solid rgba(255,255,255,0.08)",
+            background:
+              checkoutBanner.tone === "success"
+                ? "linear-gradient(180deg, rgba(18,49,31,0.96) 0%, rgba(11,31,20,0.98) 100%)"
+                : "linear-gradient(180deg, rgba(17,17,17,0.96) 0%, rgba(11,11,11,0.98) 100%)",
+            color: "#d9d9d9",
+            lineHeight: "1.7",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "14px",
+              fontWeight: 700,
+              marginBottom: "6px",
+              color:
+                checkoutBanner.tone === "success" ? "#b6f0c8" : "#f1f1f1",
+              textTransform: "uppercase",
+              letterSpacing: "0.4px",
+            }}
+          >
+            {checkoutBanner.title}
+          </div>
+
+          <div style={{ fontSize: "14px" }}>{checkoutBanner.text}</div>
+
+          {isCheckingCheckout && checkoutBanner.tone === "success" && (
+            <div
+              style={{
+                marginTop: "12px",
+                height: "6px",
+                width: "100%",
+                borderRadius: "999px",
+                backgroundColor: "rgba(255,255,255,0.08)",
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  height: "100%",
+                  width: "100%",
+                  background:
+                    "linear-gradient(90deg, rgba(100, 220, 145, 0.3) 0%, rgba(143, 240, 177, 1) 100%)",
+                  animation: "checkoutProgress 4.8s linear forwards",
+                }}
+              />
+            </div>
+          )}
+        </div>
+      )}
+
       <div
         style={{
           marginBottom: "18px",
@@ -475,6 +601,17 @@ export default function AgencyDashboardClient({
           </table>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes checkoutProgress {
+          from {
+            transform: translateX(-100%);
+          }
+          to {
+            transform: translateX(0%);
+          }
+        }
+      `}</style>
     </>
   );
 }

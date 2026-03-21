@@ -166,8 +166,12 @@ export async function POST(req: Request) {
           },
         },
       ],
-      success_url: `${baseUrl}/agency-dashboard?success=true`,
-      cancel_url: `${baseUrl}/agency-dashboard?canceled=true`,
+      success_url: `${baseUrl}/agency-dashboard?checkout=success&lead=${encodeURIComponent(
+        leadId
+      )}`,
+      cancel_url: `${baseUrl}/agency-dashboard?checkout=cancelled&lead=${encodeURIComponent(
+        leadId
+      )}`,
       metadata: {
         leadId: scoredLead.id,
       },
