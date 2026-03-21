@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import StatusButton from "./StatusButton";
@@ -222,6 +222,7 @@ export default function AgencyDashboardClient({
             fontWeight: 500,
             marginBottom: "12px",
             letterSpacing: "-0.7px",
+            fontFamily: 'Georgia, "Times New Roman", serif',
           }}
         >
           No matched leads yet
@@ -326,12 +327,12 @@ export default function AgencyDashboardClient({
 
       <div
         style={{
-          borderRadius: "26px",
+          borderRadius: "28px",
           overflow: "hidden",
           border: "1px solid rgba(255,255,255,0.07)",
           background:
-            "linear-gradient(180deg, rgba(16,16,16,0.96) 0%, rgba(9,9,9,0.99) 100%)",
-          boxShadow: "0 22px 60px rgba(0,0,0,0.32)",
+            "linear-gradient(180deg, rgba(14,14,14,0.96) 0%, rgba(8,8,8,0.995) 100%)",
+          boxShadow: "0 24px 70px rgba(0,0,0,0.34)",
         }}
       >
         <div
@@ -349,9 +350,10 @@ export default function AgencyDashboardClient({
             <h2
               style={{
                 margin: 0,
-                fontSize: "25px",
+                fontSize: "28px",
                 fontWeight: 500,
-                letterSpacing: "-0.6px",
+                letterSpacing: "-0.7px",
+                fontFamily: 'Georgia, "Times New Roman", serif',
               }}
             >
               Lead desk
@@ -361,12 +363,12 @@ export default function AgencyDashboardClient({
                 margin: "8px 0 0 0",
                 color: "#9f9f9f",
                 fontSize: "14px",
-                lineHeight: "1.7",
+                lineHeight: "1.75",
                 maxWidth: "760px",
               }}
             >
               Review fit, unlock serious opportunities, and move purchased leads
-              into your pipeline.
+              into your active pipeline.
             </p>
           </div>
 
@@ -392,11 +394,11 @@ export default function AgencyDashboardClient({
             style={{
               width: "100%",
               borderCollapse: "collapse",
-              minWidth: "2140px",
+              minWidth: "1960px",
             }}
           >
             <thead>
-              <tr style={{ backgroundColor: "rgba(255,255,255,0.02)" }}>
+              <tr style={{ backgroundColor: "rgba(255,255,255,0.018)" }}>
                 <th style={thStyle}>Match</th>
                 <th style={thStyle}>Price</th>
                 <th style={thStyle}>Action</th>
@@ -411,8 +413,6 @@ export default function AgencyDashboardClient({
                 <th style={thStyle}>Budget</th>
                 <th style={thStyle}>Client</th>
                 <th style={thStyle}>Timeframe</th>
-                <th style={thStyle}>Financing</th>
-                <th style={thStyle}>Seller status</th>
                 <th style={thStyle}>Pipeline</th>
                 <th style={thStyle}>Message</th>
                 <th style={thStyle}>Unlocked at</th>
@@ -428,7 +428,7 @@ export default function AgencyDashboardClient({
                   <tr
                     key={lead.id}
                     style={{
-                      borderTop: "1px solid rgba(255,255,255,0.05)",
+                      borderTop: "1px solid rgba(255,255,255,0.045)",
                     }}
                   >
                     <td style={tdStyleScore}>
@@ -464,10 +464,10 @@ export default function AgencyDashboardClient({
                             fontWeight: 700,
                             cursor:
                               isBuying || !isApproved ? "not-allowed" : "pointer",
-                            minWidth: "178px",
+                            minWidth: "182px",
                             lineHeight: "1.35",
                             boxShadow: isApproved
-                              ? "0 10px 28px rgba(11, 46, 27, 0.24)"
+                              ? "0 10px 28px rgba(11, 46, 27, 0.22)"
                               : "none",
                           }}
                         >
@@ -516,8 +516,6 @@ export default function AgencyDashboardClient({
                     <td style={tdStyleBudget}>{lead.budget ?? "-"}</td>
                     <td style={tdStyle}>{formatValue(lead.user_type)}</td>
                     <td style={tdStyle}>{formatValue(lead.timeframe)}</td>
-                    <td style={tdStyle}>{formatValue(lead.financing_status)}</td>
-                    <td style={tdStyle}>{formatValue(lead.seller_status)}</td>
 
                     <td style={tdStyle}>
                       {lead.is_purchased ? (
@@ -628,7 +626,7 @@ function MatchScoreBadge({
   const styles = getStyles();
 
   return (
-    <div style={{ minWidth: "104px" }}>
+    <div style={{ minWidth: "102px" }}>
       <div
         style={{
           padding: "8px 10px",
@@ -669,7 +667,7 @@ function PriceCell({
   purchased: boolean;
 }) {
   return (
-    <div style={{ minWidth: "122px" }}>
+    <div style={{ minWidth: "120px" }}>
       <div
         style={{
           padding: "8px 10px",
@@ -709,7 +707,7 @@ function AccessCell({
 }) {
   if (purchased) {
     return (
-      <div style={{ minWidth: "150px" }}>
+      <div style={{ minWidth: "148px" }}>
         <div
           style={{
             fontSize: "12px",
@@ -737,7 +735,7 @@ function AccessCell({
 
   if (!approved) {
     return (
-      <div style={{ minWidth: "150px" }}>
+      <div style={{ minWidth: "148px" }}>
         <div
           style={{
             fontSize: "12px",
@@ -764,7 +762,7 @@ function AccessCell({
   }
 
   return (
-    <div style={{ minWidth: "150px" }}>
+    <div style={{ minWidth: "148px" }}>
       <div
         style={{
           fontSize: "12px",
@@ -804,7 +802,7 @@ function UnlockedBadge() {
         color: "#c8f7da",
         fontSize: "12px",
         fontWeight: 700,
-        minWidth: "178px",
+        minWidth: "182px",
       }}
     >
       Lead unlocked
@@ -826,7 +824,7 @@ function FitSummary({
     .slice(0, 3);
 
   return (
-    <div style={{ minWidth: "250px", maxWidth: "320px" }}>
+    <div style={{ minWidth: "250px", maxWidth: "330px" }}>
       <div
         style={{
           marginBottom: "8px",
@@ -840,7 +838,7 @@ function FitSummary({
         {score >= 80 ? "High fit" : score >= 60 ? "Good fit" : "Basic fit"}
       </div>
 
-      <div style={{ color: "#d8d8d8", lineHeight: "1.65", fontSize: "14px" }}>
+      <div style={{ color: "#d8d8d8", lineHeight: "1.68", fontSize: "14px" }}>
         {items.length > 0 ? (
           items.map((item) => (
             <div key={item} style={{ marginBottom: "5px" }}>
@@ -916,12 +914,12 @@ function LockedCell({
 const thStyle = {
   padding: "16px 18px",
   textAlign: "left" as const,
-  fontSize: "12px",
+  fontSize: "11px",
   whiteSpace: "nowrap" as const,
-  color: "#c5c5c5",
+  color: "#bfbfbf",
   fontWeight: 700,
   textTransform: "uppercase" as const,
-  letterSpacing: "0.5px",
+  letterSpacing: "0.65px",
 };
 
 const tdStyle = {
@@ -936,7 +934,7 @@ const tdStyleScore = {
   padding: "18px",
   textAlign: "left" as const,
   verticalAlign: "top" as const,
-  minWidth: "120px",
+  minWidth: "118px",
   color: "#f1f1f1",
 };
 
@@ -944,7 +942,7 @@ const tdStylePrice = {
   padding: "18px",
   textAlign: "left" as const,
   verticalAlign: "top" as const,
-  minWidth: "125px",
+  minWidth: "122px",
   color: "#f1f1f1",
 };
 
@@ -952,7 +950,7 @@ const tdStyleAction = {
   padding: "18px",
   textAlign: "left" as const,
   verticalAlign: "top" as const,
-  minWidth: "190px",
+  minWidth: "194px",
   color: "#f1f1f1",
 };
 
@@ -960,7 +958,7 @@ const tdStyleAccess = {
   padding: "18px",
   textAlign: "left" as const,
   verticalAlign: "top" as const,
-  minWidth: "160px",
+  minWidth: "156px",
   color: "#f1f1f1",
 };
 

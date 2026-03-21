@@ -226,45 +226,47 @@ export default async function AgencyDashboardPage() {
       style={{
         minHeight: "100vh",
         background: `
-          radial-gradient(circle at top left, rgba(146, 118, 61, 0.14) 0%, rgba(146, 118, 61, 0) 24%),
-          linear-gradient(180deg, #050505 0%, #090909 45%, #0d0d0d 100%)
+          radial-gradient(circle at top left, rgba(170,136,76,0.10) 0%, rgba(170,136,76,0) 24%),
+          radial-gradient(circle at 85% 0%, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0) 18%),
+          linear-gradient(180deg, #050505 0%, #090909 42%, #0d0d0d 100%)
         `,
         color: "white",
-        fontFamily: "Arial, sans-serif",
-        padding: "28px 18px 60px",
+        fontFamily: 'Inter, Arial, sans-serif',
+        padding: "24px 18px 56px",
       }}
     >
-      <section style={{ maxWidth: "1440px", margin: "0 auto" }}>
+      <section style={{ maxWidth: "1420px", margin: "0 auto" }}>
         <div
           style={{
             marginBottom: "18px",
-            padding: "34px",
             border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: "28px",
+            borderRadius: "30px",
             background:
-              "linear-gradient(180deg, rgba(17,17,17,0.92) 0%, rgba(9,9,9,0.98) 100%)",
+              "linear-gradient(180deg, rgba(15,15,15,0.92) 0%, rgba(8,8,8,0.98) 100%)",
             boxShadow:
-              "0 28px 90px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.03)",
-            position: "relative",
+              "0 28px 90px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.03)",
             overflow: "hidden",
+            position: "relative",
           }}
         >
           <div
             style={{
               position: "absolute",
-              top: "-80px",
-              right: "-80px",
-              width: "260px",
-              height: "260px",
+              top: "-110px",
+              right: "-60px",
+              width: "280px",
+              height: "280px",
               borderRadius: "999px",
               background:
-                "radial-gradient(circle, rgba(166,133,66,0.14) 0%, rgba(166,133,66,0) 72%)",
+                "radial-gradient(circle, rgba(166,133,66,0.12) 0%, rgba(166,133,66,0) 72%)",
               pointerEvents: "none",
             }}
           />
 
           <div
             style={{
+              padding: "34px 34px 28px",
+              borderBottom: "1px solid rgba(255,255,255,0.06)",
               display: "flex",
               justifyContent: "space-between",
               gap: "24px",
@@ -274,7 +276,7 @@ export default async function AgencyDashboardPage() {
               zIndex: 1,
             }}
           >
-            <div style={{ maxWidth: "980px" }}>
+            <div style={{ maxWidth: "960px" }}>
               <div
                 style={{
                   display: "flex",
@@ -284,7 +286,7 @@ export default async function AgencyDashboardPage() {
                   marginBottom: "18px",
                 }}
               >
-                <TopTag label="Agency desk" />
+                <TopTag label="Private deal desk" />
                 <TopTag
                   label={isApproved ? "Approved" : "Pending approval"}
                   tone={isApproved ? "green" : "neutral"}
@@ -294,10 +296,11 @@ export default async function AgencyDashboardPage() {
               <h1
                 style={{
                   margin: 0,
-                  fontSize: "52px",
+                  fontSize: "56px",
                   fontWeight: 500,
-                  letterSpacing: "-1.6px",
-                  lineHeight: 0.95,
+                  letterSpacing: "-2px",
+                  lineHeight: 0.94,
+                  fontFamily: 'Georgia, "Times New Roman", serif',
                 }}
               >
                 {application.agency_name}
@@ -306,23 +309,48 @@ export default async function AgencyDashboardPage() {
               <p
                 style={{
                   marginTop: "18px",
-                  marginBottom: "22px",
+                  marginBottom: 0,
                   maxWidth: "860px",
-                  color: "#cfcfcf",
+                  color: "#cdcdcd",
                   fontSize: "18px",
-                  lineHeight: "1.8",
+                  lineHeight: "1.85",
                 }}
               >
-                Private access to matched demand aligned with your city coverage,
-                client focus and commercial positioning.
+                A private workspace for reviewing high-fit demand aligned with your
+                territory, commercial profile and market focus.
               </p>
+            </div>
+
+            <LogoutButton />
+          </div>
+
+          <div
+            style={{
+              padding: "18px 34px 26px",
+              display: "grid",
+              gridTemplateColumns: "1.15fr 0.95fr",
+              gap: "24px",
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  fontSize: "11px",
+                  color: "#8d8d8d",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.65px",
+                  fontWeight: 700,
+                  marginBottom: "12px",
+                }}
+              >
+                Agency profile
+              </div>
 
               <div
                 style={{
                   display: "flex",
                   flexWrap: "wrap",
                   gap: "10px 12px",
-                  marginBottom: "18px",
                 }}
               >
                 <InlineInfo
@@ -350,9 +378,49 @@ export default async function AgencyDashboardPage() {
                   }
                 />
               </div>
+            </div>
+
+            <div>
+              <div
+                style={{
+                  fontSize: "11px",
+                  color: "#8d8d8d",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.65px",
+                  fontWeight: 700,
+                  marginBottom: "12px",
+                }}
+              >
+                Live desk snapshot
+              </div>
 
               <div
                 style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, minmax(120px, 1fr))",
+                  gap: "12px",
+                }}
+              >
+                <MetricStrip
+                  title="Matched"
+                  value={matchedCount}
+                  helper="Current queue"
+                />
+                <MetricStrip
+                  title="Unlocked"
+                  value={unlockedCount}
+                  helper="Full access"
+                />
+                <MetricStrip
+                  title="Avg. score"
+                  value={averageMatchScore}
+                  helper={`${strongCount} strong`}
+                />
+              </div>
+
+              <div
+                style={{
+                  marginTop: "14px",
                   fontSize: "13px",
                   color: "#8f8f8f",
                   lineHeight: "1.7",
@@ -361,44 +429,17 @@ export default async function AgencyDashboardPage() {
                 Signed in as {user.email}
               </div>
             </div>
-
-            <LogoutButton />
           </div>
         </div>
 
         <div
           style={{
             marginBottom: "18px",
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: "14px",
-          }}
-        >
-          <MetricStrip
-            title="Matched"
-            value={matchedCount}
-            helper="Current queue"
-          />
-          <MetricStrip
-            title="Unlocked"
-            value={unlockedCount}
-            helper="Open access"
-          />
-          <MetricStrip
-            title="Avg. score"
-            value={averageMatchScore}
-            helper={`${strongCount} strong matches`}
-          />
-        </div>
-
-        <div
-          style={{
-            marginBottom: "20px",
             padding: "15px 18px",
             borderRadius: "18px",
             border: "1px solid rgba(255,255,255,0.07)",
             background:
-              "linear-gradient(180deg, rgba(15,15,15,0.94) 0%, rgba(10,10,10,0.98) 100%)",
+              "linear-gradient(180deg, rgba(13,13,13,0.94) 0%, rgba(9,9,9,0.98) 100%)",
             color: "#cfcfcf",
             fontSize: "14px",
             lineHeight: "1.75",
@@ -407,8 +448,8 @@ export default async function AgencyDashboardPage() {
           {isApproved ? (
             <>
               <strong style={{ color: "white" }}>Live access enabled:</strong>{" "}
-              launch pricing remains intentionally conservative to encourage
-              adoption and repeat buying.
+              launch pricing remains intentionally conservative to increase agency
+              adoption and repeat buying while the network grows.
             </>
           ) : (
             <>
@@ -481,9 +522,9 @@ function InlineInfo({
         display: "inline-flex",
         flexDirection: "column",
         gap: "4px",
-        padding: "11px 14px",
+        padding: "12px 14px",
         borderRadius: "14px",
-        border: "1px solid rgba(255,255,255,0.07)",
+        border: "1px solid rgba(255,255,255,0.06)",
         background: "rgba(255,255,255,0.02)",
         minWidth: "180px",
       }}
@@ -504,7 +545,7 @@ function InlineInfo({
         style={{
           fontSize: "15px",
           color: "#f1f1f1",
-          lineHeight: "1.4",
+          lineHeight: "1.45",
         }}
       >
         {value}
@@ -525,18 +566,18 @@ function MetricStrip({
   return (
     <div
       style={{
-        borderRadius: "18px",
-        border: "1px solid rgba(255,255,255,0.07)",
+        borderRadius: "16px",
+        border: "1px solid rgba(255,255,255,0.06)",
         background:
-          "linear-gradient(180deg, rgba(16,16,16,0.96) 0%, rgba(10,10,10,0.99) 100%)",
-        padding: "20px 22px",
+          "linear-gradient(180deg, rgba(16,16,16,0.96) 0%, rgba(9,9,9,0.99) 100%)",
+        padding: "16px 16px 14px",
       }}
     >
       <div
         style={{
-          fontSize: "11px",
+          fontSize: "10px",
           color: "#8f8f8f",
-          marginBottom: "10px",
+          marginBottom: "8px",
           textTransform: "uppercase",
           letterSpacing: "0.6px",
           fontWeight: 700,
@@ -547,10 +588,10 @@ function MetricStrip({
 
       <div
         style={{
-          fontSize: "34px",
+          fontSize: "32px",
           fontWeight: 700,
           letterSpacing: "-1px",
-          marginBottom: "8px",
+          marginBottom: "6px",
           color: "#f5f5f5",
         }}
       >
@@ -560,8 +601,8 @@ function MetricStrip({
       <div
         style={{
           color: "#8a8a8a",
-          fontSize: "13px",
-          lineHeight: "1.55",
+          fontSize: "12px",
+          lineHeight: "1.45",
         }}
       >
         {helper}
