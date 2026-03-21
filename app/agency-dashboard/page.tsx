@@ -2,292 +2,21 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import LogoutButton from "./LogoutButton";
 import AgencyDashboardClient from "./AgencyDashboardClient";
+import {
+  AgencyApplication,
+  Lead,
+  scoreLeadAgainstAgency,
+  ScoredLead,
+} from "@/lib/leadMatching";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-type Lead = {
-  id: number;
-  name: string | null;
-  email: string | null;
-  phone: string | null;
-  language: string | null;
-  country: string | null;
-  city: string | null;
-  preferred_area: string | null;
-  property_type: string | null;
-  timeframe: string | null;
-  financing_status: string | null;
-  seller_status: string | null;
-  rental_profile: string | null;
-  budget: string | null;
-  user_type: string | null;
-  purpose: string | null;
-  urgency: string | null;
-  working_with_agency: string | null;
-  flexibility: string | null;
-  status: string | null;
-  message: string | null;
-  created_at: string | null;
-  contact_locked?: boolean;
+type LeadWithCommercialState = ScoredLead & {
+  contact_locked: boolean;
+  is_purchased: boolean;
+  purchased_at: string | null;
 };
-
-type AgencyApplication = {
-  id: string;
-  agency_name: string;
-  email: string;
-  status: string;
-  country: string | null;
-  city: string | null;
-  preferred_cities: string | null;
-  preferred_areas: string | null;
-  property_types: string[] | null;
-  client_types: string[] | null;
-  languages_spoken: string[] | null;
-  market_segments: string[] | null;
-  min_budget: string | null;
-  max_budget: string | null;
-  response_speed: string | null;
-  international_clients: string | null;
-  lead_intent: string | null;
-  exclusive_leads_only: string | null;
-};
-
-type ScoredLead = Lead & {
-  match_score: number;
-  match_reason: string;
-};
-
-function normalizeText(value: string | null | undefined) {
-  return (value ?? "").trim().toLowerCase();
-}
-
-function splitCommaValues(value: string | null | undefined) {
-  return (value ?? "")
-    .split(",")
-    .map((item) => item.trim().toLowerCase())
-    .filter(Boolean);
-}
-
-function parseBudgetNumber(value: string | null | undefined) {
-  if (!value) return null;
-
-  const cleaned = value
-    .replace(/[^\d.,]/g, "")
-    .replace(/\./g, "")
-    .replace(",", ".");
-  const parsed = Number(cleaned);
-
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
-function parseLeadBudgetRange(budget: string | null | undefined) {
-  if (!budget) {
-    return { min: null as number | null, max: null as number | null };
-  }
-
-  const normalized = budget.replace(/[^\d\-–—,.\s]/g, " ");
-  const matches = normalized.match(/\d[\d.,]*/g) ?? [];
-
-  if (matches.length < 2) {
-    return { min: null as number | null, max: null as number | null };
-  }
-
-  const min = parseBudgetNumber(matches[0]);
-  const max = parseBudgetNumber(matches[1]);
-
-  return { min, max };
-}
-
-function isSameCountry(lead: Lead, application: AgencyApplication) {
-  const agencyCountry = normalizeText(application.country);
-  const leadCountry = normalizeText(lead.country);
-
-  if (!agencyCountry || !leadCountry) return false;
-  return agencyCountry === leadCountry;
-}
-
-function getCityMatchType(
-  lead: Lead,
-  application: AgencyApplication
-): "main_city" | "covered_city" | "none" {
-  const leadCity = normalizeText(lead.city);
-  const mainCity = normalizeText(application.city);
-  const extraCities = splitCommaValues(application.preferred_cities);
-
-  if (!leadCity) return "none";
-  if (leadCity === mainCity) return "main_city";
-  if (extraCities.includes(leadCity)) return "covered_city";
-  return "none";
-}
-
-function matchesPropertyType(lead: Lead, application: AgencyApplication) {
-  const agencyPropertyTypes =
-    application.property_types?.map((item) => item.trim().toLowerCase()) ?? [];
-
-  if (agencyPropertyTypes.length === 0) return false;
-
-  const leadPropertyType = normalizeText(lead.property_type);
-  return agencyPropertyTypes.includes(leadPropertyType);
-}
-
-function matchesClientType(lead: Lead, application: AgencyApplication) {
-  const agencyClientTypes =
-    application.client_types?.map((item) => item.trim().toLowerCase()) ?? [];
-
-  if (agencyClientTypes.length === 0) return false;
-
-  const leadUserType = normalizeText(lead.user_type);
-  return agencyClientTypes.includes(leadUserType);
-}
-
-function matchesBudget(lead: Lead, application: AgencyApplication) {
-  const agencyMin = parseBudgetNumber(application.min_budget);
-  const agencyMax = parseBudgetNumber(application.max_budget);
-
-  if (agencyMin === null || agencyMax === null) return false;
-
-  const leadBudget = parseLeadBudgetRange(lead.budget);
-
-  if (leadBudget.min === null || leadBudget.max === null) return false;
-
-  return leadBudget.max >= agencyMin && leadBudget.min <= agencyMax;
-}
-
-function matchesLanguage(lead: Lead, application: AgencyApplication) {
-  const agencyLanguages =
-    application.languages_spoken?.map((item) => item.trim().toLowerCase()) ?? [];
-
-  if (agencyLanguages.length === 0) return false;
-
-  const leadLanguage = normalizeText(lead.language);
-  if (!leadLanguage) return false;
-
-  return agencyLanguages.includes(leadLanguage);
-}
-
-function matchesLeadIntent(lead: Lead, application: AgencyApplication) {
-  const leadIntent = normalizeText(application.lead_intent);
-  const urgency = normalizeText(lead.urgency);
-
-  if (!leadIntent || !urgency) return false;
-  if (leadIntent === "mixed") return true;
-
-  if (leadIntent === "high_intent_only") {
-    return urgency === "ready_now" || urgency === "actively_searching";
-  }
-
-  return false;
-}
-
-function matchesInternationalClientSupport(
-  lead: Lead,
-  application: AgencyApplication
-) {
-  const internationalClients = normalizeText(application.international_clients);
-  const leadLanguage = normalizeText(lead.language);
-
-  if (!leadLanguage) return false;
-  if (leadLanguage === "english") return true;
-  return internationalClients === "yes";
-}
-
-function getAreaMatchScore(lead: Lead, application: AgencyApplication) {
-  const leadArea = normalizeText(lead.preferred_area);
-  const agencyAreas = splitCommaValues(application.preferred_areas);
-
-  if (!leadArea || agencyAreas.length === 0) return 0;
-
-  for (const area of agencyAreas) {
-    if (leadArea.includes(area) || area.includes(leadArea)) {
-      return 20;
-    }
-  }
-
-  return 0;
-}
-
-function getResponseSpeedScore(application: AgencyApplication) {
-  const responseSpeed = normalizeText(application.response_speed);
-
-  if (responseSpeed === "under_1_hour") return 6;
-  if (responseSpeed === "under_24_hours") return 5;
-  if (responseSpeed === "one_to_three_days") return 3;
-  if (responseSpeed === "more_than_three_days") return 1;
-  return 0;
-}
-
-function scoreLeadAgainstAgency(
-  lead: Lead,
-  application: AgencyApplication
-): ScoredLead | null {
-  if (!isSameCountry(lead, application)) return null;
-
-  const cityMatchType = getCityMatchType(lead, application);
-
-  // Regla dura: si no coincide ciudad, fuera.
-  if (cityMatchType === "none") return null;
-
-  let score = 0;
-  const reasons: string[] = [];
-
-  // Peso más fuerte: ciudad
-  if (cityMatchType === "main_city") {
-    score += 40;
-    reasons.push("main city match");
-  } else if (cityMatchType === "covered_city") {
-    score += 28;
-    reasons.push("covered city match");
-  }
-
-  const areaScore = getAreaMatchScore(lead, application);
-  if (areaScore > 0) {
-    score += areaScore;
-    reasons.push("area match");
-  }
-
-  if (matchesClientType(lead, application)) {
-    score += 18;
-    reasons.push("client type match");
-  }
-
-  if (matchesPropertyType(lead, application)) {
-    score += 14;
-    reasons.push("property type match");
-  }
-
-  if (matchesBudget(lead, application)) {
-    score += 12;
-    reasons.push("budget overlap");
-  }
-
-  if (matchesLanguage(lead, application)) {
-    score += 10;
-    reasons.push("language match");
-  }
-
-  if (matchesInternationalClientSupport(lead, application)) {
-    score += 8;
-    reasons.push("international fit");
-  }
-
-  if (matchesLeadIntent(lead, application)) {
-    score += 6;
-    reasons.push("lead intent fit");
-  }
-
-  const responseSpeedScore = getResponseSpeedScore(application);
-  if (responseSpeedScore > 0) {
-    score += responseSpeedScore;
-    reasons.push("response speed");
-  }
-
-  return {
-    ...lead,
-    match_score: score,
-    match_reason: reasons.join(" • "),
-  };
-}
 
 export default async function AgencyDashboardPage() {
   const supabase = await createClient();
@@ -320,6 +49,25 @@ export default async function AgencyDashboardPage() {
     .select("*")
     .order("created_at", { ascending: false });
 
+  const { data: purchases } = await supabase
+    .from("lead_purchases")
+    .select("lead_id, price_eur, purchased_at")
+    .eq("agency_id", application.id);
+
+  const purchaseMap = new Map<
+    string,
+    { price_eur: number | null; purchased_at: string | null }
+  >();
+
+  for (const purchase of purchases ?? []) {
+    purchaseMap.set(String(purchase.lead_id), {
+      price_eur:
+        typeof purchase.price_eur === "number" ? purchase.price_eur : null,
+      purchased_at:
+        typeof purchase.purchased_at === "string" ? purchase.purchased_at : null,
+    });
+  }
+
   const typedLeads: Lead[] = (leads ?? []) as Lead[];
 
   const scoredLeads = typedLeads
@@ -335,18 +83,36 @@ export default async function AgencyDashboardPage() {
       return bDate - aDate;
     });
 
-  const safeLeads: Lead[] = scoredLeads.map((lead) => ({
-    ...lead,
-    name: isApproved ? lead.name : lead.name ? "Contact locked" : "-",
-    email: isApproved ? lead.email : lead.email ? "Contact locked" : "-",
-    phone: isApproved ? lead.phone : lead.phone ? "Contact locked" : "-",
-    message: isApproved
-      ? lead.message
-      : lead.message
-      ? "Full message available after agency approval."
-      : "-",
-    contact_locked: !isApproved,
-  }));
+  const safeLeads: LeadWithCommercialState[] = scoredLeads.map((lead) => {
+    const purchase = purchaseMap.get(lead.id);
+    const isPurchased = Boolean(purchase);
+    const canSeeContact = isApproved && isPurchased;
+
+    return {
+      ...lead,
+      lead_price:
+        purchase?.price_eur && Number.isFinite(purchase.price_eur)
+          ? purchase.price_eur
+          : lead.lead_price,
+      is_purchased: isPurchased,
+      purchased_at: purchase?.purchased_at ?? null,
+      name: canSeeContact ? lead.name : lead.name ? "Locked" : "-",
+      email: canSeeContact ? lead.email : lead.email ? "Locked" : "-",
+      phone: canSeeContact ? lead.phone : lead.phone ? "Locked" : "-",
+      message: canSeeContact
+        ? lead.message
+        : lead.message
+        ? "Purchase this lead to unlock the full message."
+        : "-",
+      contact_locked: !canSeeContact,
+    };
+  });
+
+  const purchasedCount = safeLeads.filter((lead) => lead.is_purchased).length;
+  const lockedCount = safeLeads.filter((lead) => !lead.is_purchased).length;
+  const totalUnlockedValue = safeLeads
+    .filter((lead) => lead.is_purchased)
+    .reduce((sum, lead) => sum + (lead.lead_price ?? 0), 0);
 
   return (
     <main
@@ -376,7 +142,7 @@ export default async function AgencyDashboardPage() {
             boxShadow: "0 20px 60px rgba(0,0,0,0.28)",
           }}
         >
-          <div style={{ maxWidth: "820px" }}>
+          <div style={{ maxWidth: "900px" }}>
             <div
               style={{
                 display: "inline-block",
@@ -392,7 +158,7 @@ export default async function AgencyDashboardPage() {
                 marginBottom: "16px",
               }}
             >
-              Matched lead flow
+              Monetized lead flow
             </div>
 
             <h1
@@ -413,11 +179,12 @@ export default async function AgencyDashboardPage() {
                 color: "#d0d0d0",
                 lineHeight: "1.7",
                 margin: 0,
-                maxWidth: "760px",
+                maxWidth: "820px",
               }}
             >
-              Welcome, {application.agency_name}. You are viewing the matched lead
-              flow from The Kerman Organization.
+              Welcome, {application.agency_name}. You are viewing matched leads
+              ranked by commercial fit. Contact details are unlocked per lead
+              purchase.
             </p>
 
             <p
@@ -440,11 +207,42 @@ export default async function AgencyDashboardPage() {
               }}
             >
               Matching logic prioritizes same-city opportunities above all other
-              criteria.
+              criteria. Pricing is dynamic and based on match quality and lead
+              value.
             </p>
           </div>
 
           <LogoutButton />
+        </div>
+
+        <div
+          style={{
+            marginBottom: "22px",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: "16px",
+          }}
+        >
+          <TopMetricCard
+            title="Matched leads"
+            value={safeLeads.length.toString()}
+            helper="Leads aligned with your territory and profile"
+          />
+          <TopMetricCard
+            title="Unlocked leads"
+            value={purchasedCount.toString()}
+            helper="Leads you have already purchased"
+          />
+          <TopMetricCard
+            title="Locked leads"
+            value={lockedCount.toString()}
+            helper="Available to unlock individually"
+          />
+          <TopMetricCard
+            title="Total spend"
+            value={`€${totalUnlockedValue}`}
+            helper="Total value of purchased leads"
+          />
         </div>
 
         <div
@@ -463,13 +261,14 @@ export default async function AgencyDashboardPage() {
           {isApproved ? (
             <>
               <strong style={{ color: "white" }}>Agency approved:</strong> you
-              have full access to matched lead contact details.
+              can unlock any matched lead individually. Contact details and full
+              message content appear immediately after purchase.
             </>
           ) : (
             <>
               <strong style={{ color: "white" }}>Agency not approved:</strong>{" "}
-              you can still access matched leads, but contact details remain
-              locked until approval.
+              you can view matched opportunities and prices, but you cannot
+              unlock leads until your agency has been approved.
             </>
           )}
         </div>
@@ -486,5 +285,71 @@ export default async function AgencyDashboardPage() {
         />
       </section>
     </main>
+  );
+}
+
+function TopMetricCard({
+  title,
+  value,
+  helper,
+}: {
+  title: string;
+  value: string;
+  helper: string;
+}) {
+  return (
+    <div
+      style={{
+        background:
+          "linear-gradient(180deg, rgba(17,17,17,0.98) 0%, rgba(12,12,12,0.98) 100%)",
+        border: "1px solid #1f1f1f",
+        borderRadius: "18px",
+        padding: "20px 22px",
+      }}
+    >
+      <div
+        style={{
+          fontSize: "12px",
+          color: "#8f8f8f",
+          marginBottom: "10px",
+          textTransform: "uppercase",
+          letterSpacing: "0.6px",
+          fontWeight: 700,
+        }}
+      >
+        Commercial overview
+      </div>
+
+      <div
+        style={{
+          fontSize: "16px",
+          color: "#d8d8d8",
+          marginBottom: "10px",
+        }}
+      >
+        {title}
+      </div>
+
+      <div
+        style={{
+          fontSize: "34px",
+          fontWeight: 700,
+          letterSpacing: "-1px",
+          marginBottom: "8px",
+        }}
+      >
+        {value}
+      </div>
+
+      <div
+        style={{
+          color: "#8f8f8f",
+          fontSize: "13px",
+          lineHeight: "1.6",
+        }}
+      >
+        {helper}
+      </div>
+    </div>
   );
 }

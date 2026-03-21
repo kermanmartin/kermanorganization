@@ -5,9 +5,10 @@ import { createClient } from "@/lib/supabase/client";
 import StatusButton from "./StatusButton";
 
 type LeadStatus = "new" | "contacted" | "closed";
+type LeadTier = "exclusive" | "premium" | "standard";
 
 type Lead = {
-  id: number;
+  id: string;
   name: string | null;
   email: string | null;
   phone: string | null;
@@ -20,12 +21,18 @@ type Lead = {
   rental_profile: string | null;
   budget: string | null;
   user_type: string | null;
+  urgency?: string | null;
   status: string | null;
   message: string | null;
   created_at: string | null;
   contact_locked?: boolean;
   match_score?: number;
   match_reason?: string | null;
+  match_label?: string | null;
+  lead_tier?: LeadTier;
+  lead_price?: number | null;
+  is_purchased?: boolean;
+  purchased_at?: string | null;
 };
 
 export default function AgencyDashboardClient({
@@ -37,6 +44,7 @@ export default function AgencyDashboardClient({
 }) {
   const supabase = createClient();
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const [buyingLeadId, setBuyingLeadId] = useState<string | null>(null);
 
   const newLeads = useMemo(
     () => leads.filter((lead) => (lead.status ?? "new") === "new").length,
@@ -69,7 +77,35 @@ export default function AgencyDashboardClient({
   }, [leads]);
 
   const strongMatches = useMemo(
-    () => leads.filter((lead) => (lead.match_score ?? 0) >= 70).length,
+    () => leads.filter((lead) => (lead.match_score ?? 0) >= 80).length,
+    [leads]
+  );
+
+  const exclusiveLeads = useMemo(
+    () => leads.filter((lead) => lead.lead_tier === "exclusive").length,
+    [leads]
+  );
+
+  const premiumLeads = useMemo(
+    () => leads.filter((lead) => lead.lead_tier === "premium").length,
+    [leads]
+  );
+
+  const standardLeads = useMemo(
+    () => leads.filter((lead) => lead.lead_tier === "standard").length,
+    [leads]
+  );
+
+  const purchasedLeads = useMemo(
+    () => leads.filter((lead) => Boolean(lead.is_purchased)).length,
+    [leads]
+  );
+
+  const totalSpend = useMemo(
+    () =>
+      leads
+        .filter((lead) => Boolean(lead.is_purchased))
+        .reduce((sum, lead) => sum + (lead.lead_price ?? 0), 0),
     [leads]
   );
 
@@ -80,15 +116,22 @@ export default function AgencyDashboardClient({
   };
 
   const updateLeadStatus = async (
-    leadId: number,
+    leadId: string,
     currentStatus: string | null
   ) => {
+    const lead = leads.find((item) => item.id === leadId);
+
+    if (!lead?.is_purchased) {
+      alert("Unlock this lead first before updating its pipeline status.");
+      return;
+    }
+
     const newStatus = getNextStatus(currentStatus);
     const previousLeads = leads;
 
     setLeads((prev) =>
-      prev.map((lead) =>
-        lead.id === leadId ? { ...lead, status: newStatus } : lead
+      prev.map((item) =>
+        item.id === leadId ? { ...item, status: newStatus } : item
       )
     );
 
@@ -100,6 +143,65 @@ export default function AgencyDashboardClient({
     if (error) {
       setLeads(previousLeads);
       alert("Could not update lead status.");
+    }
+  };
+
+  const unlockLead = async (leadId: string) => {
+    if (!isApproved) {
+      alert("Your agency must be approved before unlocking leads.");
+      return;
+    }
+
+    setBuyingLeadId(leadId);
+
+    try {
+      const response = await fetch("/api/leads/purchase", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ leadId }),
+      });
+
+      const payload = await response.json();
+
+      if (!response.ok) {
+        alert(payload?.error ?? "Could not unlock this lead.");
+        return;
+      }
+
+      const purchasedLead = payload?.lead;
+
+      if (!purchasedLead) {
+        alert("Lead unlocked, but no lead data was returned.");
+        return;
+      }
+
+      setLeads((prev) =>
+        prev.map((lead) =>
+          lead.id === leadId
+            ? {
+                ...lead,
+                name: purchasedLead.name ?? lead.name,
+                email: purchasedLead.email ?? lead.email,
+                phone: purchasedLead.phone ?? lead.phone,
+                message: purchasedLead.message ?? lead.message,
+                contact_locked: false,
+                is_purchased: true,
+                purchased_at:
+                  purchasedLead.purchased_at ?? new Date().toISOString(),
+                lead_price:
+                  typeof purchasedLead.lead_price === "number"
+                    ? purchasedLead.lead_price
+                    : lead.lead_price,
+              }
+            : lead
+        )
+      );
+    } catch {
+      alert("Could not unlock this lead.");
+    } finally {
+      setBuyingLeadId(null);
     }
   };
 
@@ -153,24 +255,17 @@ export default function AgencyDashboardClient({
           marginBottom: "22px",
         }}
       >
-        <StatCard
-          eyebrow="Pipeline"
-          title="Matched leads"
-          value={leads.length}
-        />
+        <StatCard eyebrow="Pipeline" title="Matched leads" value={leads.length} />
         <StatCard eyebrow="Status" title="New" value={newLeads} />
         <StatCard eyebrow="Status" title="Contacted" value={contactedLeads} />
         <StatCard eyebrow="Status" title="Closed" value={closedLeads} />
-        <StatCard
-          eyebrow="Quality"
-          title="Strong matches"
-          value={strongMatches}
-        />
-        <StatCard
-          eyebrow="Quality"
-          title="Avg. score"
-          value={averageMatchScore ?? 0}
-        />
+        <StatCard eyebrow="Quality" title="Strong matches" value={strongMatches} />
+        <StatCard eyebrow="Quality" title="Avg. score" value={averageMatchScore ?? 0} />
+        <StatCard eyebrow="Tier" title="Exclusive" value={exclusiveLeads} />
+        <StatCard eyebrow="Tier" title="Premium" value={premiumLeads} />
+        <StatCard eyebrow="Tier" title="Standard" value={standardLeads} />
+        <StatCard eyebrow="Sales" title="Unlocked" value={purchasedLeads} />
+        <StatCard eyebrow="Sales" title="Spend (€)" value={totalSpend} />
       </div>
 
       {!isApproved && (
@@ -187,9 +282,9 @@ export default function AgencyDashboardClient({
             lineHeight: "1.7",
           }}
         >
-          <strong style={{ color: "white" }}>Contact details locked:</strong>{" "}
-          name, email, phone and full message content remain locked until your
-          agency is approved.
+          <strong style={{ color: "white" }}>Lead purchases disabled:</strong>{" "}
+          your agency must be approved before you can unlock contact details and
+          full message content.
         </div>
       )}
 
@@ -233,7 +328,7 @@ export default function AgencyDashboardClient({
               }}
             >
               Leads shown here already match your city coverage and current
-              agency profile.
+              agency profile. Unlock individually when commercially relevant.
             </p>
           </div>
 
@@ -259,12 +354,15 @@ export default function AgencyDashboardClient({
             style={{
               width: "100%",
               borderCollapse: "collapse",
-              minWidth: "2050px",
+              minWidth: "2400px",
             }}
           >
             <thead>
               <tr style={{ backgroundColor: "#171717" }}>
                 <th style={thStyle}>Match</th>
+                <th style={thStyle}>Tier</th>
+                <th style={thStyle}>Price</th>
+                <th style={thStyle}>Action</th>
                 <th style={thStyle}>Why matched</th>
                 <th style={thStyle}>Name</th>
                 <th style={thStyle}>Email</th>
@@ -279,90 +377,159 @@ export default function AgencyDashboardClient({
                 <th style={thStyle}>Type</th>
                 <th style={thStyle}>Status</th>
                 <th style={thStyle}>Message</th>
+                <th style={thStyle}>Purchased</th>
                 <th style={thStyle}>Created</th>
               </tr>
             </thead>
 
             <tbody>
-              {leads.map((lead) => (
-                <tr key={lead.id} style={{ borderTop: "1px solid #202020" }}>
-                  <td style={tdStyleScore}>
-                    <MatchScoreBadge score={lead.match_score ?? 0} />
-                  </td>
+              {leads.map((lead) => {
+                const isBuying = buyingLeadId === lead.id;
 
-                  <td style={tdStyleReason}>
-                    <div
-                      style={{
-                        color: "#d9d9d9",
-                        lineHeight: "1.7",
-                        minWidth: "240px",
-                        maxWidth: "320px",
-                      }}
-                    >
-                      {lead.match_reason ? (
-                        lead.match_reason
-                          .split("•")
-                          .map((item) => item.trim())
-                          .filter(Boolean)
-                          .map((item) => (
-                            <div key={item} style={{ marginBottom: "6px" }}>
-                              <span style={{ color: "#8f8f8f" }}>• </span>
-                              {capitalizeWords(item)}
-                            </div>
-                          ))
+                return (
+                  <tr key={lead.id} style={{ borderTop: "1px solid #202020" }}>
+                    <td style={tdStyleScore}>
+                      <MatchScoreBadge
+                        score={lead.match_score ?? 0}
+                        label={lead.match_label ?? null}
+                      />
+                    </td>
+
+                    <td style={tdStyleTier}>
+                      <LeadTierBadge tier={lead.lead_tier} />
+                    </td>
+
+                    <td style={tdStylePrice}>
+                      <PriceBadge
+                        price={lead.lead_price ?? 0}
+                        purchased={Boolean(lead.is_purchased)}
+                      />
+                    </td>
+
+                    <td style={tdStyleAction}>
+                      {lead.is_purchased ? (
+                        <UnlockedBadge />
                       ) : (
-                        "-"
+                        <button
+                          onClick={() => unlockLead(lead.id)}
+                          disabled={isBuying || !isApproved}
+                          style={{
+                            border: "1px solid #2d5b42",
+                            background: isApproved
+                              ? "linear-gradient(180deg, #163323 0%, #10261a 100%)"
+                              : "#1a1a1a",
+                            color: isApproved ? "#dff7e8" : "#7b7b7b",
+                            padding: "10px 14px",
+                            borderRadius: "12px",
+                            fontSize: "13px",
+                            fontWeight: 700,
+                            cursor:
+                              isBuying || !isApproved ? "not-allowed" : "pointer",
+                            minWidth: "128px",
+                          }}
+                        >
+                          {isBuying ? "Unlocking..." : "Unlock lead"}
+                        </button>
                       )}
-                    </div>
-                  </td>
+                    </td>
 
-                  <td style={tdStyle}>
-                    <LockedCell locked={Boolean(lead.contact_locked)}>
-                      {lead.name ?? "-"}
-                    </LockedCell>
-                  </td>
+                    <td style={tdStyleReason}>
+                      <div
+                        style={{
+                          color: "#d9d9d9",
+                          lineHeight: "1.7",
+                          minWidth: "240px",
+                          maxWidth: "320px",
+                        }}
+                      >
+                        {lead.match_reason ? (
+                          lead.match_reason
+                            .split("•")
+                            .map((item) => item.trim())
+                            .filter(Boolean)
+                            .map((item) => (
+                              <div key={item} style={{ marginBottom: "6px" }}>
+                                <span style={{ color: "#8f8f8f" }}>• </span>
+                                {capitalizeWords(item)}
+                              </div>
+                            ))
+                        ) : (
+                          "-"
+                        )}
+                      </div>
+                    </td>
 
-                  <td style={tdStyle}>
-                    <LockedCell locked={Boolean(lead.contact_locked)}>
-                      {lead.email ?? "-"}
-                    </LockedCell>
-                  </td>
+                    <td style={tdStyle}>
+                      <LockedCell locked={Boolean(lead.contact_locked)}>
+                        {lead.name ?? "-"}
+                      </LockedCell>
+                    </td>
 
-                  <td style={tdStyle}>
-                    <LockedCell locked={Boolean(lead.contact_locked)}>
-                      {lead.phone ?? "-"}
-                    </LockedCell>
-                  </td>
+                    <td style={tdStyle}>
+                      <LockedCell locked={Boolean(lead.contact_locked)}>
+                        {lead.email ?? "-"}
+                      </LockedCell>
+                    </td>
 
-                  <td style={tdStyle}>{formatValue(lead.city)}</td>
-                  <td style={tdStyle}>{lead.preferred_area ?? "-"}</td>
-                  <td style={tdStyle}>{formatValue(lead.property_type)}</td>
-                  <td style={tdStyle}>{formatValue(lead.timeframe)}</td>
-                  <td style={tdStyle}>{formatValue(lead.financing_status)}</td>
-                  <td style={tdStyle}>{formatValue(lead.seller_status)}</td>
-                  <td style={tdStyleBudget}>{lead.budget ?? "-"}</td>
-                  <td style={tdStyle}>{formatValue(lead.user_type)}</td>
+                    <td style={tdStyle}>
+                      <LockedCell locked={Boolean(lead.contact_locked)}>
+                        {lead.phone ?? "-"}
+                      </LockedCell>
+                    </td>
 
-                  <td style={tdStyle}>
-                    <StatusButton
-                      status={(lead.status as LeadStatus) ?? "new"}
-                      onChange={() => updateLeadStatus(lead.id, lead.status)}
-                    />
-                  </td>
+                    <td style={tdStyle}>{formatValue(lead.city)}</td>
+                    <td style={tdStyle}>{lead.preferred_area ?? "-"}</td>
+                    <td style={tdStyle}>{formatValue(lead.property_type)}</td>
+                    <td style={tdStyle}>{formatValue(lead.timeframe)}</td>
+                    <td style={tdStyle}>{formatValue(lead.financing_status)}</td>
+                    <td style={tdStyle}>{formatValue(lead.seller_status)}</td>
+                    <td style={tdStyleBudget}>{lead.budget ?? "-"}</td>
+                    <td style={tdStyle}>{formatValue(lead.user_type)}</td>
 
-                  <td style={tdStyleMessage}>
-                    <LockedCell locked={Boolean(lead.contact_locked)}>
-                      {lead.message ?? "-"}
-                    </LockedCell>
-                  </td>
+                    <td style={tdStyle}>
+                      {lead.is_purchased ? (
+                        <StatusButton
+                          status={(lead.status as LeadStatus) ?? "new"}
+                          onChange={() => updateLeadStatus(lead.id, lead.status)}
+                        />
+                      ) : (
+                        <span
+                          style={{
+                            display: "inline-block",
+                            padding: "8px 10px",
+                            borderRadius: "10px",
+                            border: "1px solid #343434",
+                            backgroundColor: "#1a1a1a",
+                            color: "#8f8f8f",
+                            fontSize: "12px",
+                            fontWeight: 700,
+                          }}
+                        >
+                          Unlock first
+                        </span>
+                      )}
+                    </td>
 
-                  <td style={tdStyleDate}>
-                    {lead.created_at
-                      ? new Date(lead.created_at).toLocaleString()
-                      : "-"}
-                  </td>
-                </tr>
-              ))}
+                    <td style={tdStyleMessage}>
+                      <LockedCell locked={Boolean(lead.contact_locked)}>
+                        {lead.message ?? "-"}
+                      </LockedCell>
+                    </td>
+
+                    <td style={tdStyleDate}>
+                      {lead.purchased_at
+                        ? new Date(lead.purchased_at).toLocaleString()
+                        : "-"}
+                    </td>
+
+                    <td style={tdStyleDate}>
+                      {lead.created_at
+                        ? new Date(lead.created_at).toLocaleString()
+                        : "-"}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -371,7 +538,7 @@ export default function AgencyDashboardClient({
   );
 }
 
-function formatValue(value: string | null) {
+function formatValue(value: string | null | undefined) {
   if (!value) return "-";
 
   return value
@@ -389,23 +556,29 @@ function capitalizeWords(value: string) {
     .join(" ");
 }
 
-function MatchScoreBadge({ score }: { score: number }) {
+function MatchScoreBadge({
+  score,
+  label,
+}: {
+  score: number;
+  label: string | null;
+}) {
   const getStyles = () => {
-    if (score >= 75) {
+    if (score >= 80) {
       return {
         background: "#10311c",
         border: "#1d5a34",
         color: "#8ff0b1",
-        label: "Strong",
+        label: label ?? "STRONG",
       };
     }
 
-    if (score >= 55) {
+    if (score >= 60) {
       return {
         background: "#2e2610",
         border: "#5a4a1d",
         color: "#f2d37d",
-        label: "Good",
+        label: label ?? "GOOD",
       };
     }
 
@@ -413,18 +586,14 @@ function MatchScoreBadge({ score }: { score: number }) {
       background: "#262626",
       border: "#3a3a3a",
       color: "#d7d7d7",
-      label: "Basic",
+      label: label ?? "BASIC",
     };
   };
 
   const styles = getStyles();
 
   return (
-    <div
-      style={{
-        minWidth: "100px",
-      }}
-    >
+    <div style={{ minWidth: "100px" }}>
       <div
         style={{
           padding: "8px 10px",
@@ -453,6 +622,116 @@ function MatchScoreBadge({ score }: { score: number }) {
       >
         {styles.label}
       </div>
+    </div>
+  );
+}
+
+function LeadTierBadge({ tier }: { tier?: LeadTier }) {
+  if (!tier) return <span>-</span>;
+
+  const styles = {
+    exclusive: {
+      color: "#ffb3b3",
+      border: "#5a1f1f",
+      bg: "#2a1111",
+      label: "Exclusive",
+    },
+    premium: {
+      color: "#f2d37d",
+      border: "#5a4a1d",
+      bg: "#2e2610",
+      label: "Premium",
+    },
+    standard: {
+      color: "#d7d7d7",
+      border: "#3a3a3a",
+      bg: "#262626",
+      label: "Standard",
+    },
+  }[tier];
+
+  return (
+    <div
+      style={{
+        padding: "6px 10px",
+        borderRadius: "10px",
+        border: `1px solid ${styles.border}`,
+        backgroundColor: styles.bg,
+        color: styles.color,
+        fontSize: "12px",
+        fontWeight: 700,
+        textAlign: "center",
+        minWidth: "90px",
+      }}
+    >
+      {styles.label}
+    </div>
+  );
+}
+
+function PriceBadge({
+  price,
+  purchased,
+}: {
+  price: number;
+  purchased: boolean;
+}) {
+  return (
+    <div
+      style={{
+        minWidth: "100px",
+      }}
+    >
+      <div
+        style={{
+          padding: "8px 10px",
+          borderRadius: "12px",
+          backgroundColor: purchased ? "#0f2e23" : "#161616",
+          border: purchased ? "1px solid #24533f" : "1px solid #2e2e2e",
+          color: purchased ? "#9df0c5" : "#f1f1f1",
+          fontWeight: 700,
+          fontSize: "14px",
+          textAlign: "center",
+          marginBottom: "6px",
+        }}
+      >
+        €{price}
+      </div>
+
+      <div
+        style={{
+          textAlign: "center",
+          fontSize: "11px",
+          color: "#9f9f9f",
+          textTransform: "uppercase",
+          letterSpacing: "0.4px",
+          fontWeight: 700,
+        }}
+      >
+        {purchased ? "Purchased" : "Per unlock"}
+      </div>
+    </div>
+  );
+}
+
+function UnlockedBadge() {
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "10px 12px",
+        borderRadius: "12px",
+        border: "1px solid #24533f",
+        background: "linear-gradient(180deg, #143325 0%, #10261b 100%)",
+        color: "#c8f7da",
+        fontSize: "12px",
+        fontWeight: 700,
+        minWidth: "128px",
+      }}
+    >
+      Unlocked
     </div>
   );
 }
@@ -588,6 +867,30 @@ const tdStyleScore = {
   textAlign: "left" as const,
   verticalAlign: "top" as const,
   minWidth: "120px",
+  color: "#f1f1f1",
+};
+
+const tdStyleTier = {
+  padding: "18px",
+  textAlign: "left" as const,
+  verticalAlign: "top" as const,
+  minWidth: "110px",
+  color: "#f1f1f1",
+};
+
+const tdStylePrice = {
+  padding: "18px",
+  textAlign: "left" as const,
+  verticalAlign: "top" as const,
+  minWidth: "110px",
+  color: "#f1f1f1",
+};
+
+const tdStyleAction = {
+  padding: "18px",
+  textAlign: "left" as const,
+  verticalAlign: "top" as const,
+  minWidth: "150px",
   color: "#f1f1f1",
 };
 
