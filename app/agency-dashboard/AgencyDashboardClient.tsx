@@ -437,14 +437,16 @@ export default function AgencyDashboardClient({
             style={{
               width: "100%",
               borderCollapse: "collapse",
-              minWidth: "2320px",
+              minWidth: "2500px",
             }}
           >
             <thead>
               <tr style={{ backgroundColor: "rgba(255,255,255,0.02)" }}>
                 <th style={thStyle}>Match</th>
-                <th style={thStyle}>Price</th>
+                <th style={thStyle}>Pricing</th>
                 <th style={thStyle}>Action</th>
+                <th style={thStyle}>Demand</th>
+                <th style={thStyle}>Access</th>
                 <th style={thStyle}>Market fit</th>
                 <th style={thStyle}>Name</th>
                 <th style={thStyle}>Email</th>
@@ -483,8 +485,9 @@ export default function AgencyDashboardClient({
                     </td>
 
                     <td style={tdStylePrice}>
-                      <PriceBadge
+                      <PricingPanel
                         price={lead.lead_price ?? 0}
+                        tier={lead.lead_tier}
                         purchased={Boolean(lead.is_purchased)}
                       />
                     </td>
@@ -502,21 +505,35 @@ export default function AgencyDashboardClient({
                               ? "linear-gradient(180deg, #193728 0%, #102219 100%)"
                               : "#1b1b1b",
                             color: isApproved ? "#e5f7ec" : "#7c7c7c",
-                            padding: "10px 14px",
+                            padding: "12px 14px",
                             borderRadius: "12px",
                             fontSize: "13px",
                             fontWeight: 700,
                             cursor:
                               isBuying || !isApproved ? "not-allowed" : "pointer",
-                            minWidth: "148px",
+                            minWidth: "180px",
+                            lineHeight: "1.35",
                             boxShadow: isApproved
                               ? "0 10px 28px rgba(11, 46, 27, 0.28)"
                               : "none",
                           }}
                         >
-                          {isBuying ? "Redirecting..." : "Pay & unlock"}
+                          {isBuying
+                            ? "Redirecting..."
+                            : `Unlock lead for €${lead.lead_price ?? 0}`}
                         </button>
                       )}
+                    </td>
+
+                    <td style={tdStyleDemand}>
+                      <DemandPanel lead={lead} />
+                    </td>
+
+                    <td style={tdStyleAccess}>
+                      <AccessPanel
+                        purchased={Boolean(lead.is_purchased)}
+                        approved={isApproved}
+                      />
                     </td>
 
                     <td style={tdStyleReason}>
@@ -695,15 +712,24 @@ function MatchScoreBadge({
   );
 }
 
-function PriceBadge({
+function PricingPanel({
   price,
+  tier,
   purchased,
 }: {
   price: number;
+  tier?: LeadTier;
   purchased: boolean;
 }) {
+  const tierLabel =
+    tier === "exclusive"
+      ? "Exclusive tier"
+      : tier === "premium"
+      ? "Premium tier"
+      : "Standard tier";
+
   return (
-    <div style={{ minWidth: "102px" }}>
+    <div style={{ minWidth: "132px" }}>
       <div
         style={{
           padding: "8px 10px",
@@ -725,12 +751,155 @@ function PriceBadge({
           textAlign: "center",
           fontSize: "11px",
           color: "#9f9f9f",
-          textTransform: "uppercase",
-          letterSpacing: "0.4px",
-          fontWeight: 700,
+          letterSpacing: "0.2px",
+          lineHeight: "1.4",
         }}
       >
-        {purchased ? "Unlocked" : "Per lead"}
+        {purchased ? "Purchased access" : tierLabel}
+      </div>
+    </div>
+  );
+}
+
+function DemandPanel({ lead }: { lead: Lead }) {
+  const score = lead.match_score ?? 0;
+  const timeframe = lead.timeframe ?? "";
+  const urgency = lead.urgency ?? "";
+
+  const demandLabel =
+    score >= 85 || urgency === "ready_now" || timeframe === "asap"
+      ? "High demand"
+      : score >= 65
+      ? "Healthy demand"
+      : "Early demand";
+
+  const demandColor =
+    demandLabel === "High demand"
+      ? "#8ff0b1"
+      : demandLabel === "Healthy demand"
+      ? "#f2d37d"
+      : "#bdbdbd";
+
+  const helper =
+    demandLabel === "High demand"
+      ? "Fast-action fit"
+      : demandLabel === "Healthy demand"
+      ? "Commercially active"
+      : "Launch pricing";
+
+  return (
+    <div style={{ minWidth: "145px", maxWidth: "165px" }}>
+      <div
+        style={{
+          fontSize: "12px",
+          fontWeight: 700,
+          color: demandColor,
+          textTransform: "uppercase",
+          letterSpacing: "0.4px",
+          marginBottom: "6px",
+        }}
+      >
+        {demandLabel}
+      </div>
+
+      <div
+        style={{
+          fontSize: "12px",
+          color: "#9f9f9f",
+          lineHeight: "1.5",
+        }}
+      >
+        {helper}
+      </div>
+    </div>
+  );
+}
+
+function AccessPanel({
+  purchased,
+  approved,
+}: {
+  purchased: boolean;
+  approved: boolean;
+}) {
+  if (purchased) {
+    return (
+      <div style={{ minWidth: "150px" }}>
+        <div
+          style={{
+            fontSize: "12px",
+            fontWeight: 700,
+            color: "#9df0c5",
+            textTransform: "uppercase",
+            letterSpacing: "0.4px",
+            marginBottom: "6px",
+          }}
+        >
+          Full access
+        </div>
+        <div
+          style={{
+            fontSize: "12px",
+            color: "#9f9f9f",
+            lineHeight: "1.5",
+          }}
+        >
+          Contact and message unlocked
+        </div>
+      </div>
+    );
+  }
+
+  if (!approved) {
+    return (
+      <div style={{ minWidth: "150px" }}>
+        <div
+          style={{
+            fontSize: "12px",
+            fontWeight: 700,
+            color: "#d2d2d2",
+            textTransform: "uppercase",
+            letterSpacing: "0.4px",
+            marginBottom: "6px",
+          }}
+        >
+          Approval required
+        </div>
+        <div
+          style={{
+            fontSize: "12px",
+            color: "#9f9f9f",
+            lineHeight: "1.5",
+          }}
+        >
+          Payment disabled until approved
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ minWidth: "150px" }}>
+      <div
+        style={{
+          fontSize: "12px",
+          fontWeight: 700,
+          color: "#f2d37d",
+          textTransform: "uppercase",
+          letterSpacing: "0.4px",
+          marginBottom: "6px",
+        }}
+      >
+        Locked preview
+      </div>
+      <div
+        style={{
+          fontSize: "12px",
+          color: "#9f9f9f",
+          lineHeight: "1.5",
+        }}
+      >
+        Unlock to reveal full contact
       </div>
     </div>
   );
@@ -750,10 +919,10 @@ function UnlockedBadge() {
         color: "#c8f7da",
         fontSize: "12px",
         fontWeight: 700,
-        minWidth: "128px",
+        minWidth: "180px",
       }}
     >
-      Unlocked
+      Lead unlocked
     </div>
   );
 }
@@ -957,7 +1126,7 @@ const tdStylePrice = {
   padding: "18px",
   textAlign: "left" as const,
   verticalAlign: "top" as const,
-  minWidth: "112px",
+  minWidth: "140px",
   color: "#f1f1f1",
 };
 
@@ -965,7 +1134,23 @@ const tdStyleAction = {
   padding: "18px",
   textAlign: "left" as const,
   verticalAlign: "top" as const,
+  minWidth: "200px",
+  color: "#f1f1f1",
+};
+
+const tdStyleDemand = {
+  padding: "18px",
+  textAlign: "left" as const,
+  verticalAlign: "top" as const,
   minWidth: "150px",
+  color: "#f1f1f1",
+};
+
+const tdStyleAccess = {
+  padding: "18px",
+  textAlign: "left" as const,
+  verticalAlign: "top" as const,
+  minWidth: "155px",
   color: "#f1f1f1",
 };
 
