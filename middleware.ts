@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 export async function middleware(req: NextRequest) {
+  const pathname = req.nextUrl.pathname;
+
+  if (
+    pathname.startsWith("/api/stripe/webhook") ||
+    pathname.startsWith("/api/stripe")
+  ) {
+    return NextResponse.next();
+  }
+
   let supabaseResponse = NextResponse.next({
     request: req,
   });
@@ -33,7 +42,7 @@ export async function middleware(req: NextRequest) {
 
   await supabase.auth.getUser();
 
-  if (req.nextUrl.pathname.startsWith("/admin")) {
+  if (pathname.startsWith("/admin")) {
     const basicAuth = req.headers.get("authorization");
 
     if (basicAuth) {
