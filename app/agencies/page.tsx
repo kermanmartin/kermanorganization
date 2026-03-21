@@ -225,7 +225,9 @@ export default function AgenciesPage() {
     }
 
     if (!internationalClients) {
-      setStatusMessage("Please indicate whether you work with international clients.");
+      setStatusMessage(
+        "Please indicate whether you work with international clients."
+      );
       setLoading(false);
       return;
     }
@@ -290,7 +292,9 @@ export default function AgenciesPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        setStatusMessage(result.error || "Something went wrong. Please try again.");
+        setStatusMessage(
+          result.error || "Something went wrong. Please try again."
+        );
         setLoading(false);
         return;
       }
@@ -326,6 +330,7 @@ export default function AgenciesPage() {
       setCoverageDetails("");
       setMessage("");
       setLoading(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
       setStatusMessage("Something went wrong. Please try again.");
       setLoading(false);
@@ -343,52 +348,65 @@ export default function AgenciesPage() {
         backgroundRepeat: "no-repeat",
         color: "white",
         fontFamily: "Arial, sans-serif",
-        padding: "70px 20px",
+        padding: "40px 14px 64px",
       }}
     >
       <section style={{ maxWidth: "1180px", margin: "0 auto" }}>
-        <h1
-          style={{
-            fontSize: "56px",
-            textAlign: "center",
-            marginBottom: "16px",
-            fontWeight: 400,
-            letterSpacing: "-1px",
-          }}
-        >
-          Agency Applications
-        </h1>
+        <div style={{ maxWidth: "920px", margin: "0 auto 32px", textAlign: "center" }}>
+          <div
+            style={{
+              display: "inline-block",
+              padding: "8px 12px",
+              borderRadius: "999px",
+              border: "1px solid rgba(255,255,255,0.08)",
+              backgroundColor: "rgba(18,18,18,0.92)",
+              color: "#b8b8b8",
+              fontSize: "12px",
+              fontWeight: 700,
+              letterSpacing: "0.5px",
+              textTransform: "uppercase",
+              marginBottom: "16px",
+            }}
+          >
+            Agency network
+          </div>
 
-        <p
-          style={{
-            fontSize: "20px",
-            textAlign: "center",
-            maxWidth: "900px",
-            margin: "0 auto 50px",
-            color: "#d0d0d0",
-            lineHeight: "1.7",
-          }}
-        >
-          Apply to join The Kerman Organization agency network. Build a structured
-          commercial profile so future opportunities can be routed with much
-          greater precision.
-        </p>
+          <h1
+            style={{
+              fontSize: "clamp(34px, 7vw, 56px)",
+              textAlign: "center",
+              marginBottom: "16px",
+              fontWeight: 400,
+              letterSpacing: "-1px",
+              lineHeight: "0.98",
+            }}
+          >
+            Agency Applications
+          </h1>
 
-        <div
-          style={{
-            maxWidth: "980px",
-            margin: "0 auto",
-            backgroundColor: "#111111",
-            border: "1px solid #1f1f1f",
-            borderRadius: "18px",
-            padding: "32px",
-          }}
-        >
+          <p
+            style={{
+              fontSize: "clamp(16px, 2.4vw, 20px)",
+              textAlign: "center",
+              maxWidth: "900px",
+              margin: "0 auto",
+              color: "#d0d0d0",
+              lineHeight: "1.75",
+            }}
+          >
+            Apply to join The Kerman Organization agency network. Build a structured
+            commercial profile so future opportunities can be routed with much
+            greater precision.
+          </p>
+        </div>
+
+        <div className="agencies-panel">
           <h2
             style={{
-              fontSize: "32px",
+              fontSize: "clamp(26px, 4vw, 32px)",
               marginBottom: "12px",
               fontWeight: 400,
+              lineHeight: "1.05",
             }}
           >
             Apply and create account
@@ -406,14 +424,7 @@ export default function AgenciesPage() {
             cities only for extra markets beyond your main base.
           </p>
 
-          <form
-            onSubmit={handleSubmit}
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "16px",
-            }}
-          >
+          <form onSubmit={handleSubmit} className="agency-form-grid">
             <input
               type="text"
               placeholder="Agency name"
@@ -457,7 +468,9 @@ export default function AgenciesPage() {
                 cursor: country ? "pointer" : "not-allowed",
               }}
             >
-              <option value="">{country ? "Main city" : "Select country first"}</option>
+              <option value="">
+                {country ? "Main city" : "Select country first"}
+              </option>
               {availableCityOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -483,14 +496,7 @@ export default function AgenciesPage() {
               style={inputStyle}
             />
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "120px 1fr",
-                gap: "10px",
-                gridColumn: "1 / -1",
-              }}
-            >
+            <div className="phone-row">
               <input
                 type="text"
                 placeholder="+34"
@@ -721,13 +727,7 @@ export default function AgenciesPage() {
 
             <div style={{ gridColumn: "1 / -1" }}>
               <div style={sectionLabel}>Budget range you usually work with</div>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr 130px",
-                  gap: "10px",
-                }}
-              >
+              <div className="budget-row">
                 <input
                   type="text"
                   placeholder="Min budget"
@@ -841,7 +841,8 @@ export default function AgenciesPage() {
               style={{
                 ...inputStyle,
                 gridColumn: "1 / -1",
-                resize: "vertical" as const,
+                resize: "vertical",
+                minHeight: "150px",
               }}
             />
 
@@ -876,11 +877,58 @@ export default function AgenciesPage() {
           )}
         </div>
       </section>
+
+      <style jsx>{`
+        .agencies-panel {
+          max-width: 980px;
+          margin: 0 auto;
+          background-color: rgba(17, 17, 17, 0.96);
+          border: 1px solid #1f1f1f;
+          border-radius: 20px;
+          padding: 28px;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.26);
+        }
+
+        .agency-form-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+
+        .phone-row {
+          display: grid;
+          grid-template-columns: 120px 1fr;
+          gap: 10px;
+          grid-column: 1 / -1;
+        }
+
+        .budget-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr 130px;
+          gap: 10px;
+        }
+
+        @media (max-width: 820px) {
+          .agencies-panel {
+            padding: 18px;
+            border-radius: 18px;
+          }
+
+          .agency-form-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .phone-row,
+          .budget-row {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
     </main>
   );
 }
 
-const inputStyle = {
+const inputStyle: React.CSSProperties = {
   padding: "14px",
   borderRadius: "10px",
   border: "1px solid #333",
@@ -890,7 +938,7 @@ const inputStyle = {
   width: "100%",
 };
 
-const buttonStyle = {
+const buttonStyle: React.CSSProperties = {
   padding: "15px",
   fontSize: "16px",
   borderRadius: "10px",
@@ -900,26 +948,26 @@ const buttonStyle = {
   fontWeight: "bold",
 };
 
-const sectionLabel = {
+const sectionLabel: React.CSSProperties = {
   fontSize: "14px",
   color: "#cfcfcf",
   marginBottom: "8px",
 };
 
-const helpText = {
+const helpText: React.CSSProperties = {
   fontSize: "13px",
   color: "#9f9f9f",
   marginBottom: "12px",
   lineHeight: "1.5",
 };
 
-const choiceGrid = {
+const choiceGrid: React.CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
   gap: "10px",
 };
 
-const choiceButton = {
+const choiceButton: React.CSSProperties = {
   width: "100%",
   padding: "14px 10px",
   borderRadius: "12px",
